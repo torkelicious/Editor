@@ -29,7 +29,7 @@ internal class Program
     private static void Main(string[] args)
     {
         // Accept CLI argument for file path
-        if (File.Exists(args[0]))
+        if (args.Length > 0 && File.Exists(args[0]))
         {
             fileOperations.readIntoBuffer(args[0]);
             editing = true;
