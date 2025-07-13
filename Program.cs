@@ -1,10 +1,13 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System;
 using System.IO;
+using System.Net;
 using System.Threading;
 
 /*
  * this "Editor" started as an atempt to remake my sticky-notes app as a console-app, but it seems to have gone in another direction
  * Controls are like shitty Vim motions
+ * use this on small files only, as everything is stored in memory for now
  */
 
 namespace Editor;
@@ -19,72 +22,55 @@ internal class Program
 {
     public static List<string> linesBffrStore = new();
     public static string globalPath = string.Empty;
-
-    public static bool editing;
-
-    public static bool
-        fileChanged =
-            false; // Have to set this in every editing function because i did not think of implementing it before...
+    public static bool editing, fileChanged = false;
 
     private static void Main(string[] args)
     {
         // Accept CLI argument for file path
-        if (args.Length > 0 && File.Exists(args[0]))
+        if (args.Length > 0 )
         {
-            fileOperations.readIntoBuffer(args[0]);
-            editing = true;
+            if (File.Exists(args[0]))
+            {
+                FileOperations.readIntoBuffer(args[0]);
+            }
+            else
+            {
+                try
+                {
+                    var fileStream = File.Create(args[0]);
+                    fileStream.Close();
+                    FileOperations.readIntoBuffer(args[0]);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Could not create file; {e}\n Going to menu...");
+                    Inputs.initmode();
+                }
+            }
         }
-        else
-        {
-            inputs.initmode();
-        }
-
-        try
-        {
-            Console.SetWindowSize(drawing.minimumConsoleWidth, Console.WindowHeight);
-        }
-        catch
-        {
-            Console.WriteLine("Could not set window size.");
-        } // This seems to only work on Windows
+        else { Inputs.initmode(); }
+        
+        try{ Console.SetWindowSize(Drawing.minimumConsoleWidth, Console.WindowHeight); }catch{ Console.WriteLine("Could not set window size."); } // This  only work on Windows
 
         while (editing)
         {
-            drawing.drawScreen();
-            inputs.mainInputHandler();
+            Drawing.drawScreen();
+            Inputs.mainInputHandler();
         }
 
-        // ask to save file after editing
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.BackgroundColor = ConsoleColor.Black;
-        ;
         Console.Clear();
         Console.WriteLine("Stopped editing\n");
 
         if (fileChanged)
         {
-            Console.WriteLine("Save file? Y/n");
-            string Yn = Console.ReadLine().ToLower();
-            if (Yn == "y" || Yn == "yes" || Yn == string.Empty)
-            {
-                if (globalPath == string.Empty)
-                {
-                    Console.WriteLine("Enter save path: ");
-                    globalPath = Console.ReadLine();
-                }
-
-                fileOperations.writeToFile(globalPath);
-            }
-        }
-        else
-        {
-            Console.WriteLine("Exiting without saving...");
-            Environment.Exit(0);
-        }
+            FileOperations.saveOnExitDialog();
+        } 
     }
 }
 
-internal class inputs
+internal class Inputs
 {
     public static editorMode mode = editorMode.Normal;
     public static int xPos, yPos;
@@ -120,7 +106,7 @@ internal class inputs
                     Program.editing = false;
                     break;
                 case ConsoleKey.X:
-                    fileOperations.del(1, false);
+                    FileOperations.del(1, false);
                     break;
             }
         }
@@ -144,13 +130,13 @@ internal class inputs
                     mode = editorMode.Normal;
                     break;
                 case ConsoleKey.Enter:
-                    fileOperations.newLine();
+                    FileOperations.newLine();
                     break;
                 case ConsoleKey.Backspace:
-                    fileOperations.del(1);
+                    FileOperations.del(1);
                     break;
                 default:
-                    fileOperations.insertChar(key.KeyChar);
+                    FileOperations.insertChar(key.KeyChar);
                     break;
             }
         }
@@ -189,7 +175,7 @@ Enter 'q' to quit
             case 'o':
                 Console.Clear();
                 Console.WriteLine("(Press CTRL+C to quit)\nEnter the path to the note you want to open: ");
-                fileOperations.readIntoBuffer(Console.ReadLine());
+                FileOperations.readIntoBuffer(Console.ReadLine());
                 break;
             case 'q':
                 Environment.Exit(0);
@@ -205,7 +191,7 @@ Enter 'q' to quit
     }
 }
 
-internal class fileOperations
+internal class FileOperations
 {
     public static void readIntoBuffer(string path)
     {
@@ -238,9 +224,9 @@ internal class fileOperations
         if (succesfullyRead)
         {
             Program.globalPath = path;
+            Program.editing = true;
             return;
         }
-
         Console.WriteLine("\nTry again (or press Ctrl+C to quit):");
         readIntoBuffer(Console.ReadLine());
     }
@@ -249,15 +235,15 @@ internal class fileOperations
     {
         Program.fileChanged = true;
 
-        while (Program.linesBffrStore.Count <= inputs.yPos) Program.linesBffrStore.Add("");
+        while (Program.linesBffrStore.Count <= Inputs.yPos) Program.linesBffrStore.Add("");
 
-        var currLine = Program.linesBffrStore[inputs.yPos];
-        if (inputs.xPos >= currLine.Length)
-            currLine = currLine.PadRight(inputs.xPos) + c;
+        var currLine = Program.linesBffrStore[Inputs.yPos];
+        if (Inputs.xPos >= currLine.Length)
+            currLine = currLine.PadRight(Inputs.xPos) + c;
         else
-            currLine = currLine.Insert(inputs.xPos, c.ToString());
-        Program.linesBffrStore[inputs.yPos] = currLine;
-        inputs.xPos++;
+            currLine = currLine.Insert(Inputs.xPos, c.ToString());
+        Program.linesBffrStore[Inputs.yPos] = currLine;
+        Inputs.xPos++;
     }
 
     public static void newLine()
@@ -267,20 +253,20 @@ internal class fileOperations
         var currLine = string.Empty;
         var newLine = string.Empty;
 
-        if (inputs.yPos < Program.linesBffrStore.Count)
+        if (Inputs.yPos < Program.linesBffrStore.Count)
         {
-            currLine = Program.linesBffrStore[inputs.yPos];
-            if (inputs.xPos < currLine.Length)
+            currLine = Program.linesBffrStore[Inputs.yPos];
+            if (Inputs.xPos < currLine.Length)
             {
-                newLine = currLine.Substring(inputs.xPos);
-                currLine = currLine.Substring(0, inputs.xPos);
-                Program.linesBffrStore[inputs.yPos] = currLine;
+                newLine = currLine.Substring(Inputs.xPos);
+                currLine = currLine.Substring(0, Inputs.xPos);
+                Program.linesBffrStore[Inputs.yPos] = currLine;
             }
         }
 
-        Program.linesBffrStore.Insert(inputs.yPos + 1, newLine);
-        inputs.yPos++;
-        inputs.xPos = 0;
+        Program.linesBffrStore.Insert(Inputs.yPos + 1, newLine);
+        Inputs.yPos++;
+        Inputs.xPos = 0;
     }
 
     public static void del(int count = 1, bool moveCursor = true)
@@ -291,40 +277,40 @@ internal class fileOperations
 
         int posOffset = moveCursor ? 1 : 0;
 
-        if (inputs.xPos > 0) // normal deletion within a line
+        if (Inputs.xPos > 0) // normal deletion within a line
         {
-            string currLine = Program.linesBffrStore[inputs.yPos];
-            if (inputs.xPos <= currLine.Length)
+            string currLine = Program.linesBffrStore[Inputs.yPos];
+            if (Inputs.xPos <= currLine.Length)
             {
-                int charsToDelete = Math.Min(count, inputs.xPos);
-                if (inputs.xPos - posOffset + charsToDelete <= currLine.Length)
+                int charsToDelete = Math.Min(count, Inputs.xPos);
+                if (Inputs.xPos - posOffset + charsToDelete <= currLine.Length)
                 {
-                    currLine = currLine.Remove(inputs.xPos - posOffset, charsToDelete);
-                    Program.linesBffrStore[inputs.yPos] = currLine;
+                    currLine = currLine.Remove(Inputs.xPos - posOffset, charsToDelete);
+                    Program.linesBffrStore[Inputs.yPos] = currLine;
 
-                    if (moveCursor) inputs.xPos -= charsToDelete;
+                    if (moveCursor) Inputs.xPos -= charsToDelete;
                 }
             }
         }
-        else if (inputs.xPos == 0 && !moveCursor) // deletion in normal mode (x key)
+        else if (Inputs.xPos == 0 && !moveCursor) // deletion in normal mode (x key)
         {
-            string currLine = Program.linesBffrStore[inputs.yPos];
+            string currLine = Program.linesBffrStore[Inputs.yPos];
             if (currLine.Length > 0)
             {
                 int charsToDelete = Math.Min(count, currLine.Length);
                 currLine = currLine.Remove(0, charsToDelete);
-                Program.linesBffrStore[inputs.yPos] = currLine;
+                Program.linesBffrStore[Inputs.yPos] = currLine;
             }
         }
-        else if (inputs.xPos == 0 && inputs.yPos > 0) // line joining
+        else if (Inputs.xPos == 0 && Inputs.yPos > 0) // line joining
         {
-            string prevLine = Program.linesBffrStore[inputs.yPos - 1];
-            string currLine = Program.linesBffrStore[inputs.yPos];
+            string prevLine = Program.linesBffrStore[Inputs.yPos - 1];
+            string currLine = Program.linesBffrStore[Inputs.yPos];
 
-            inputs.xPos = prevLine.Length;
-            Program.linesBffrStore[inputs.yPos - 1] = prevLine + currLine;
-            Program.linesBffrStore.RemoveAt(inputs.yPos);
-            inputs.yPos--;
+            Inputs.xPos = prevLine.Length;
+            Program.linesBffrStore[Inputs.yPos - 1] = prevLine + currLine;
+            Program.linesBffrStore.RemoveAt(Inputs.yPos);
+            Inputs.yPos--;
         }
     }
 
@@ -360,9 +346,43 @@ internal class fileOperations
         Console.WriteLine("\nTry again (or press Ctrl+C to quit):");
         writeToFile(Console.ReadLine());
     }
+
+    public static void saveOnExitDialog()
+    {
+        if (Program.fileChanged)
+        {
+            Console.WriteLine("Save file? Y/n");
+            string Yn = Console.ReadLine().ToLower();
+            if (Yn == "y" || Yn == "yes" || Yn == string.Empty)
+            {
+                if (Program.globalPath == string.Empty)
+                {
+                    Console.WriteLine("Enter save path: ");
+                    Program.globalPath = Console.ReadLine();
+                }
+
+                if (File.Exists(Program.globalPath))
+                {
+                    Console.WriteLine("A file with this name already exists, would you like to overwrite it? y/N");
+                    Yn = Console.ReadLine().ToLower();
+                    if (Yn != "y" && Yn != "yes")
+                    {
+                        Console.WriteLine("Exiting without saving...");
+                        Environment.Exit(0); // Exit before we write to the file
+                    }
+                }
+                writeToFile(Program.globalPath);
+            }
+        }
+        else
+        {
+            Console.WriteLine("Exiting without saving...");
+            Environment.Exit(0);
+        }
+    }
 }
 
-internal class drawing
+internal class Drawing
 {
     private static int viewportStartLine;
     private static List<string> currentScreenLines = new();
@@ -402,14 +422,14 @@ internal class drawing
         }
 
         drawStatusLine();
-        Console.SetCursorPosition(inputs.xPos, inputs.yPos - viewportStartLine);
+        Console.SetCursorPosition(Inputs.xPos, Inputs.yPos - viewportStartLine);
     }
 
     private static void adjustViewport()
     {
-        if (inputs.yPos < viewportStartLine)
-            viewportStartLine = inputs.yPos;
-        else if (inputs.yPos >= viewportStartLine + linesToDraw) viewportStartLine = inputs.yPos - linesToDraw + 1;
+        if (Inputs.yPos < viewportStartLine)
+            viewportStartLine = Inputs.yPos;
+        else if (Inputs.yPos >= viewportStartLine + linesToDraw) viewportStartLine = Inputs.yPos - linesToDraw + 1;
     }
 
     private static void drawStatusLine()
@@ -422,13 +442,13 @@ internal class drawing
         Console.ForegroundColor = ConsoleColor.Black;
         // Second line
         // coloring for modes
-        if (inputs.mode == editorMode.Normal)
+        if (Inputs.mode == editorMode.Normal)
             Console.BackgroundColor = ConsoleColor.Green;
         else
             Console.BackgroundColor = ConsoleColor.Yellow;
         Console.SetCursorPosition(0, Console.WindowHeight - linesPadding + 1);
-        var modeTxt = $"Mode: {inputs.mode.ToString()}";
-        var posTxt = $"{inputs.yPos + 1}:{inputs.xPos + 1}";
+        var modeTxt = $"Mode: {Inputs.mode.ToString()}";
+        var posTxt = $"{Inputs.yPos + 1}:{Inputs.xPos + 1}";
         Console.Write($"{modeTxt} || {posTxt} ||");
 
         Console.BackgroundColor = ConsoleColor.DarkBlue;
