@@ -4,8 +4,8 @@ using System.Threading;
 
 /*
  * this "Editor" started as an atempt to remake my sticky-notes app as a console-app, but it seems to have gone in another direction
- * Controls are like shitty Vim motions 
-*/
+ * Controls are like shitty Vim motions
+ */
 
 namespace Editor;
 
@@ -19,10 +19,13 @@ internal class Program
 {
     public static List<string> linesBffrStore = new();
     public static string globalPath = string.Empty;
-   
+
     public static bool editing;
-    public static bool fileChanged = false;   // Have to set this in every editing function because i did not think of implementing it before...
-    
+
+    public static bool
+        fileChanged =
+            false; // Have to set this in every editing function because i did not think of implementing it before...
+
     private static void Main(string[] args)
     {
         // Accept CLI argument for file path
@@ -32,22 +35,32 @@ internal class Program
             editing = true;
         }
         else
-        { 
-            inputs.initmode(); 
+        {
+            inputs.initmode();
         }
-       
-        try { Console.SetWindowSize(drawing.minimumConsoleWidth, Console.WindowHeight); }catch { Console.WriteLine("Could not set window size."); } // This seems to only work on Windows
+
+        try
+        {
+            Console.SetWindowSize(drawing.minimumConsoleWidth, Console.WindowHeight);
+        }
+        catch
+        {
+            Console.WriteLine("Could not set window size.");
+        } // This seems to only work on Windows
+
         while (editing)
         {
             drawing.drawScreen();
             inputs.mainInputHandler();
         }
+
         // ask to save file after editing
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.BackgroundColor = ConsoleColor.Black;;
+        Console.BackgroundColor = ConsoleColor.Black;
+        ;
         Console.Clear();
         Console.WriteLine("Stopped editing\n");
-        
+
         if (fileChanged)
         {
             Console.WriteLine("Save file? Y/n");
@@ -57,16 +70,17 @@ internal class Program
                 if (globalPath == string.Empty)
                 {
                     Console.WriteLine("Enter save path: ");
-                    globalPath = Console.ReadLine(); 
+                    globalPath = Console.ReadLine();
                 }
-                fileOperations.writeToFile(globalPath); 
-            }    
-        } 
+
+                fileOperations.writeToFile(globalPath);
+            }
+        }
         else
         {
             Console.WriteLine("Exiting without saving...");
             Environment.Exit(0);
-        } 
+        }
     }
 }
 
@@ -140,6 +154,7 @@ internal class inputs
                     break;
             }
         }
+
         // Avoid trying to move outside the window
         if (yPos < 0) yPos = 0;
         if (yPos >= Program.linesBffrStore.Count) yPos = Program.linesBffrStore.Count - 1;
@@ -155,7 +170,7 @@ internal class inputs
     {
         Console.Clear();
         Console.WriteLine(
-@"
+            @"
 What would you like to do?
 
 Enter: 'n' for a new note
@@ -172,9 +187,9 @@ Enter 'q' to quit
                 Program.linesBffrStore.Add("");
                 break;
             case 'o':
-                    Console.Clear();
-                    Console.WriteLine("(Press CTRL+C to quit)\nEnter the path to the note you want to open: ");
-                    fileOperations.readIntoBuffer(Console.ReadLine());
+                Console.Clear();
+                Console.WriteLine("(Press CTRL+C to quit)\nEnter the path to the note you want to open: ");
+                fileOperations.readIntoBuffer(Console.ReadLine());
                 break;
             case 'q':
                 Environment.Exit(0);
@@ -185,6 +200,7 @@ Enter 'q' to quit
                 initmode();
                 break;
         }
+
         Program.editing = true; // Variable responsible for the main loop
     }
 }
@@ -195,7 +211,7 @@ internal class fileOperations
     {
         bool succesfullyRead = false;
         try
-        { 
+        {
             Console.Clear();
             File.ReadAllLines(path).ToList().ForEach(line => Program.linesBffrStore.Add(line));
             // Handle empty files
@@ -218,19 +234,21 @@ internal class fileOperations
         {
             Console.WriteLine("An error occured:\n" + e.Message);
         }
-        
+
         if (succesfullyRead)
         {
             Program.globalPath = path;
             return;
         }
+
         Console.WriteLine("\nTry again (or press Ctrl+C to quit):");
         readIntoBuffer(Console.ReadLine());
     }
+
     public static void insertChar(char c)
     {
         Program.fileChanged = true;
-        
+
         while (Program.linesBffrStore.Count <= inputs.yPos) Program.linesBffrStore.Add("");
 
         var currLine = Program.linesBffrStore[inputs.yPos];
@@ -245,8 +263,8 @@ internal class fileOperations
     public static void newLine()
     {
         Program.fileChanged = true;
-        
-        var currLine= string.Empty; 
+
+        var currLine = string.Empty;
         var newLine = string.Empty;
 
         if (inputs.yPos < Program.linesBffrStore.Count)
@@ -268,12 +286,12 @@ internal class fileOperations
     public static void del(int count = 1, bool moveCursor = true)
     {
         Program.fileChanged = true;
-        
+
         if (Program.linesBffrStore.Count <= 0) return;
 
         int posOffset = moveCursor ? 1 : 0;
 
-        if (inputs.xPos > 0)    // normal deletion within a line
+        if (inputs.xPos > 0) // normal deletion within a line
         {
             string currLine = Program.linesBffrStore[inputs.yPos];
             if (inputs.xPos <= currLine.Length)
@@ -309,17 +327,17 @@ internal class fileOperations
             inputs.yPos--;
         }
     }
-    
+
     public static void writeToFile(string path)
     {
         bool saved = false;
-        
+
         Console.Clear();
         try
         {
             File.WriteAllLines(path, Program.linesBffrStore);
             Console.WriteLine($"Saved to file: {path}");
-            saved = true;    
+            saved = true;
         }
         catch (DirectoryNotFoundException)
         {
@@ -337,6 +355,7 @@ internal class fileOperations
         {
             Console.WriteLine("An error occured:\n" + e.Message);
         }
+
         if (saved) return; // avoid looping lul
         Console.WriteLine("\nTry again (or press Ctrl+C to quit):");
         writeToFile(Console.ReadLine());
@@ -345,27 +364,27 @@ internal class fileOperations
 
 internal class drawing
 {
-    
     private static int viewportStartLine;
     private static List<string> currentScreenLines = new();
     private static readonly int linesPadding = 3;
     private static int linesToDraw = 80;
     public static int minimumConsoleWidth = 100;
+
     public static void drawScreen()
     {
-       while (Console.WindowWidth < minimumConsoleWidth) 
-       {
+        while (Console.WindowWidth < minimumConsoleWidth)
+        {
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"Window width too small! (Min: {minimumConsoleWidth}c)\nPlease resize your Console.");
             System.Threading.Thread.Sleep(500);
-       }
-       
-       Console.BackgroundColor = ConsoleColor.Black;
-       Console.ForegroundColor = ConsoleColor.White;
-       Console.Clear();
-       linesToDraw = Console.WindowHeight - linesPadding;
-       adjustViewport();
+        }
+
+        Console.BackgroundColor = ConsoleColor.Black;
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Clear();
+        linesToDraw = Console.WindowHeight - linesPadding;
+        adjustViewport();
 
         var linesDrawn = 0;
 
@@ -373,12 +392,15 @@ internal class drawing
         {
             var lineToRender = Program.linesBffrStore[i];
             if (lineToRender.Length > Console.WindowWidth)
-                lineToRender = lineToRender.Substring(0, Console.WindowWidth - 1) + "+"; //TODO: implement veiwport BS on x axis aswell
+                lineToRender =
+                    lineToRender.Substring(0, Console.WindowWidth - 1) +
+                    "+"; //TODO: implement veiwport BS on x axis aswell
 
             Console.SetCursorPosition(0, linesDrawn);
             Console.Write(lineToRender);
             linesDrawn++;
         }
+
         drawStatusLine();
         Console.SetCursorPosition(inputs.xPos, inputs.yPos - viewportStartLine);
     }
@@ -392,29 +414,29 @@ internal class drawing
 
     private static void drawStatusLine()
     {
-
         //separator
         Console.SetCursorPosition(0, Console.WindowHeight - linesPadding);
-        Console.Write(new string('-', Console.WindowWidth));     
-        
+        Console.Write(new string('-', Console.WindowWidth));
+
         Console.BackgroundColor = ConsoleColor.White;
         Console.ForegroundColor = ConsoleColor.Black;
         // Second line
         // coloring for modes
         if (inputs.mode == editorMode.Normal)
-            Console.BackgroundColor= ConsoleColor.Green;
+            Console.BackgroundColor = ConsoleColor.Green;
         else
-            Console.BackgroundColor= ConsoleColor.Yellow;
+            Console.BackgroundColor = ConsoleColor.Yellow;
         Console.SetCursorPosition(0, Console.WindowHeight - linesPadding + 1);
         var modeTxt = $"Mode: {inputs.mode.ToString()}";
         var posTxt = $"{inputs.yPos + 1}:{inputs.xPos + 1}";
         Console.Write($"{modeTxt} || {posTxt} ||");
-        
+
         Console.BackgroundColor = ConsoleColor.DarkBlue;
         if (Program.fileChanged)
         {
             Console.Write("  MODIFIED");
         }
+
         if (Program.globalPath != string.Empty)
         {
             Console.Write($"  󰝰 {Path.GetFullPath(Program.globalPath)}");
@@ -423,6 +445,7 @@ internal class drawing
         // Third line
         Console.BackgroundColor = ConsoleColor.White;
         Console.SetCursorPosition(0, Console.WindowHeight - linesPadding + 2);
-        Console.Write("HJKL/Arrows: Move || q: Quit (NORMAL) || i: INSERT mode || ESC: NORMAL mode || x: Delete (NORMAL)");
+        Console.Write(
+            "HJKL/Arrows: Move || q: Quit (NORMAL) || i: INSERT mode || ESC: NORMAL mode || x: Delete (NORMAL)");
     }
 }
