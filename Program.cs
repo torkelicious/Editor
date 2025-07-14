@@ -19,10 +19,9 @@ internal enum editorMode
 
 internal class Program
 {
-    public static List<string> linesBffrStore = new();
+    public static List<string> linesBffrStore = new(); // All text is currently stored in this list TODO: implement buffering to temp file / swap instead of loading the whole text file to memory
     public static string globalPath = string.Empty;
-    public static bool editing, fileChanged = false;
-
+    public static bool editing, fileChanged, filePassed = false;
     private static void Main(string[] args)
     {
         // Accept CLI argument for file path
@@ -31,6 +30,7 @@ internal class Program
             if (File.Exists(args[0]))
             {
                 FileOperations.readIntoBuffer(args[0]);
+                filePassed = true;
             }
             else
             {
@@ -39,6 +39,7 @@ internal class Program
                     var fileStream = File.Create(args[0]);
                     fileStream.Close();
                     FileOperations.readIntoBuffer(args[0]);
+                    filePassed = true;
                 }
                 catch (Exception e)
                 {
@@ -49,8 +50,9 @@ internal class Program
         }
         else { Inputs.initmode(); }
         
-        try{ Console.SetWindowSize(Drawing.minimumConsoleWidth, Console.WindowHeight); }catch{ Console.WriteLine("Could not set window size."); } // This  only work on Windows
+        try{ Console.SetWindowSize(Drawing.minimumConsoleWidth, Console.WindowHeight); } catch{ Console.Write("Could not set window size."); } // This only work on Windows
 
+        // Main loop
         while (editing)
         {
             Drawing.drawScreen();
@@ -140,13 +142,11 @@ internal class Inputs
             }
         }
 
-        // Avoid trying to move outside the window
+        // Avoid trying to move out of bounds 
         if (yPos < 0) yPos = 0;
         if (yPos >= Program.linesBffrStore.Count) yPos = Program.linesBffrStore.Count - 1;
         if (yPos < 0) yPos = 0; // In case bfrdLines is empty
-
-        var currentLineLength =
-            yPos >= 0 && yPos < Program.linesBffrStore.Count ? Program.linesBffrStore[yPos].Length : 0;
+        var currentLineLength = yPos >= 0 && yPos < Program.linesBffrStore.Count ? Program.linesBffrStore[yPos].Length : 0;
         if (xPos < 0) xPos = 0;
         if (xPos > currentLineLength) xPos = currentLineLength;
     }
@@ -162,6 +162,8 @@ Enter: 'n' for a new note
 Enter: 'o' to open a note
 
 Enter 'q' to quit
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+* use this on small files only (everything is stored in memory for now)
 
 ");
         var inp = char.ToLower(Console.ReadKey(true).KeyChar);
@@ -224,6 +226,7 @@ internal class FileOperations
         {
             Program.globalPath = path;
             Program.editing = true;
+            Program.filePassed= true;
             return;
         }
         Console.WriteLine("\nTry again (or press Ctrl+C to quit):");
@@ -359,15 +362,14 @@ internal class FileOperations
                     Console.WriteLine("Enter save path: ");
                     Program.globalPath = Console.ReadLine();
                 }
-
-                if (File.Exists(Program.globalPath))
+                if (File.Exists(Program.globalPath) && !Program.filePassed)
                 {
-                    Console.WriteLine("A file with this name already exists, would you like to overwrite it? y/N");
+                    Console.WriteLine("\nA file with this name already exists, would you like to overwrite it? y/N");
                     Yn = Console.ReadLine().ToLower();
                     if (Yn != "y" && Yn != "yes")
                     {
                         Console.WriteLine("Exiting without saving...");
-                        Environment.Exit(0); // Exit before we write to the file
+                        Environment.Exit(0); // Exit before we can write to the file
                     }
                 }
                 writeToFile(Program.globalPath);
@@ -412,8 +414,7 @@ internal class Drawing
             var lineToRender = Program.linesBffrStore[i];
             if (lineToRender.Length > Console.WindowWidth)
                 lineToRender =
-                    lineToRender.Substring(0, Console.WindowWidth - 1) +
-                    "+"; //TODO: implement veiwport BS on x axis aswell
+                    lineToRender.Substring(0, Console.WindowWidth - 1) + "+"; //TODO: implement veiwport BS on x axis aswell
 
             Console.SetCursorPosition(0, linesDrawn);
             Console.Write(lineToRender);
@@ -441,10 +442,9 @@ internal class Drawing
         Console.ForegroundColor = ConsoleColor.Black;
         // Second line
         // coloring for modes
-        if (Inputs.mode == editorMode.Normal)
-            Console.BackgroundColor = ConsoleColor.Green;
-        else
-            Console.BackgroundColor = ConsoleColor.Yellow;
+       ConsoleColor modeClr = Inputs.mode == editorMode.Normal ? ConsoleColor.Green : ConsoleColor.Yellow;
+       Console.BackgroundColor = modeClr;
+       
         Console.SetCursorPosition(0, Console.WindowHeight - linesPadding + 1);
         var modeTxt = $"Mode: {Inputs.mode.ToString()}";
         var posTxt = $"{Inputs.yPos + 1}:{Inputs.xPos + 1}";
