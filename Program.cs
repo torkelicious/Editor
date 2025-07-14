@@ -144,6 +144,12 @@ internal class Inputs
                 case ConsoleKey.Delete:
                     FileOperations.del(1);
                     break;
+                case ConsoleKey.Tab: // This is really fucking stupid but i am not in the mood to create some whole new bs for one key
+                    for (int i = 0; i < 4; i++)
+                    {
+                        FileOperations.insertChar(' ');
+                    }
+                    break;
                 default:
                     FileOperations.insertChar(key.KeyChar);
                     break;
