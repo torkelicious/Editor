@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading;
 
 /*
- * this "Editor" started as an atempt to remake my sticky-notes app as a console-app, but it seems to have gone in another direction
+ * this "Editor" started as an atempt to remake my sticky-notes app as a console-app 
  * Controls are like shitty Vim motions
  * use this on small files only, as everything is stored in memory for now
  */
@@ -155,7 +155,7 @@ internal class Inputs
     {
         Console.Clear();
         Console.WriteLine(
-            @"
+@"
 What would you like to do?
 
 Enter: 'n' for a new note
