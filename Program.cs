@@ -19,7 +19,7 @@ internal enum editorMode
 
 internal class Program
 {
-    public static List<string> linesBffrStore = new(); // All text is currently stored in this list TODO: implement buffering to temp file / swap instead of loading the whole text file to memory
+    public static List<string> linesBffrStore = new(); // All text is currently stored in this list TODO: implement buffering to temp file / swap instead of loading the whole text file to memory (Probably after a few refactorings though)
     public static string globalPath = string.Empty;
     public static bool editing, fileChanged, filePassed = false;
     private static void Main(string[] args)
@@ -98,6 +98,7 @@ internal class Inputs
                     break;
                 case ConsoleKey.L:
                 case ConsoleKey.RightArrow:
+                case ConsoleKey.Spacebar:
                     xPos++;
                     break;
                 case ConsoleKey.I:
@@ -108,6 +109,12 @@ internal class Inputs
                     break;
                 case ConsoleKey.X:
                     FileOperations.del(1, false);
+                    break;
+                case ConsoleKey.Tab:
+                    xPos += 4;
+                    break;
+                case ConsoleKey.Backspace:
+                    xPos -= 4;
                     break;
             }
         }
@@ -134,6 +141,7 @@ internal class Inputs
                     FileOperations.newLine();
                     break;
                 case ConsoleKey.Backspace:
+                case ConsoleKey.Delete:
                     FileOperations.del(1);
                     break;
                 default:
@@ -386,9 +394,16 @@ internal class FileOperations
 internal class Drawing
 {
     private static int viewportStartLine;
-    private static List<string> currentScreenLines = new();
-    private static readonly int linesPadding = 3;
+    private static int veiwportStartCol;
+    
+    //private static List<string> currentScreenLines = new();
+   
+    // Free lines/Colums for other stuff like status bar etc
+    private static int linesPadding = 3;
+    private static int columnPadding = 1; 
+   
     private static int linesToDraw = 80;
+    private static int colsToDraw;  
     public static int minimumConsoleWidth = 100;
 
     public static void drawScreen()
@@ -405,31 +420,66 @@ internal class Drawing
         Console.ForegroundColor = ConsoleColor.White;
         Console.Clear();
         linesToDraw = Console.WindowHeight - linesPadding;
+        colsToDraw = Console.WindowWidth - columnPadding; 
+        
         adjustViewport();
-
         var linesDrawn = 0;
 
         for (var i = viewportStartLine; i < Program.linesBffrStore.Count && linesDrawn < linesToDraw; i++)
         {
             var lineToRender = Program.linesBffrStore[i];
-            if (lineToRender.Length > Console.WindowWidth)
-                lineToRender =
-                    lineToRender.Substring(0, Console.WindowWidth - 1) + "+"; //TODO: implement veiwport BS on x axis aswell
 
+            if (veiwportStartCol > 0 && lineToRender.Length > veiwportStartCol)
+            {
+                lineToRender = lineToRender.Substring(veiwportStartCol);
+            }
+            else if (veiwportStartCol > 0)
+            {
+                lineToRender = string.Empty;
+            }
+
+            bool truncated = false;
+            if (lineToRender.Length > colsToDraw)
+            {
+                lineToRender = lineToRender.Substring(0, colsToDraw );
+                truncated = true;
+            }
+            
+            // main drawing 
             Console.SetCursorPosition(0, linesDrawn);
             Console.Write(lineToRender);
+            
+            if (veiwportStartCol > 0 && i == Inputs.yPos) // this might cause problem with text deletion..?
+            {
+                Console.SetCursorPosition(0, linesDrawn);
+                Console.Write("<");
+            }
+            
+            if (truncated && i == Inputs.yPos)
+            {
+                Console.SetCursorPosition(colsToDraw, linesDrawn);
+                Console.Write(">"); 
+            }
+
             linesDrawn++;
         }
-
         drawStatusLine();
-        Console.SetCursorPosition(Inputs.xPos, Inputs.yPos - viewportStartLine);
+        Console.SetCursorPosition(Inputs.xPos - veiwportStartCol, Inputs.yPos - viewportStartLine);
     }
 
     private static void adjustViewport()
     {
-        if (Inputs.yPos < viewportStartLine)
-            viewportStartLine = Inputs.yPos;
+        // vertical
+        if (Inputs.yPos < viewportStartLine) viewportStartLine = Inputs.yPos;
         else if (Inputs.yPos >= viewportStartLine + linesToDraw) viewportStartLine = Inputs.yPos - linesToDraw + 1;
+        
+        // horizontal
+        int horizPadding = 5;
+        
+        // left
+        if (Inputs.xPos < veiwportStartCol + horizPadding) veiwportStartCol = Math.Max(0, Inputs.xPos - horizPadding); 
+        else if (Inputs.xPos >= veiwportStartCol + colsToDraw - horizPadding) veiwportStartCol = Inputs.xPos - colsToDraw + horizPadding + 1;
+        
     }
 
     private static void drawStatusLine()
