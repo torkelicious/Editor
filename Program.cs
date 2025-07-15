@@ -6,12 +6,12 @@ using System.Threading;
 /*
  * this "Editor" started as an atempt to remake my sticky-notes app as a console-app 
  * Controls are like shitty Vim motions
- * use this on small files only, as everything is stored in memory for now
+ * use this on small files only, as everything is stored in memory 
  */
 
 namespace Editor;
 
-internal enum editorMode
+enum editorMode
 {
     Normal,
     Insert
@@ -20,8 +20,10 @@ internal enum editorMode
 internal class Program
 {
     public static List<string> linesBffrStore = new(); // All text is currently stored in this list TODO: implement buffering to temp file / swap instead of loading the whole text file to memory (Probably after a few refactorings though)
+    // i can see my memeory usage rising everytime i press a char.... this is pain..
     public static string globalPath = string.Empty;
-    public static bool editing, fileChanged, filePassed = false;
+    public static bool editing, fileChanged, filePassed = false;  // bools; are we ediding? : has the file been changed? : and did we pass a file via CLI arguments when starting.
+    
     private static void Main(string[] args)
     {
         // Accept CLI argument for file path
@@ -51,7 +53,6 @@ internal class Program
         else { Inputs.initmode(); }
         
         try{ Console.SetWindowSize(Drawing.minimumConsoleWidth, Console.WindowHeight); } catch{ Console.Write("Could not set window size."); } // This only work on Windows
-
         // Main loop
         while (editing)
         {
@@ -63,11 +64,12 @@ internal class Program
         Console.BackgroundColor = ConsoleColor.Black;
         Console.Clear();
         Console.WriteLine("Stopped editing\n");
-
         if (fileChanged)
         {
             FileOperations.saveOnExitDialog();
         } 
+        
+        // Program ends here.
     }
 }
 
@@ -405,14 +407,14 @@ internal class Drawing
     //private static List<string> currentScreenLines = new();
    
     // Free lines/Colums for other stuff like status bar etc
-    private static int linesPadding = 3;
-    private static int columnPadding = 1; 
-   
-    private static int linesToDraw = 80;
-    private static int colsToDraw;  
-    public static int minimumConsoleWidth = 100;
+    const int linesPadding = 3;
+    const int columnPadding = 1; 
+    public const int minimumConsoleWidth = 100;
 
-    public static void drawScreen()
+    private static int 
+        linesToDraw, colsToDraw;  
+
+    public static void drawScreen() 
     {
         while (Console.WindowWidth < minimumConsoleWidth)
         {
@@ -480,7 +482,7 @@ internal class Drawing
         else if (Inputs.yPos >= viewportStartLine + linesToDraw) viewportStartLine = Inputs.yPos - linesToDraw + 1;
         
         // horizontal
-        int horizPadding = 5;
+        const int horizPadding = 5;
         
         // left
         if (Inputs.xPos < veiwportStartCol + horizPadding) veiwportStartCol = Math.Max(0, Inputs.xPos - horizPadding); 
@@ -502,8 +504,8 @@ internal class Drawing
        Console.BackgroundColor = modeClr;
        
         Console.SetCursorPosition(0, Console.WindowHeight - linesPadding + 1);
-        var modeTxt = $"Mode: {Inputs.mode.ToString()}";
-        var posTxt = $"{Inputs.yPos + 1}:{Inputs.xPos + 1}";
+        string modeTxt = $"Mode: {Inputs.mode.ToString()}";
+        string posTxt = $"{Inputs.yPos + 1}:{Inputs.xPos + 1}";
         Console.Write($"{modeTxt} || {posTxt} ||");
 
         Console.BackgroundColor = ConsoleColor.DarkBlue;
