@@ -21,7 +21,7 @@ enum editorMode
 
 internal class Program
 {
-    public const string version = "0.0.0";
+    public const string version = "0.0.0-Prototype";
     public static List<string> linesBffrStore = new(); // All text is currently stored in this list TODO: implement buffering to temp file / swap instead of loading the whole text file to memory (Probably after a few refactorings though)
     // i can see my memory usage rising everytime i press a char.... this is pain..
     public static string globalPath = string.Empty;
