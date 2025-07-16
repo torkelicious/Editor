@@ -9,26 +9,30 @@ using System.Threading;
  * use this on small files only, as everything is stored in memory 
  */
 
+//TODO: Remake/Refactor this, implement proper memory to disk buffer/swap, i was thinking gap buffering. Generally improve upon things as this code is a mess...
+
 namespace Editor;
 
 enum editorMode
 {
-    Normal,
+    Normal, // i fogor what i was going to use these for..
     Insert
 }
 
 internal class Program
 {
+    public const string version = "0.0.0";
     public static List<string> linesBffrStore = new(); // All text is currently stored in this list TODO: implement buffering to temp file / swap instead of loading the whole text file to memory (Probably after a few refactorings though)
-    // i can see my memeory usage rising everytime i press a char.... this is pain..
+    // i can see my memory usage rising everytime i press a char.... this is pain..
     public static string globalPath = string.Empty;
-    public static bool editing, fileChanged, filePassed = false;  // bools; are we ediding? : has the file been changed? : and did we pass a file via CLI arguments when starting.
+    public static bool editing, fileChanged, filePassed, newFile = false;  // bools; are we ediding? : has the file been changed? : did we pass a file via CLI arguments when starting : and was the file newly created?
     
     private static void Main(string[] args)
     {
         // Accept CLI argument for file path
         if (args.Length > 0 )
         {
+            args[0] = args[0].Trim();
             if (File.Exists(args[0]))
             {
                 FileOperations.readIntoBuffer(args[0]);
@@ -41,7 +45,8 @@ internal class Program
                     var fileStream = File.Create(args[0]);
                     fileStream.Close();
                     FileOperations.readIntoBuffer(args[0]);
-                    filePassed = true;
+                    filePassed = true; 
+                    newFile = true;
                 }
                 catch (Exception e)
                 {
@@ -67,7 +72,11 @@ internal class Program
         if (fileChanged)
         {
             FileOperations.saveOnExitDialog();
-        } 
+        }
+        else if (newFile)
+        {
+           FileOperations.deleteNF(false); 
+        }
         
         // Program ends here.
     }
@@ -170,15 +179,24 @@ internal class Inputs
     public static void initmode()
     {
         Console.Clear();
+        string separator = new string('-', Console.WindowWidth);
         Console.WriteLine(
-@"
+$@"
+Welcome to
+         __    _ __     
+   _____/ /_  (_) /_    
+  / ___/ __ \/ / __/    
+ (__  ) / / / / /_      
+/____/_/ /_/_/\__/    
+             (SharpEdit) [v{Program.version}]
+{separator}
 What would you like to do?
 
-Enter: 'n' for a new note
-Enter: 'o' to open a note
+Enter: 'n' to edit a new file 
+Enter: 'o' to open a file
 
 Enter 'q' to quit
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+{separator}
 * use this on small files only (everything is stored in memory for now)
 
 ");
@@ -203,7 +221,6 @@ Enter 'q' to quit
                 initmode();
                 break;
         }
-
         Program.editing = true; // Variable responsible for the main loop
     }
 }
@@ -212,6 +229,7 @@ internal class FileOperations
 {
     public static void readIntoBuffer(string path)
     {
+        path = path.Trim();
         bool succesfullyRead = false;
         try
         {
@@ -334,6 +352,7 @@ internal class FileOperations
 
     public static void writeToFile(string path)
     {
+        path = path.Trim();
         bool saved = false;
 
         Console.Clear();
@@ -390,13 +409,39 @@ internal class FileOperations
                 }
                 writeToFile(Program.globalPath);
             }
+            else
+            {
+                deleteNF(true);
+            }
         }
         else
         {
+            deleteNF(true);
+        } 
+    }
+
+    public static void deleteNF(bool exitEnv = false)  
+    {
+        if (Program.newFile && Program.globalPath != string.Empty && File.Exists(Program.globalPath))
+        {
+            try
+            {
+                File.Delete(Program.globalPath);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"An error occured;\n{e}");
+            }
+        }
+        if (exitEnv)
+        {
+            Console.Clear();
             Console.WriteLine("Exiting without saving...");
             Environment.Exit(0);
         }
     }
+    
+    
 }
 
 internal class Drawing
@@ -438,26 +483,19 @@ internal class Drawing
             var lineToRender = Program.linesBffrStore[i];
 
             if (veiwportStartCol > 0 && lineToRender.Length > veiwportStartCol)
-            {
-                lineToRender = lineToRender.Substring(veiwportStartCol);
-            }
+            { lineToRender = lineToRender.Substring(veiwportStartCol); }
             else if (veiwportStartCol > 0)
-            {
-                lineToRender = string.Empty;
-            }
+            { lineToRender = string.Empty; }
 
             bool truncated = false;
             if (lineToRender.Length > colsToDraw)
-            {
-                lineToRender = lineToRender.Substring(0, colsToDraw );
-                truncated = true;
-            }
+            { lineToRender = lineToRender.Substring(0, colsToDraw ); truncated = true; }
             
             // main drawing 
             Console.SetCursorPosition(0, linesDrawn);
             Console.Write(lineToRender);
             
-            if (veiwportStartCol > 0 && i == Inputs.yPos) // this might cause problem with text deletion..?
+            if (veiwportStartCol > 0 && i == Inputs.yPos) 
             {
                 Console.SetCursorPosition(0, linesDrawn);
                 Console.Write("<");
@@ -468,7 +506,6 @@ internal class Drawing
                 Console.SetCursorPosition(colsToDraw, linesDrawn);
                 Console.Write(">"); 
             }
-
             linesDrawn++;
         }
         drawStatusLine();
@@ -498,6 +535,7 @@ internal class Drawing
 
         Console.BackgroundColor = ConsoleColor.White;
         Console.ForegroundColor = ConsoleColor.Black;
+        
         // Second line
         // coloring for modes
        ConsoleColor modeClr = Inputs.mode == editorMode.Normal ? ConsoleColor.Green : ConsoleColor.Yellow;
@@ -509,20 +547,19 @@ internal class Drawing
         Console.Write($"{modeTxt} || {posTxt} ||");
 
         Console.BackgroundColor = ConsoleColor.DarkBlue;
-        if (Program.fileChanged)
-        {
-            Console.Write("  MODIFIED");
-        }
+        if (Program.fileChanged) Console.Write("  MODIFIED");
 
         if (Program.globalPath != string.Empty)
         {
-            Console.Write($"  󰝰 {Path.GetFullPath(Program.globalPath)}");
+            Console.Write($"  󰝰 {Path.GetFullPath(Program.globalPath)} ");
         }
+        
+        Console.BackgroundColor = ConsoleColor.DarkMagenta;
+        if(Program.newFile) Console.Write("( NEW )");
 
         // Third line
         Console.BackgroundColor = ConsoleColor.White;
         Console.SetCursorPosition(0, Console.WindowHeight - linesPadding + 2);
-        Console.Write(
-            "HJKL/Arrows: Move || q: Quit (NORMAL) || i: INSERT mode || ESC: NORMAL mode || x: Delete (NORMAL)");
+        Console.Write("HJKL/Arrows: Move || q: Quit (NORMAL) || i: INSERT mode || ESC: NORMAL mode || x: Delete (NORMAL)");
     }
 }
