@@ -1,4 +1,5 @@
 using Editor.Core;
+
 namespace Editor.UI;
 
 public class EditorState
@@ -6,14 +7,16 @@ public class EditorState
     public EditorMode Mode { get; set; } = EditorMode.Normal;
     public int CursorLine { get; private set; } = 0;
     public int CursorColumn { get; private set; } = 0;
-    
+    public int PreviousCursorLine { get; private set; } = 0;
+
     public void UpdateFromDocument(Document document)
     {
+        PreviousCursorLine = CursorLine;
         var (line, col) = document.CurrentLineColumn;
-        CursorLine = line - 1;  // Convert to 0-based for display
-        CursorColumn = col - 1; // Convert to 0-based for display
+        CursorLine = line - 1;
+        CursorColumn = col - 1;
     }
-    
+
     public void SetCursorPosition(int line, int column)
     {
         CursorLine = Math.Max(0, line);

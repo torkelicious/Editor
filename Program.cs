@@ -6,8 +6,22 @@ namespace Editor;
 
 class Program
 {
+    private static bool debug = false;
+
     static void Main(string[] args)
     {
+        if (args.Length > 0)
+        {
+            foreach (var arg in args)
+            {
+                // TODO: fix this dammn HACK: THIS IS FUCKING HACKY
+                if (arg == "--debug")
+                {
+                    debug = true;
+                }
+            }
+        }
+
         try
         {
             // Set window size if possible (Windows only)
@@ -20,24 +34,27 @@ class Program
             }
             catch
             {
-                // Ignore if can't set window size (Console.SetWindowSize is a windows-only feature)
+                // do nothing...
             }
-            
+
             // startup menu / handle file selection
             var startupResult = StartupMenu.ShowMenu(args);
-            
+
             if (!startupResult.ShouldStartEditor || startupResult.Document == null)
             {
                 return; // user quit
             }
-            
+
             // editor components
-            using var document = startupResult.Document;
+            var document = startupResult.Document;
             var editorState = new EditorState();
             var viewport = new Viewport();
             var renderer = new ConsoleRenderer(viewport);
+            renderer.RegisterWithDocument(document);
             var inputHandler = new InputHandler(document, editorState, viewport);
-            
+
+            if (debug) document.showDebugInfo = true;
+            Console.Clear();
             // Main editor loop
             bool exitRequested = false;
             while (!exitRequested)
@@ -45,24 +62,30 @@ class Program
                 try
                 {
                     editorState.UpdateFromDocument(document);
-                    renderer.Render(document, editorState);
                     inputHandler.HandleInput();
-                    
+                    editorState.UpdateFromDocument(document);
+                    renderer.Render(document, editorState); // Render again after input
+
                     if (inputHandler.ShouldQuit)
                     {
-                        // Handle exit with save prompt
                         ExitHandler.HandleExit(document, startupResult.IsNewFile);
                         exitRequested = true;
                     }
                 }
                 catch (Exception ex)
                 {
-                    // Error handling during editor operation
-                    ShowError($"Editor error: {ex.Message}");
-                    
+                    if (debug)
+                    {
+                        ShowError($"Editor error: {ex}");
+                    }
+                    else
+                    {
+                        ShowError($"Editor error: {ex.Message}");
+                    }
+
                     Console.WriteLine("Continue editing? (y/N): ");
                     var response = Console.ReadKey().KeyChar;
-                    
+
                     if (char.ToLower(response) != 'y')
                     {
                         ExitHandler.HandleExit(document, startupResult.IsNewFile);
@@ -87,7 +110,7 @@ class Program
             Console.ReadKey();
         }
     }
-    
+
     private static void ShowError(string message)
     {
         Console.Clear();

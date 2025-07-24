@@ -11,7 +11,7 @@ public class ExitHandler
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine("Exiting");
         Console.WriteLine();
-        
+
         if (document.IsDirty)
         {
             HandleUnsavedChanges(document, isNewFile);
@@ -23,21 +23,17 @@ public class ExitHandler
         else
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("No changes to save");
+            Console.WriteLine("No changes to save...");
         }
-        
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine();
-        Console.WriteLine("Press any key to exit...");
-        Console.ReadKey(true);
+
+        Console.Clear();
     }
-    
+
     private static void HandleUnsavedChanges(Document document, bool isNewFile)
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("You have unsaved changes.");
-        Console.WriteLine();
-        
+        Console.WriteLine("You have unsaved changes!\n");
+
         while (true)
         {
             Console.ForegroundColor = ConsoleColor.White;
@@ -47,24 +43,20 @@ public class ExitHandler
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write(" / ");
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("[N]o");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write(" / ");
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("[C]ancel");
+            Console.Write("[n]o");
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write(": ");
-            
+
             var response = char.ToLower(Console.ReadKey().KeyChar);
             Console.WriteLine();
-            
+
             switch (response)
             {
                 case 'y':
                 case '\r': // Enter key defaults to Yes
                     AttemptSave(document);
                     return;
-                    
+
                 case 'n':
                     if (isNewFile && !document.IsUntitled)
                     {
@@ -75,14 +67,9 @@ public class ExitHandler
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Exiting without saving changes.");
                     }
+
                     return;
-                    
-                case 'c':
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.WriteLine("Returning to editor...");
-                    Thread.Sleep(1000);
-                    return; 
-                    
+
                 default:
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Please enter Y, N, or C.");
@@ -91,7 +78,7 @@ public class ExitHandler
             }
         }
     }
-    
+
     private static void AttemptSave(Document document)
     {
         try
@@ -103,16 +90,16 @@ public class ExitHandler
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.Write("Enter filename to save as: ");
                 Console.ForegroundColor = ConsoleColor.White;
-                
+
                 var filePath = Console.ReadLine()?.Trim();
-                
+
                 if (string.IsNullOrEmpty(filePath))
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("No filename entered. Exiting without saving.");
+                    Console.WriteLine("No filename entered. Exiting without saving...");
                     return;
                 }
-                
+
                 // Check if file exists
                 if (File.Exists(filePath))
                 {
@@ -120,10 +107,10 @@ public class ExitHandler
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.Write($"File '{filePath}' already exists. Overwrite? (y/N): ");
                     Console.ForegroundColor = ConsoleColor.White;
-                    
+
                     var overwrite = char.ToLower(Console.ReadKey().KeyChar);
                     Console.WriteLine();
-                    
+
                     if (overwrite != 'y')
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
@@ -131,14 +118,14 @@ public class ExitHandler
                         return;
                     }
                 }
-                
+
                 document.SaveToFile(filePath);
             }
             else
             {
                 document.SaveToFile();
             }
-            
+
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"File saved successfully: {document.FilePath}");
         }
@@ -149,7 +136,7 @@ public class ExitHandler
             Console.WriteLine("Exiting without saving...");
         }
     }
-    
+
     private static void HandleNewFileCleanup(Document document)
     {
         if (!document.IsUntitled && File.Exists(document.FilePath))
@@ -163,7 +150,8 @@ public class ExitHandler
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Warning: Could not delete empty file: {ex.Message}\nMay require manual intervention!");
+                Console.WriteLine(
+                    $"Warning: Could not delete empty file: {ex.Message}\nMay require manual intervention!");
             }
         }
     }

@@ -11,12 +11,15 @@ public class GapBuffer : ITextBuffer
     private int gapStart, gapEnd;
     private const int MinGapSize = 32;
     private const int MaxGapSize = 1024;
-    
-    public char this[int index] { get => index < gapStart ? buffer[index] : buffer[index + (gapEnd - gapStart)]; }
-    
+
+    public char this[int index]
+    {
+        get => index < gapStart ? buffer[index] : buffer[index + (gapEnd - gapStart)];
+    }
+
     public int Position { get; private set; }
     public int Length => buffer.Length - (gapEnd - gapStart);
-    
+
     // Constructor
     public GapBuffer(int initialSize = 1024)
     {
@@ -26,7 +29,7 @@ public class GapBuffer : ITextBuffer
         Position = 0;
     }
     // - - - - - - - - - - - - - - - - - - - - - - - //
-    
+
     private void EnsureGapSize(int requiredSize)
     {
         int currentGapSize = gapEnd - gapStart;
@@ -35,23 +38,23 @@ public class GapBuffer : ITextBuffer
             Grow(Math.Max(requiredSize, MinGapSize));
         }
     }
-    
+
     // Gap sizing
     private void Grow(int additionalGapSize)
     {
         int newSize = buffer.Length + additionalGapSize;
         char[] newBuffer = new char[newSize];
-        
+
         Array.Copy(buffer, 0, newBuffer, 0, gapStart);
-        
+
         int afterGapLength = buffer.Length - gapEnd;
         int newGapEnd = gapStart + (gapEnd - gapStart) + additionalGapSize;
         Array.Copy(buffer, gapEnd, newBuffer, newGapEnd, afterGapLength);
-        
+
         gapEnd = newGapEnd;
         buffer = newBuffer;
     }
-    
+
     // Operations
     public void Insert(char character)
     {
@@ -59,7 +62,7 @@ public class GapBuffer : ITextBuffer
         buffer[gapStart++] = character;
         Position++;
     }
-    
+
     public void Insert(string str)
     {
         if (string.IsNullOrEmpty(str)) return;
@@ -68,13 +71,14 @@ public class GapBuffer : ITextBuffer
         {
             buffer[gapStart++] = str[i];
         }
+
         Position += str.Length;
     }
 
     public void Delete(int count = 1, DeleteDirection direction = DeleteDirection.Forward)
     {
         if (count <= 0) return;
-        
+
         if (direction == DeleteDirection.Forward)
         {
             // Delete forward from cursor position (like 'x' in vim)
@@ -91,7 +95,7 @@ public class GapBuffer : ITextBuffer
             Position = Math.Max(Position - maxDel, 0);
         }
     }
-    
+
     public void MoveTo(int position)
     {
         position = Math.Max(0, Math.Min(position, Length));
@@ -107,11 +111,14 @@ public class GapBuffer : ITextBuffer
         {
             int moveCount = position - gapStart;
             Array.Copy(buffer, gapEnd, buffer, gapStart, moveCount);
-            gapStart = position; 
+            gapStart = position;
             gapEnd += moveCount;
         }
+
         Position = position;
     }
 
-    public void Dispose() {} // For interface compliance meh :/
+    public void Dispose()
+    {
+    } // For interface compliance meh :/
 }

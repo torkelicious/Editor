@@ -8,7 +8,7 @@ public class InputHandler
     private readonly Document document;
     private readonly EditorState editorState;
     private readonly Viewport viewport;
-    
+
     public bool ShouldQuit { get; private set; }
 
     public InputHandler(Document document, EditorState editorState, Viewport viewport)
@@ -30,7 +30,7 @@ public class InputHandler
         {
             HandleInsertMode(key);
         }
-        
+
         editorState.UpdateFromDocument(document);
         ClampCursorPosition();
     }
@@ -44,17 +44,17 @@ public class InputHandler
             case ConsoleKey.DownArrow:
                 MoveCursorDown();
                 break;
-                
+
             case ConsoleKey.K:
             case ConsoleKey.UpArrow:
                 MoveCursorUp();
                 break;
-                
+
             case ConsoleKey.H:
             case ConsoleKey.LeftArrow:
                 MoveCursorLeft();
                 break;
-                
+
             case ConsoleKey.L:
             case ConsoleKey.RightArrow:
             case ConsoleKey.Spacebar:
@@ -68,7 +68,7 @@ public class InputHandler
             case ConsoleKey.Q:
                 ShouldQuit = true;
                 break;
-                
+
             case ConsoleKey.X:
                 // Delete character at cursor (vim 'x')
                 document.Delete(1, DeleteDirection.Forward);
@@ -92,6 +92,7 @@ public class InputHandler
                     var targetPos = document.CursorPosition + (nextTabStop - currentCol);
                     document.MoveCursor(Math.Min(targetPos, document.Length));
                 }
+
                 break;
 
             case ConsoleKey.A:
@@ -99,14 +100,14 @@ public class InputHandler
                 MoveCursorRight();
                 editorState.Mode = EditorMode.Insert;
                 break;
-                
+
             case ConsoleKey.O:
                 // open new line below
                 MoveToEndOfLine();
                 document.Insert('\n');
                 editorState.Mode = EditorMode.Insert;
                 break;
-                
+
             case ConsoleKey.D:
                 // delete line with d
                 if (key.Modifiers == ConsoleModifiers.None)
@@ -114,13 +115,14 @@ public class InputHandler
                     // Simple delete for now...
                     DeleteCurrentLine();
                 }
+
                 break;
 
             // Scrolling
             case ConsoleKey.PageUp:
                 viewport.ScrollUp(viewport.VisibleLines / 2);
                 break;
-                
+
             case ConsoleKey.PageDown:
                 viewport.ScrollDown(viewport.VisibleLines / 2);
                 break;
@@ -135,44 +137,45 @@ public class InputHandler
             case ConsoleKey.UpArrow:
                 MoveCursorUp();
                 break;
-                
+
             case ConsoleKey.DownArrow:
                 MoveCursorDown();
                 break;
-                
+
             case ConsoleKey.LeftArrow:
                 MoveCursorLeft();
                 break;
-                
+
             case ConsoleKey.RightArrow:
                 MoveCursorRight();
                 break;
 
             case ConsoleKey.Escape:
                 editorState.Mode = EditorMode.Normal;
-                if (document.CursorPosition > 0) // move cursor back after inserting
+                if (document.CursorPosition > 0)
                 {
                     document.MoveCursor(document.CursorPosition - 1);
                 }
+
                 break;
 
             // text operations
             case ConsoleKey.Enter:
                 document.Insert('\n');
                 break;
-                
+
             case ConsoleKey.Backspace:
                 document.Delete(1, DeleteDirection.Backward);
                 break;
-                
+
             case ConsoleKey.Delete:
                 document.Delete(1, DeleteDirection.Forward);
                 break;
-                
+
             case ConsoleKey.Tab:
                 /* insert 4 spaces
-                * maybe using \t would be a good idea instead, something i must test.
-                */
+                 * maybe using \t could be a good idea instead, something i must test.
+                 */
                 document.Insert("    ");
                 break;
 
@@ -182,18 +185,18 @@ public class InputHandler
                 {
                     document.Insert(key.KeyChar);
                 }
+
                 break;
         }
     }
 
-    // movement methods
+    // fast movement w the indexing
     private void MoveCursorUp()
     {
         var (currentLine, currentCol) = document.CurrentLineColumn;
         if (currentLine > 1)
         {
-            var targetLine = currentLine - 1;
-            var targetPos = GetPositionFromLineColumn(targetLine, currentCol);
+            var targetPos = document.GetPositionFromLine(currentLine - 1, currentCol);
             document.MoveCursor(targetPos);
         }
     }
@@ -201,11 +204,10 @@ public class InputHandler
     private void MoveCursorDown()
     {
         var (currentLine, currentCol) = document.CurrentLineColumn;
-        var totalLines = GetTotalLines();
+        var totalLines = document.GetLineCount();
         if (currentLine < totalLines)
         {
-            var targetLine = currentLine + 1;
-            var targetPos = GetPositionFromLineColumn(targetLine, currentCol);
+            var targetPos = document.GetPositionFromLine(currentLine + 1, currentCol);
             document.MoveCursor(targetPos);
         }
     }
@@ -228,77 +230,46 @@ public class InputHandler
 
     private void MoveToEndOfLine()
     {
-        var text = document.GetText();
-        var currentPos = document.CursorPosition;
-        
-        // Find end of current line
-        while (currentPos < text.Length && text[currentPos] != '\n')
+        var (currentLine, _) = document.CurrentLineColumn;
+        var currentPos = document.GetPositionFromLine(currentLine, 1);
+
+        while (currentPos < document.Length && document[currentPos] != '\n')
         {
             currentPos++;
         }
-        
+
         document.MoveCursor(currentPos);
     }
 
     private void DeleteCurrentLine()
     {
         var (currentLine, _) = document.CurrentLineColumn;
-        var lineStart = GetPositionFromLineColumn(currentLine, 1);
+        var lineStart = document.GetPositionFromLine(currentLine, 1);
         var lineEnd = lineStart;
-        
-        var text = document.GetText();
-        // Find end of line 
-        while (lineEnd < text.Length && text[lineEnd] != '\n')
+
+        while (lineEnd < document.Length && document[lineEnd] != '\n')
         {
             lineEnd++;
         }
-        if (lineEnd < text.Length) lineEnd++; // include newline
+
+        if (lineEnd < document.Length && document[lineEnd] == '\n')
+        {
+            lineEnd++;
+        }
+
         document.MoveCursor(lineStart);
-        document.Delete(lineEnd - lineStart, DeleteDirection.Forward);
+        int deleteLength = lineEnd - lineStart;
+        if (deleteLength > 0)
+        {
+            document.Delete(deleteLength, DeleteDirection.Forward);
+        }
     }
 
     private void ClampCursorPosition()
     {
-        // Ensure cursor doesn't go beyond document bounds
         if (document.CursorPosition > document.Length)
         {
             document.MoveCursor(document.Length);
         }
-    }
-
-    private int GetTotalLines()
-    {
-        var text = document.GetText();
-        if (string.IsNullOrEmpty(text)) return 1;
-        return text.Count(c => c == '\n') + 1;
-    }
-
-    private int GetPositionFromLineColumn(int targetLine, int targetColumn)
-    {
-        var text = document.GetText();
-        var currentLine = 1;
-        var position = 0;
-
-        // navigate to target line
-        while (position < text.Length && currentLine < targetLine)
-        {
-            if (text[position] == '\n')
-            {
-                currentLine++;
-            }
-            position++;
-        }
-
-        // navigate to target column (or end of line)
-        var columnCount = 1;
-        while (position < text.Length && 
-               text[position] != '\n' && 
-               columnCount < targetColumn)
-        {
-            position++;
-            columnCount++;
-        }
-
-        return position;
     }
 }
