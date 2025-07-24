@@ -25,8 +25,6 @@ public class ExitHandler
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("No changes to save...");
         }
-
-        Console.Clear();
     }
 
     private static void HandleUnsavedChanges(Document document, bool isNewFile)

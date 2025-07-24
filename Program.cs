@@ -55,6 +55,8 @@ class Program
 
             if (debug) document.showDebugInfo = true;
             Console.Clear();
+            
+            renderer.Render(document, editorState); // render before loop to avoid forcing user to input to start the program
             // Main editor loop
             bool exitRequested = false;
             while (!exitRequested)
