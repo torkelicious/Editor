@@ -8,8 +8,4 @@
         <PublishSingleFile>true</PublishSingleFile>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Folder Include="temp\" />
-    </ItemGroup>
-
 </Project>

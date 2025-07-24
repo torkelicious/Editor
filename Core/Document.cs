@@ -2,10 +2,10 @@ using System.Text;
 
 namespace Editor.Core;
 
-public class Document
+public class Document : IDisposable
 {
     /*
-     * This is a wrapper for our GapBuffer class, for document editing etc
+     * This is a wrapper for our ITextBuffer class, for document editing etc
      */
     public enum DocumentState
     {
@@ -17,7 +17,7 @@ public class Document
         Error       // File operation failed error state
     }
 
-    private GapBuffer buffer;
+    private ITextBuffer buffer;
     private string? filePath;
     private DocumentState docState;
     private DateTime lastModified;
@@ -37,9 +37,18 @@ public class Document
     public char this[int index] => buffer[index];
     
     // Constructor
-    public Document(string? filePath = null)
+    public Document(string? filePath = null, bool useSwapping = false)
     {
-        buffer = new GapBuffer();
+        // Choose buffer type based on file size or user preference
+        if (useSwapping || ShouldUseSwapping(filePath))
+        {
+            buffer = new SwappingBuffer();
+        }
+        else
+        {
+            buffer = new GapBuffer();
+        }
+        
         this.filePath = filePath;
         docState = DocumentState.Clean;
         lastModified = DateTime.UtcNow;
@@ -50,6 +59,16 @@ public class Document
         }
     }
 
+    private static bool ShouldUseSwapping(string? filePath)
+    {
+        if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+            return false;
+            
+        var fileInfo = new FileInfo(filePath);
+        return fileInfo.Length > 5_000_000; // 5MB threshold
+    }
+
+    // State management
     private void SetState(DocumentState newState)
     {
         docState = newState;
@@ -74,13 +93,16 @@ public class Document
         SetState(DocumentState.Dirty);
     }
 
-    public void Delete(int count = 1)
+    public void Delete(int count = 1, DeleteDirection direction = DeleteDirection.Forward)
     {
         if (!IsEditable) return;
-        buffer.Delete(count);
+        buffer.Delete(count, direction);
         SetState(DocumentState.Dirty);
     }
-
+    public void Backspace(int count = 1)
+    {
+        Delete(count, DeleteDirection.Backward);
+    }
     public void MoveCursor(int position)
     {
         buffer.MoveTo(position);
@@ -94,7 +116,22 @@ public class Document
         try
         {
             var content = File.ReadAllText(filePath);
-            buffer = new GapBuffer();
+            
+            // Recreate buffer based on file size
+            if (buffer is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+            
+            if (ShouldUseSwapping(filePath))
+            {
+                buffer = new SwappingBuffer();
+            }
+            else
+            {
+                buffer = new GapBuffer();
+            }
+            
             buffer.Insert(content);
             buffer.MoveTo(0);
             this.filePath = filePath;
@@ -146,6 +183,7 @@ public class Document
         }
     }
 
+    // Text retrieval
     public string GetText()
     {
         var sb = new StringBuilder(buffer.Length);
@@ -156,7 +194,7 @@ public class Document
         return sb.ToString();
     }
 
-    // Navigation 
+    // Navigation helpers
     public (int line, int column) GetLineColumn(int position)
     {
         int line = 1, column = 1;
@@ -177,10 +215,16 @@ public class Document
 
     public (int line, int column) CurrentLineColumn => GetLineColumn(CursorPosition);
 
-    // Utils 
+    // Utility methods
     public void Clear()
     {
         if (!IsEditable) return;
+        
+        if (buffer is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
+        
         buffer = new GapBuffer();
         SetState(DocumentState.Dirty);
     }
@@ -188,5 +232,13 @@ public class Document
     public bool HasUnsavedChanges()
     {
         return IsDirty;
+    }
+
+    public void Dispose()
+    {
+        if (buffer is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
     }
 }
