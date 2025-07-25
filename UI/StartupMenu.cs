@@ -4,7 +4,16 @@ namespace Editor.UI;
 
 public class StartupMenu
 {
-    private const string Version = "0.0.0-Rewrite";
+    private const string Version = "0.0.0-R";
+    private const string Logo = 
+        @"
+  __                          __      _  _         
+ / /____ ____  ___ ____ ___  / /_____(_)(_)______ _
+/ __/ _ `/ _ \/ _ `/ -_) _ \/ __/ __/ _ \/ __/ _ `/
+\__/\_,_/_//_/\_, /\__/_//_/\__/_/  \___/_/  \_,_/ 
+             /___/                                 
+";
+    private const string LogoProgramName = "TangentRöra";
 
     public static EditorStartupResult ShowMenu(string[] args)
     {
@@ -92,17 +101,11 @@ public class StartupMenu
         Console.Clear();
 
         var separator = new string('─', Math.Min(Console.WindowWidth, 60));
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine(
-            @"         
-         __    _ __     
-   _____/ /_  (_) /_    
-  / ___/ __ \/ / __/    
- (__  ) / / / / /_      
-/____/_/ /_/_/\__/      ");
+        Console.ForegroundColor = ConsoleColor.DarkMagenta;
+        Console.WriteLine(Logo);
 
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine($"             SharpEditor [v{Version}]");
+        Console.WriteLine($"             {LogoProgramName} [v{Version}]");
         Console.ForegroundColor = ConsoleColor.White;
         Console.WriteLine(separator);
         Console.WriteLine();
