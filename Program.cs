@@ -1,26 +1,19 @@
-﻿using Editor.Core;
+﻿using Editor.Input;
 using Editor.UI;
-using Editor.Input;
 
 namespace Editor;
 
-class Program
+internal class Program
 {
-    private static bool debug = false;
+    private static bool debug;
 
-    static void Main(string[] args)
+    private static void Main(string[] args)
     {
         if (args.Length > 0)
-        {
             foreach (var arg in args)
-            {
-                // TODO: fix this dammn HACK: THIS IS FUCKING HACKY
+                // hacky...
                 if (arg == "--debug")
-                {
                     debug = true;
-                }
-            }
-        }
 
         try
         {
@@ -28,9 +21,7 @@ class Program
             try
             {
                 if (Console.WindowWidth < ConsoleRenderer.MinimumConsoleWidth)
-                {
                     Console.SetWindowSize(ConsoleRenderer.MinimumConsoleWidth, Console.WindowHeight);
-                }
             }
             catch
             {
@@ -40,10 +31,7 @@ class Program
             // startup menu / handle file selection
             var startupResult = StartupMenu.ShowMenu(args);
 
-            if (!startupResult.ShouldStartEditor || startupResult.Document == null)
-            {
-                return; // user quit
-            }
+            if (!startupResult.ShouldStartEditor || startupResult.Document == null) return; // user quit
 
             // editor components
             var document = startupResult.Document;
@@ -55,15 +43,14 @@ class Program
 
             if (debug) document.showDebugInfo = true;
             Console.Clear();
-            
-            renderer.Render(document, editorState); // render before loop to avoid forcing user to input to start the program
+            //TODO: Set editor loop as a custom method loop
+            renderer.Render(document,
+                editorState); // render before loop to avoid forcing user to input to start the program
             // Main editor loop
-            bool exitRequested = false;
+            var exitRequested = false;
             while (!exitRequested)
-            {
                 try
                 {
-                    editorState.UpdateFromDocument(document);
                     inputHandler.HandleInput();
                     editorState.UpdateFromDocument(document);
                     renderer.Render(document, editorState); // Render again after input
@@ -76,52 +63,35 @@ class Program
                 }
                 catch (Exception ex)
                 {
-                    if (debug)
-                    {
-                        ShowError($"Editor error: {ex}");
-                    }
-                    else
-                    {
-                        ShowError($"Editor error: {ex.Message}");
-                    }
-
-                    Console.WriteLine("Continue editing? (y/N): ");
-                    var response = Console.ReadKey().KeyChar;
-
-                    if (char.ToLower(response) != 'y')
-                    {
-                        ExitHandler.HandleExit(document, startupResult.IsNewFile);
-                        exitRequested = true;
-                    }
+                    ShowError(ex, false, false);
+                    ExitHandler.HandleExit(document, startupResult.IsNewFile);
+                    exitRequested = true;
                 }
-            }
         }
         catch (Exception ex)
         {
-            // Fatal error
-            Console.Clear();
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("FATAL ERROR:");
-            Console.WriteLine(ex.Message);
-            Console.WriteLine();
-            Console.WriteLine("Stack trace:");
-            Console.WriteLine(ex.StackTrace);
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine();
-            Console.WriteLine("Press any key to exit...");
-            Console.ReadKey();
+            // fatal error
+            ShowError(ex, true, true);
         }
     }
 
-    private static void ShowError(string message)
+    private static void ShowError(Exception ex, bool isFatal = false, bool quit = false)
     {
         Console.Clear();
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("ERROR:");
-        Console.WriteLine(message);
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine();
-        Console.WriteLine("Press any key to continue...");
-        Console.ReadKey();
+        if (isFatal)
+        {
+            Console.WriteLine("Fatal error:");
+            Console.WriteLine(ex);
+            Console.WriteLine("Stacktrace;");
+            Console.WriteLine(ex.StackTrace);
+        }
+        else
+        {
+            Console.WriteLine("Error;");
+            Console.WriteLine(ex.Message);
+        }
+        if (!quit)  return;
+        Environment.Exit(-1);
     }
 }
