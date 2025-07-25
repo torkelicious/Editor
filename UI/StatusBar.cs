@@ -4,8 +4,6 @@ namespace Editor.UI;
 
 public class StatusBar
 {
-    public bool showDebugInfo = false;
-
     public void Render(Document document, EditorState editorState, int linesPadding)
     {
         DrawSeparator(linesPadding);
@@ -32,13 +30,13 @@ public class StatusBar
 
         Console.BackgroundColor = modeColor;
         Console.ForegroundColor = ConsoleColor.Black;
-        string modeText = $" {editorState.Mode.ToString().ToUpper()} ";
+        var modeText = $" {editorState.Mode.ToString().ToUpper()} ";
         Console.Write(modeText);
 
         // Pos
         Console.BackgroundColor = ConsoleColor.White;
         Console.ForegroundColor = ConsoleColor.Black;
-        string positionText = $" {editorState.CursorLine + 1}:{editorState.CursorColumn + 1} ";
+        var positionText = $" {editorState.CursorLine + 1}:{editorState.CursorColumn + 1} ";
         Console.Write(positionText);
 
         // File status 
@@ -81,14 +79,11 @@ public class StatusBar
         Console.ForegroundColor = ConsoleColor.Black;
 
         Console.SetCursorPosition(0, Console.WindowHeight - linesPadding + 2);
-        var helpText =
+        string helpText =
             "HJKL/Arrows: Move || Q: Quit (NORMAL) || I: INSERT mode || ESC: NORMAL mode || X: Delete (NORMAL)";
 
         // Truncate 
-        if (helpText.Length > Console.WindowWidth)
-        {
-            helpText = helpText.Substring(0, Console.WindowWidth - 3) + "...";
-        }
+        if (helpText.Length > Console.WindowWidth) helpText = helpText.Substring(0, Console.WindowWidth - 3) + "...";
 
         Console.Write(helpText.PadRight(Console.WindowWidth));
     }

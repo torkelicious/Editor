@@ -1,6 +1,4 @@
 using Editor.Core;
-using System.Diagnostics;
-using System.Text;
 
 namespace Editor.UI;
 
@@ -9,21 +7,17 @@ public class ConsoleRenderer
     private const int LinesPadding = 3;
     private const int ColumnPadding = 1;
     public const int MinimumConsoleWidth = 100;
-
-    private readonly Viewport viewport;
     private readonly StatusBar statusBar;
 
-    // Optimization 
-    private Dictionary<int, string> lineCache = new Dictionary<int, string>();
-    private HashSet<int> dirtyLines = new HashSet<int>();
+    private readonly Viewport viewport;
+    private readonly HashSet<int> dirtyLines = new();
     private bool fullRedrawNeeded = true;
-    private int lastStartLine = -1;
-    private int lastStartColumn = -1;
+
 
     public ConsoleRenderer(Viewport viewport)
     {
         this.viewport = viewport;
-        this.statusBar = new StatusBar();
+        statusBar = new StatusBar();
     }
 
     public void RegisterWithDocument(Document document)
@@ -46,19 +40,14 @@ public class ConsoleRenderer
         viewport.UpdateDimensions(availableLines, availableColumns);
         viewport.AdjustToShowCursor(editorState.CursorLine, editorState.CursorColumn);
 
-        bool viewportMoved = oldStartLine != viewport.StartLine || oldStartColumn != viewport.StartColumn;
+        var viewportMoved = oldStartLine != viewport.StartLine || oldStartColumn != viewport.StartColumn;
 
         if (fullRedrawNeeded || viewportMoved)
         {
-            PrepareScreen(); // Clears the console
-            lineCache.Clear();
-
-            int startLine = viewport.StartLine;
-            int endLine = Math.Min(startLine + viewport.VisibleLines, document.GetLineCount());
-            for (int i = startLine; i < endLine; i++)
-            {
-                dirtyLines.Add(i);
-            }
+            Console.Clear();
+            var startLine = viewport.StartLine;
+            var endLine = Math.Min(startLine + viewport.VisibleLines, document.GetLineCount());
+            for (var i = startLine; i < endLine; i++) dirtyLines.Add(i);
 
             fullRedrawNeeded = false;
         }
@@ -66,30 +55,22 @@ public class ConsoleRenderer
         RenderDocumentContent(document, editorState);
         statusBar.Render(document, editorState, LinesPadding);
         PositionCursor(editorState);
-
-        lastStartLine = viewport.StartLine;
-        lastStartColumn = viewport.StartColumn;
     }
 
     private void RenderDocumentContent(Document document, EditorState editorState)
     {
-        int startLine = viewport.StartLine;
-        int endLine = Math.Min(startLine + viewport.VisibleLines, document.GetLineCount());
+        var startLine = viewport.StartLine;
+        var endLine = Math.Min(startLine + viewport.VisibleLines, document.GetLineCount());
 
         dirtyLines.Add(editorState.CursorLine);
-        if (editorState.CursorLine != editorState.PreviousCursorLine)
-        {
-            dirtyLines.Add(editorState.PreviousCursorLine);
-        }
+        if (editorState.CursorLine != editorState.PreviousCursorLine) dirtyLines.Add(editorState.PreviousCursorLine);
 
         var linesToRender = new HashSet<int>(dirtyLines);
 
         foreach (var lineIndex in linesToRender)
-        {
             if (lineIndex >= startLine && lineIndex < endLine)
             {
-                string lineContent = document.GetLine(lineIndex);
-                lineCache[lineIndex] = lineContent;
+                var lineContent = document.GetLine(lineIndex);
 
                 var processedLine = ProcessLineForDisplay(
                     lineContent,
@@ -102,22 +83,19 @@ public class ConsoleRenderer
                 Console.Write(processedLine.text.PadRight(viewport.VisibleColumns));
                 DrawScrollIndicators(processedLine, lineIndex, editorState.CursorLine, screenY);
             }
-        }
 
         dirtyLines.Clear();
     }
 
 
-    public void MarkLineDirty(int lineIndex)
+    private void MarkLineDirty(int lineIndex)
     {
         dirtyLines.Add(lineIndex);
-        lineCache.Remove(lineIndex);
     }
 
-    public void MarkAllDirty()
+    private void MarkAllDirty()
     {
         fullRedrawNeeded = true;
-        lineCache.Clear();
         dirtyLines.Clear();
     }
 
@@ -130,14 +108,8 @@ public class ConsoleRenderer
             Console.WriteLine($"Window width too small! (Min: {MinimumConsoleWidth}c)");
             Console.WriteLine("Please resize your Console.");
             Thread.Sleep(500);
+            Console.Clear();
         }
-    }
-
-    private void PrepareScreen()
-    {
-        Console.BackgroundColor = ConsoleColor.Black;
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.Clear();
     }
 
     private (string text, bool truncated) ProcessLineForDisplay(string line, int lineIndex, int cursorLine)
@@ -146,16 +118,11 @@ public class ConsoleRenderer
 
         // horizontal scrolling
         if (viewport.StartColumn > 0 && displayLine.Length > viewport.StartColumn)
-        {
             displayLine = displayLine.Substring(viewport.StartColumn);
-        }
-        else if (viewport.StartColumn > 0)
-        {
-            displayLine = string.Empty;
-        }
+        else if (viewport.StartColumn > 0) displayLine = string.Empty;
 
         // line truncation
-        bool truncated = false;
+        var truncated = false;
         if (displayLine.Length > viewport.VisibleColumns)
         {
             displayLine = displayLine.Substring(0, viewport.VisibleColumns);

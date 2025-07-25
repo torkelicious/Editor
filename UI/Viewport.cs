@@ -2,6 +2,7 @@ namespace Editor.UI;
 
 public class Viewport
 {
+    private const int HorizontalPadding = 5;
     /*
      * This class mainly handles veiwport calculations so we can
      * pass them over to the ConsoleRenderer class
@@ -12,8 +13,6 @@ public class Viewport
     public int StartColumn { get; private set; }
     public int VisibleLines { get; private set; }
     public int VisibleColumns { get; private set; }
-
-    private const int HorizontalPadding = 5;
 
     public void UpdateDimensions(int availableLines, int availableColumns)
     {
@@ -31,26 +30,17 @@ public class Viewport
     {
         // Keep cursor in view vertically
         if (cursorLine < StartLine)
-        {
             StartLine = cursorLine;
-        }
-        else if (cursorLine >= StartLine + VisibleLines)
-        {
-            StartLine = cursorLine - VisibleLines + 1;
-        }
+        else if (cursorLine >= StartLine + VisibleLines) StartLine = cursorLine - VisibleLines + 1;
     }
 
     private void AdjustHorizontal(int cursorColumn)
     {
         // Keep cursor in view horizontally with padding
         if (cursorColumn < StartColumn + HorizontalPadding)
-        {
             StartColumn = Math.Max(0, cursorColumn - HorizontalPadding);
-        }
         else if (cursorColumn >= StartColumn + VisibleColumns - HorizontalPadding)
-        {
             StartColumn = cursorColumn - VisibleColumns + HorizontalPadding + 1;
-        }
     }
 
     public (int screenX, int screenY) GetScreenPosition(int line, int column)

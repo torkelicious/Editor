@@ -9,10 +9,7 @@ public class StartupMenu
     public static EditorStartupResult ShowMenu(string[] args)
     {
         // command line arguments first
-        if (args.Length > 0)
-        {
-            return HandleCommandLineArgs(args);
-        }
+        if (args.Length > 0) return HandleCommandLineArgs(args);
 
         return ShowInteractiveMenu();
     }
@@ -22,34 +19,30 @@ public class StartupMenu
         var filePath = args[0].Trim();
 
         if (File.Exists(filePath))
-        {
             return new EditorStartupResult
             {
                 Document = new Document(filePath),
                 ShouldStartEditor = true,
                 IsNewFile = false
             };
-        }
-        else
-        {
-            try
-            {
-                using var fileStream = File.Create(filePath);
 
-                return new EditorStartupResult
-                {
-                    Document = new Document(filePath),
-                    ShouldStartEditor = true,
-                    IsNewFile = true
-                };
-            }
-            catch (Exception ex)
+        try
+        {
+            using var fileStream = File.Create(filePath);
+
+            return new EditorStartupResult
             {
-                Console.WriteLine($"Could not create file: {ex.Message}");
-                Console.WriteLine("Going to menu...");
-                Thread.Sleep(1500);
-                return ShowInteractiveMenu();
-            }
+                Document = new Document(filePath),
+                ShouldStartEditor = true,
+                IsNewFile = true
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Could not create file: {ex.Message}");
+            Console.WriteLine("Going to menu...");
+            Thread.Sleep(1500);
+            return ShowInteractiveMenu();
         }
     }
 
@@ -98,7 +91,7 @@ public class StartupMenu
         Console.ForegroundColor = ConsoleColor.White;
         Console.Clear();
 
-        string separator = new string('─', Math.Min(Console.WindowWidth, 60));
+        var separator = new string('─', Math.Min(Console.WindowWidth, 60));
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine(
             @"         
@@ -135,8 +128,18 @@ public class StartupMenu
         Console.WriteLine();
         Console.WriteLine(separator);
         Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.WriteLine("* Shitty text editor");
-        Console.WriteLine("* by Torkelicious, 2025");
+        Console.WriteLine(
+            @$"
+* Editor Controls:
+    (NORMAL:) 
+ *   HJKL to move || I: Insert mode || A: Append || X: Delete || D: Delete Line || O: Insert into NewLine || Q: Quit
+ *   You can navigate quickly with TAB and SHIFT+TAB
+
+    (INSERT:)
+ *   ARROW KEYS to move
+ *   ESCAPE: return to NORMAL mode
+{separator}
+");
         Console.ForegroundColor = ConsoleColor.White;
         Console.WriteLine();
         Console.Write("Enter your choice: ");
@@ -202,10 +205,8 @@ public class StartupMenu
                         IsNewFile = true
                     };
                 }
-                else
-                {
-                    return ShowInteractiveMenu();
-                }
+
+                return ShowInteractiveMenu();
             }
 
             return new EditorStartupResult

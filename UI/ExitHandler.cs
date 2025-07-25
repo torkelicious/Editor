@@ -138,7 +138,6 @@ public class ExitHandler
     private static void HandleNewFileCleanup(Document document)
     {
         if (!document.IsUntitled && File.Exists(document.FilePath))
-        {
             try
             {
                 File.Delete(document.FilePath);
@@ -151,6 +150,5 @@ public class ExitHandler
                 Console.WriteLine(
                     $"Warning: Could not delete empty file: {ex.Message}\nMay require manual intervention!");
             }
-        }
     }
 }

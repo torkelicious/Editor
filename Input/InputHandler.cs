@@ -9,8 +9,6 @@ public class InputHandler
     private readonly EditorState editorState;
     private readonly Viewport viewport;
 
-    public bool ShouldQuit { get; private set; }
-
     public InputHandler(Document document, EditorState editorState, Viewport viewport)
     {
         this.document = document;
@@ -18,18 +16,15 @@ public class InputHandler
         this.viewport = viewport;
     }
 
+    public bool ShouldQuit { get; private set; }
+
     public void HandleInput()
     {
         var key = Console.ReadKey(true);
 
         if (editorState.Mode == EditorMode.Normal)
-        {
             HandleNormalMode(key);
-        }
-        else if (editorState.Mode == EditorMode.Insert)
-        {
-            HandleInsertMode(key);
-        }
+        else if (editorState.Mode == EditorMode.Insert) HandleInsertMode(key);
 
         editorState.UpdateFromDocument(document);
         ClampCursorPosition();
@@ -71,7 +66,7 @@ public class InputHandler
 
             case ConsoleKey.X:
                 // Delete character at cursor (vim 'x')
-                document.Delete(1, DeleteDirection.Forward);
+                document.Delete();
                 break;
 
             // Tab/Shift-Tab indent in normal mode
@@ -79,10 +74,8 @@ public class InputHandler
                 if ((key.Modifiers & ConsoleModifiers.Shift) == ConsoleModifiers.Shift)
                 {
                     // Shift+Tab  move left 4 spaces
-                    for (int i = 0; i < 4 && document.CursorPosition > 0; i++)
-                    {
+                    for (var i = 0; i < 4 && document.CursorPosition > 0; i++)
                         document.MoveCursor(document.CursorPosition - 1);
-                    }
                 }
                 else
                 {
@@ -111,10 +104,8 @@ public class InputHandler
             case ConsoleKey.D:
                 // delete line with d
                 if (key.Modifiers == ConsoleModifiers.None)
-                {
                     // Simple delete for now...
                     DeleteCurrentLine();
-                }
 
                 break;
 
@@ -152,10 +143,7 @@ public class InputHandler
 
             case ConsoleKey.Escape:
                 editorState.Mode = EditorMode.Normal;
-                if (document.CursorPosition > 0)
-                {
-                    document.MoveCursor(document.CursorPosition - 1);
-                }
+                if (document.CursorPosition > 0) document.MoveCursor(document.CursorPosition - 1);
 
                 break;
 
@@ -169,7 +157,7 @@ public class InputHandler
                 break;
 
             case ConsoleKey.Delete:
-                document.Delete(1, DeleteDirection.Forward);
+                document.Delete();
                 break;
 
             case ConsoleKey.Tab:
@@ -181,10 +169,7 @@ public class InputHandler
 
             // regular input
             default:
-                if (!char.IsControl(key.KeyChar))
-                {
-                    document.Insert(key.KeyChar);
-                }
+                if (!char.IsControl(key.KeyChar)) document.Insert(key.KeyChar);
 
                 break;
         }
@@ -214,29 +199,20 @@ public class InputHandler
 
     private void MoveCursorLeft()
     {
-        if (document.CursorPosition > 0)
-        {
-            document.MoveCursor(document.CursorPosition - 1);
-        }
+        if (document.CursorPosition > 0) document.MoveCursor(document.CursorPosition - 1);
     }
 
     private void MoveCursorRight()
     {
-        if (document.CursorPosition < document.Length)
-        {
-            document.MoveCursor(document.CursorPosition + 1);
-        }
+        if (document.CursorPosition < document.Length) document.MoveCursor(document.CursorPosition + 1);
     }
 
     private void MoveToEndOfLine()
     {
         var (currentLine, _) = document.CurrentLineColumn;
-        var currentPos = document.GetPositionFromLine(currentLine, 1);
+        var currentPos = document.GetPositionFromLine(currentLine);
 
-        while (currentPos < document.Length && document[currentPos] != '\n')
-        {
-            currentPos++;
-        }
+        while (currentPos < document.Length && document[currentPos] != '\n') currentPos++;
 
         document.MoveCursor(currentPos);
     }
@@ -244,32 +220,20 @@ public class InputHandler
     private void DeleteCurrentLine()
     {
         var (currentLine, _) = document.CurrentLineColumn;
-        var lineStart = document.GetPositionFromLine(currentLine, 1);
+        var lineStart = document.GetPositionFromLine(currentLine);
         var lineEnd = lineStart;
 
-        while (lineEnd < document.Length && document[lineEnd] != '\n')
-        {
-            lineEnd++;
-        }
+        while (lineEnd < document.Length && document[lineEnd] != '\n') lineEnd++;
 
-        if (lineEnd < document.Length && document[lineEnd] == '\n')
-        {
-            lineEnd++;
-        }
+        if (lineEnd < document.Length && document[lineEnd] == '\n') lineEnd++;
 
         document.MoveCursor(lineStart);
-        int deleteLength = lineEnd - lineStart;
-        if (deleteLength > 0)
-        {
-            document.Delete(deleteLength, DeleteDirection.Forward);
-        }
+        var deleteLength = lineEnd - lineStart;
+        if (deleteLength > 0) document.Delete(deleteLength);
     }
 
     private void ClampCursorPosition()
     {
-        if (document.CursorPosition > document.Length)
-        {
-            document.MoveCursor(document.Length);
-        }
+        if (document.CursorPosition > document.Length) document.MoveCursor(document.Length);
     }
 }
