@@ -85,36 +85,8 @@ public class Document : IDisposable
     }
 
     // Editing operations
-    public void Insert(char character)
+    private void HandleInsert(int currentLine, bool containsNewline)
     {
-        if (!IsEditable) return;
-
-        var currentLine = CurrentLineColumn.line - 1;
-
-        buffer.Insert(character);
-        InvalidateLineIndex();
-
-        if (character == '\n')
-        {
-            OnLineChanged?.Invoke(currentLine);
-            OnLineChanged?.Invoke(currentLine + 1);
-        }
-        else
-        {
-            OnLineChanged?.Invoke(currentLine);
-        }
-
-        SetState(DocumentState.Dirty);
-    }
-
-    public void Insert(string text)
-    {
-        if (!IsEditable || string.IsNullOrEmpty(text)) return;
-
-        var currentLine = CurrentLineColumn.line - 1;
-        var containsNewline = text.Contains('\n');
-
-        buffer.Insert(text);
         InvalidateLineIndex();
 
         if (containsNewline)
@@ -127,6 +99,26 @@ public class Document : IDisposable
         }
 
         SetState(DocumentState.Dirty);
+    }
+
+    public void Insert(char character)
+    {
+        if (!IsEditable) return;
+
+        var currentLine = CurrentLineColumn.line - 1;
+        buffer.Insert(character);
+
+        HandleInsert(currentLine, character == '\n');
+    }
+
+    public void Insert(string text)
+    {
+        if (!IsEditable || string.IsNullOrEmpty(text)) return;
+
+        var currentLine = CurrentLineColumn.line - 1;
+        buffer.Insert(text);
+
+        HandleInsert(currentLine, text.Contains('\n'));
     }
 
     public void Delete(int count = 1, DeleteDirection direction = DeleteDirection.Forward)
@@ -191,44 +183,14 @@ public class Document : IDisposable
         SetState(DocumentState.Loading);
         try
         {
-            if (originalFileSize > 10_000_000) // 10MB
-            {
-                Console.Write("Reading file into buffer... ");
-            }
-
             var content = File.ReadAllText(filePath);
             buffer.Insert(content);
             buffer.MoveTo(0);
             this.filePath = filePath;
-
             InvalidateLineIndex();
-
             SetState(DocumentState.Clean);
             lastModified = File.GetLastWriteTimeUtc(filePath);
-
-            if (originalFileSize > 10_000_000)
-            {
-                Console.WriteLine("Done!");
-            }
-        }
-        catch
-        {
-            SetState(DocumentState.Error);
-            throw;
-        }
-    }
-
-    public async Task SaveToFileAsync(string? filePath = null)
-    {
-        SetState(DocumentState.Saving);
-        try
-        {
-            var targetPath = filePath ?? this.filePath ?? throw new InvalidOperationException("No file path specified");
-            var content = GetText();
-            await File.WriteAllTextAsync(targetPath, content);
-            this.filePath = targetPath;
-            SetState(DocumentState.Clean);
-            lastModified = DateTime.UtcNow;
+            OnDocumentChanged?.Invoke();
         }
         catch
         {
@@ -309,16 +271,9 @@ public class Document : IDisposable
 
     private void showLoadingInfo()
     {
-        if (originalFileSize > 1_000_000)
-        {
             var sizeMB = originalFileSize / (1024.0 * 1024.0);
             Console.WriteLine($"Loading file: {Path.GetFileName(filePath)} ({sizeMB:F1}MB)");
-            Console.WriteLine($"Buffertype: GapBuffer");
-            if (originalFileSize > 50_000_000)
-            {
-                Console.WriteLine("This might take a moment...");
-            }
-        }
+            Console.WriteLine($"Using {buffer}");
     }
 
     public string GetLine(int lineNumber)
@@ -461,6 +416,8 @@ public class Document : IDisposable
     {
         buffer.Dispose();
         cachedLines = null;
+        OnLineChanged = null;
+        OnDocumentChanged = null;
         lineStartPositions = null;
     }
 }
