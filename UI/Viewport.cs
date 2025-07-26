@@ -4,7 +4,7 @@ public class Viewport
 {
     private const int HorizontalPadding = 5;
     /*
-     * This class mainly handles veiwport calculations so we can
+     * This class mainly handles viewport calculations so we can
      * pass them over to the ConsoleRenderer class
      * Most of this is ripped directly from the old prototype version of the code.
      */
@@ -75,4 +75,6 @@ public class Viewport
     {
         StartColumn += columns;
     }
+
+    // half of these methods arent even being used lul
 }

@@ -2,7 +2,7 @@ using Editor.Core;
 
 namespace Editor.UI;
 
-public class ExitHandler
+public static class ExitHandler
 {
     public static void HandleExit(Document document, bool isNewFile)
     {
@@ -137,18 +137,18 @@ public class ExitHandler
 
     private static void HandleNewFileCleanup(Document document)
     {
-        if (!document.IsUntitled && File.Exists(document.FilePath))
-            try
-            {
-                File.Delete(document.FilePath);
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"Cleaned up file buffer: {document.FilePath}");
-            }
-            catch (Exception ex)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(
-                    $"Warning: Could not delete empty file: {ex.Message}\nMay require manual intervention!");
-            }
+        if (document.IsUntitled || !File.Exists(document.FilePath)) return;
+        try
+        {
+            File.Delete(document.FilePath);
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"Cleaned up file buffer: {document.FilePath}");
+        }
+        catch (Exception ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(
+                $"Warning: Could not delete empty file: {ex.Message}\nMay require manual intervention!");
+        }
     }
 }

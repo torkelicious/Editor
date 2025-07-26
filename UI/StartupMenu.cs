@@ -2,25 +2,27 @@ using Editor.Core;
 
 namespace Editor.UI;
 
-public class StartupMenu
+public static class StartupMenu
 {
     private const string Version = "0.0.0-R";
-    private const string Logo = 
-        @"
-  __                          __      _  _         
- / /____ ____  ___ ____ ___  / /_____(_)(_)______ _
-/ __/ _ `/ _ \/ _ `/ -_) _ \/ __/ __/ _ \/ __/ _ `/
-\__/\_,_/_//_/\_, /\__/_//_/\__/_/  \___/_/  \_,_/ 
-             /___/                                 
-";
+
+    private const string Logo =
+        """
+
+          __                          __      _  _         
+         / /____ ____  ___ ____ ___  / /_____(_)(_)______ _
+        / __/ _ `/ _ \/ _ `/ -_) _ \/ __/ __/ _ \/ __/ _ `/
+        \__/\_,_/_//_/\_, /\__/_//_/\__/_/  \___/_/  \_,_/ 
+                     /___/                                 
+
+        """;
+
     private const string LogoProgramName = "TangentRöra";
 
     public static EditorStartupResult ShowMenu(string[] args)
     {
-        // command line arguments first
-        if (args.Length > 0) return HandleCommandLineArgs(args);
-
-        return ShowInteractiveMenu();
+        // cli arguments first
+        return args.Length > 0 ? HandleCommandLineArgs(args) : ShowInteractiveMenu();
     }
 
     private static EditorStartupResult HandleCommandLineArgs(string[] args)
@@ -132,17 +134,19 @@ public class StartupMenu
         Console.WriteLine(separator);
         Console.ForegroundColor = ConsoleColor.DarkGray;
         Console.WriteLine(
-            @$"
-* Editor Controls:
-    (NORMAL:) 
- *   HJKL to move || I: Insert mode || A: Append || X: Delete || D: Delete Line || O: Insert into NewLine || Q: Quit
- *   You can navigate quickly with TAB and SHIFT+TAB
+            $"""
 
-    (INSERT:)
- *   ARROW KEYS to move
- *   ESCAPE: return to NORMAL mode
-{separator}
-");
+             * Editor Controls:
+                 (NORMAL:) 
+              *   HJKL to move || I: Insert mode || A: Append || X: Delete || D: Delete Line || O: Insert into NewLine || Q: Quit
+              *   You can navigate quickly with TAB and SHIFT+TAB
+
+                 (INSERT:)
+              *   ARROW KEYS to move
+              *   ESCAPE: return to NORMAL mode
+             {separator}
+
+             """);
         Console.ForegroundColor = ConsoleColor.White;
         Console.WriteLine();
         Console.Write("Enter your choice: ");
@@ -169,7 +173,7 @@ public class StartupMenu
         Console.ForegroundColor = ConsoleColor.White;
         Console.Write("Enter the path to the file: ");
 
-        string? filePath = null;
+        var filePath = string.Empty;
         try
         {
             filePath = Console.ReadLine()?.Trim();

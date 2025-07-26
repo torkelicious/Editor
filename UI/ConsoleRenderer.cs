@@ -2,23 +2,16 @@ using Editor.Core;
 
 namespace Editor.UI;
 
-public class ConsoleRenderer
+public class ConsoleRenderer(Viewport viewport)
 {
     private const int LinesPadding = 3;
     private const int ColumnPadding = 1;
     public const int MinimumConsoleWidth = 100;
-    private readonly StatusBar statusBar;
 
-    private readonly Viewport viewport;
-    private readonly HashSet<int> dirtyLines = new();
+    private readonly HashSet<int> dirtyLines = [];
+    private readonly StatusBar statusBar = new();
     private bool fullRedrawNeeded = true;
 
-
-    public ConsoleRenderer(Viewport viewport)
-    {
-        this.viewport = viewport;
-        statusBar = new StatusBar();
-    }
 
     public void RegisterWithDocument(Document document)
     {
@@ -53,7 +46,7 @@ public class ConsoleRenderer
         }
 
         RenderDocumentContent(document, editorState);
-        statusBar.Render(document, editorState, LinesPadding);
+        StatusBar.Render(document, editorState, LinesPadding);
         PositionCursor(editorState);
     }
 
@@ -99,7 +92,7 @@ public class ConsoleRenderer
         dirtyLines.Clear();
     }
 
-    private void EnsureMinimumSize()
+    private static void EnsureMinimumSize()
     {
         while (Console.WindowWidth < MinimumConsoleWidth)
         {
@@ -118,14 +111,14 @@ public class ConsoleRenderer
 
         // horizontal scrolling
         if (viewport.StartColumn > 0 && displayLine.Length > viewport.StartColumn)
-            displayLine = displayLine.Substring(viewport.StartColumn);
+            displayLine = displayLine[viewport.StartColumn..];
         else if (viewport.StartColumn > 0) displayLine = string.Empty;
 
         // line truncation
         var truncated = false;
         if (displayLine.Length > viewport.VisibleColumns)
         {
-            displayLine = displayLine.Substring(0, viewport.VisibleColumns);
+            displayLine = displayLine[..viewport.VisibleColumns];
             truncated = true;
         }
 

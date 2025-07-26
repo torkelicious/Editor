@@ -8,8 +8,6 @@ public class GapBuffer : ITextBuffer
 {
     private const int MinGapSize = 32;
 
-    private const int MaxGapSize = 1024;
-
     // Core
     private char[] buffer;
     private int gapStart, gapEnd;
@@ -40,7 +38,8 @@ public class GapBuffer : ITextBuffer
     {
         if (string.IsNullOrEmpty(str)) return;
         EnsureGapSize(str.Length);
-        for (var i = 0; i < str.Length; i++) buffer[gapStart++] = str[i];
+        foreach (var t in str)
+            buffer[gapStart++] = t;
 
         Position += str.Length;
     }

@@ -1,4 +1,5 @@
-﻿using Editor.Input;
+﻿using Editor.Core;
+using Editor.Input;
 using Editor.UI;
 
 namespace Editor;
@@ -30,49 +31,55 @@ internal class Program
 
             // startup menu / handle file selection
             var startupResult = StartupMenu.ShowMenu(args);
-
             if (!startupResult.ShouldStartEditor || startupResult.Document == null) return; // user quit
-
             // editor components
             var document = startupResult.Document;
             var editorState = new EditorState();
             var viewport = new Viewport();
             var renderer = new ConsoleRenderer(viewport);
             renderer.RegisterWithDocument(document);
-            var inputHandler = new InputHandler(document, editorState, viewport);
-
-            if (debug) document.showDebugInfo = true;
-            Console.Clear();
-            //TODO: Set editor loop as a custom method loop
-            renderer.Render(document,
-                editorState); // render before loop to avoid forcing user to input to start the program
-            // Main editor loop
-            var exitRequested = false;
-            while (!exitRequested)
-                try
-                {
-                    inputHandler.HandleInput();
-                    editorState.UpdateFromDocument(document);
-                    renderer.Render(document, editorState); // Render again after input
-
-                    if (inputHandler.ShouldQuit)
-                    {
-                        ExitHandler.HandleExit(document, startupResult.IsNewFile);
-                        exitRequested = true;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ShowError(ex, false, false);
-                    ExitHandler.HandleExit(document, startupResult.IsNewFile);
-                    exitRequested = true;
-                }
+            // var inputHandler = new InputHandler(document, editorState, viewport);
+            // !! We create inputHandler in the mainLoop func instead !!
+            MainLoop(document, editorState, viewport, renderer, startupResult);
         }
         catch (Exception ex)
         {
             // fatal error
             ShowError(ex, true, true);
         }
+    }
+
+    private static void MainLoop(Document document, EditorState editorState, Viewport viewport,
+        ConsoleRenderer renderer, EditorStartupResult startupResult)
+    {
+        var inputHandler = new InputHandler(document, editorState, viewport);
+
+        if (debug) document.showDebugInfo = true;
+        Console.Clear();
+
+        renderer.Render(document, editorState); // render before loop to avoid forcing user to input
+
+        // Main editor loop
+        var exitRequested = false;
+        while (!exitRequested)
+            try
+            {
+                inputHandler.HandleInput();
+                editorState.UpdateFromDocument(document);
+                renderer.Render(document, editorState); // Render again after input
+
+                if (inputHandler.ShouldQuit)
+                {
+                    ExitHandler.HandleExit(document, startupResult.IsNewFile);
+                    exitRequested = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex);
+                ExitHandler.HandleExit(document, startupResult.IsNewFile);
+                exitRequested = true;
+            }
     }
 
     private static void ShowError(Exception ex, bool isFatal = false, bool quit = false)
@@ -91,7 +98,8 @@ internal class Program
             Console.WriteLine("Error;");
             Console.WriteLine(ex.Message);
         }
-        if (!quit)  return;
+
+        if (!quit) return;
         Environment.Exit(-1);
     }
 }

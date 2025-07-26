@@ -4,7 +4,7 @@ namespace Editor.UI;
 
 public class StatusBar
 {
-    public void Render(Document document, EditorState editorState, int linesPadding)
+    public static void Render(Document document, EditorState editorState, int linesPadding)
     {
         DrawSeparator(linesPadding);
         DrawModeAndPosition(document, editorState, linesPadding);
@@ -12,14 +12,14 @@ public class StatusBar
         ResetColors();
     }
 
-    private void DrawSeparator(int linesPadding)
+    private static void DrawSeparator(int linesPadding)
     {
         Console.SetCursorPosition(0, Console.WindowHeight - linesPadding);
         Console.ForegroundColor = ConsoleColor.DarkGray;
         Console.Write(new string('─', Console.WindowWidth));
     }
 
-    private void DrawModeAndPosition(Document document, EditorState editorState, int linesPadding)
+    private static void DrawModeAndPosition(Document document, EditorState editorState, int linesPadding)
     {
         var y = Console.WindowHeight - linesPadding + 1;
         Console.SetCursorPosition(0, y);
@@ -52,7 +52,7 @@ public class StatusBar
             Console.BackgroundColor = ConsoleColor.DarkCyan;
             Console.ForegroundColor = ConsoleColor.White;
             var displayPath = document.FilePath!.Length > 50
-                ? "..." + document.FilePath.Substring(document.FilePath.Length - 47)
+                ? "..." + document.FilePath[^47..]
                 : document.FilePath;
             Console.Write($"  📄 {displayPath}  ");
         }
@@ -73,22 +73,23 @@ public class StatusBar
         }
     }
 
-    private void DrawHelpLine(int linesPadding)
+    private static void DrawHelpLine(int linesPadding)
     {
         Console.BackgroundColor = ConsoleColor.White;
         Console.ForegroundColor = ConsoleColor.Black;
 
         Console.SetCursorPosition(0, Console.WindowHeight - linesPadding + 2);
-        string helpText =
+        var helpText =
             "HJKL/Arrows: Move || Q: Quit (NORMAL) || I: INSERT mode || ESC: NORMAL mode || X: Delete (NORMAL)";
 
         // Truncate 
-        if (helpText.Length > Console.WindowWidth) helpText = helpText.Substring(0, Console.WindowWidth - 3) + "...";
+        if (helpText.Length > Console.WindowWidth)
+            helpText = string.Concat(helpText.AsSpan(0, Console.WindowWidth - 3), "...");
 
         Console.Write(helpText.PadRight(Console.WindowWidth));
     }
 
-    private void ResetColors()
+    private static void ResetColors()
     {
         Console.BackgroundColor = ConsoleColor.Black;
         Console.ForegroundColor = ConsoleColor.White;

@@ -4,20 +4,7 @@ namespace Editor.Core;
 
 public class Document : IDisposable
 {
-    /*
-     * This is a wrapper for our ITextBuffer class, for document editing etc
-     */
-    public enum DocumentState
-    {
-        Clean, // No changes
-        Dirty, // Has unsaved changes
-        Loading, // Currently Reading / Loading from a file
-        Saving, // Currently Writing / Saving to a file
-        ReadOnly, // File is ReadOnly / we lack permissions
-        Error // File operation failed error state
-    }
-
-    private ITextBuffer buffer;
+    private readonly GapBuffer buffer; // If we implement more buffers use ITextBuffer type instead!!
     private string[]? cachedLines;
     private DateTime cacheTimestamp;
     private bool lineIndexValid;
@@ -45,25 +32,24 @@ public class Document : IDisposable
         else
         {
             // For a new doc the index is valid.
-            lineStartPositions = new List<int> { 0 };
+            lineStartPositions = [0];
             lineIndexValid = true;
         }
     }
 
     // Properties
-    public DocumentState State { get; private set; }
+    private DocumentState State { get; set; }
 
     public bool IsDirty => State == DocumentState.Dirty;
-    public bool IsReadOnly => State == DocumentState.ReadOnly;
-    public bool IsEditable => State == DocumentState.Clean || State == DocumentState.Dirty;
+    private bool IsEditable => State is DocumentState.Clean or DocumentState.Dirty;
     public int Length => buffer.Length;
     public int CursorPosition => buffer.Position;
     public string? FilePath { get; private set; }
 
-    public DateTime LastModified { get; private set; }
+    private DateTime LastModified { get; set; }
 
     public bool IsUntitled => string.IsNullOrEmpty(FilePath);
-    public long OriginalFileSize { get; }
+    private long OriginalFileSize { get; }
 
     // Indexer
     public char this[int index] => buffer[index];
@@ -160,10 +146,12 @@ public class Document : IDisposable
     }
 
 
-    public void Backspace(int count = 1)
+    /*
+     public void Backspace(int count = 1)
     {
-        Delete(count, DeleteDirection.Backward);
+        Delete(count, DeleteDirection.Backward);       // This is not being used
     }
+    */
 
     public void MoveCursor(int position)
     {
@@ -171,7 +159,7 @@ public class Document : IDisposable
     }
 
     // File operations
-    public void LoadFromFile(string filePath)
+    private void LoadFromFile(string filePath)
     {
         SetState(DocumentState.Loading);
         try
@@ -179,7 +167,7 @@ public class Document : IDisposable
             var content = File.ReadAllText(filePath);
             buffer.Insert(content);
             buffer.MoveTo(0);
-            this.FilePath = filePath;
+            FilePath = filePath;
             InvalidateLineIndex();
             SetState(DocumentState.Clean);
             LastModified = File.GetLastWriteTimeUtc(filePath);
@@ -197,10 +185,10 @@ public class Document : IDisposable
         SetState(DocumentState.Saving);
         try
         {
-            var targetPath = filePath ?? this.FilePath ?? throw new InvalidOperationException("No file path specified");
+            var targetPath = filePath ?? FilePath ?? throw new InvalidOperationException("No file path specified");
             var content = GetText();
             File.WriteAllText(targetPath, content);
-            this.FilePath = targetPath;
+            FilePath = targetPath;
             SetState(DocumentState.Clean);
             LastModified = DateTime.UtcNow;
         }
@@ -211,7 +199,7 @@ public class Document : IDisposable
         }
     }
 
-    public string GetText()
+    private string GetText()
     {
         var sb = new StringBuilder(buffer.Length);
         for (var i = 0; i < buffer.Length; i++) sb.Append(buffer[i]);
@@ -220,7 +208,7 @@ public class Document : IDisposable
     }
 
     // Navigation helpers
-    public (int line, int column) GetLineColumn(int position)
+    private (int line, int column) GetLineColumn(int position)
     {
         // !! this is a slow operation and should be used sparingly !!
         int line = 1, column = 1;
@@ -239,22 +227,6 @@ public class Document : IDisposable
     }
 
     // Utility methods
-    public void Clear()
-    {
-        if (!IsEditable) return;
-
-        buffer.Dispose();
-        buffer = new GapBuffer();
-        InvalidateLineIndex();
-        SetState(DocumentState.Dirty);
-        OnDocumentChanged?.Invoke();
-    }
-
-    public bool HasUnsavedChanges()
-    {
-        return IsDirty;
-    }
-
     private void showLoadingInfo()
     {
         var sizeMB = OriginalFileSize / (1024.0 * 1024.0);
@@ -280,7 +252,7 @@ public class Document : IDisposable
         if (cachedLines == null || cacheTimestamp < LastModified)
         {
             var text = GetText();
-            cachedLines = string.IsNullOrEmpty(text) ? new[] { "" } : text.Split('\n');
+            cachedLines = string.IsNullOrEmpty(text) ? [""] : text.Split('\n');
             cacheTimestamp = DateTime.UtcNow;
         }
 
@@ -302,7 +274,7 @@ public class Document : IDisposable
     // Line indexing 4 fast navigation
     private void BuildLineIndex()
     {
-        lineStartPositions = new List<int> { 0 }; // Line 1 always starts at position 0.
+        lineStartPositions = [0]; // Line 1 always starts at position 0.
 
         for (var i = 0; i < buffer.Length; i++)
             if (buffer[i] == '\n')
@@ -378,5 +350,18 @@ public class Document : IDisposable
         }
 
         return position;
+    }
+
+    /*
+     * This is a wrapper for our buffer
+     */
+    private enum DocumentState
+    {
+        Clean, // No changes
+        Dirty, // Has unsaved changes
+        Loading, // Currently Reading / Loading from a file
+        Saving, // Currently Writing / Saving to a file
+        ReadOnly, // File is ReadOnly / we lack permissions
+        Error // File operation failed error state
     }
 }

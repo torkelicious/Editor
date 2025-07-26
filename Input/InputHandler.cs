@@ -3,19 +3,8 @@ using Editor.UI;
 
 namespace Editor.Input;
 
-public class InputHandler
+public class InputHandler(Document document, EditorState editorState, Viewport viewport)
 {
-    private readonly Document document;
-    private readonly EditorState editorState;
-    private readonly Viewport viewport;
-
-    public InputHandler(Document document, EditorState editorState, Viewport viewport)
-    {
-        this.document = document;
-        this.editorState = editorState;
-        this.viewport = viewport;
-    }
-
     public bool ShouldQuit { get; private set; }
 
     public void HandleInput()
