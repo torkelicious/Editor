@@ -1,4 +1,4 @@
-namespace Editor.Core;
+namespace Editor.Core.EditorActions;
 
 public class UndoManager
 {

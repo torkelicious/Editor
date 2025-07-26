@@ -1,6 +1,10 @@
+#region
+
 using Editor.Core;
 using Editor.Core.EditorActions;
 using Editor.UI;
+
+#endregion
 
 namespace Editor.Input;
 
@@ -147,7 +151,7 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
 
             case ConsoleKey.Escape:
                 editorState.Mode = EditorMode.Normal;
-                if (_insertSession != null && _insertSession.Count > 0)
+                if (_insertSession is { Count: > 0 })
                 {
                     undoManager.PushAction(_insertSession); // Only register, do not execute again!!!
                     _insertSession = null;
@@ -187,8 +191,7 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
 
     private void BufferInsertWithUndo(char c)
     {
-        if (_insertSession == null)
-            _insertSession = new CompoundAction();
+        _insertSession ??= new CompoundAction();
         var action = new InsertAction(document, document.CursorPosition, c);
         action.Do(); // Apply immediately so user sees input
         _insertSession.Add(action);
@@ -196,8 +199,7 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
 
     private void BufferInsertWithUndo(string str)
     {
-        if (_insertSession == null)
-            _insertSession = new CompoundAction();
+        _insertSession ??= new CompoundAction();
         var action = new InsertAction(document, document.CursorPosition, str);
         action.Do();
         _insertSession.Add(action);
@@ -205,8 +207,7 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
 
     private void BufferDeleteWithUndo(int count = 1, DeleteDirection direction = DeleteDirection.Forward)
     {
-        if (_insertSession == null)
-            _insertSession = new CompoundAction();
+        _insertSession ??= new CompoundAction();
         var action = new DeleteAction(document, document.CursorPosition, direction, count);
         action.Do();
         _insertSession.Add(action);

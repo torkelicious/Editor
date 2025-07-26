@@ -1,4 +1,8 @@
+#region
+
 using Editor.Core;
+
+#endregion
 
 namespace Editor.UI;
 
@@ -66,9 +70,7 @@ public class ConsoleRenderer(Viewport viewport)
                 var lineContent = document.GetLine(lineIndex);
 
                 var processedLine = ProcessLineForDisplay(
-                    lineContent,
-                    lineIndex,
-                    editorState.CursorLine
+                    lineContent
                 );
 
                 var screenY = lineIndex - viewport.StartLine;
@@ -105,7 +107,7 @@ public class ConsoleRenderer(Viewport viewport)
         }
     }
 
-    private (string text, bool truncated) ProcessLineForDisplay(string line, int lineIndex, int cursorLine)
+    private (string text, bool truncated) ProcessLineForDisplay(string line)
     {
         var displayLine = line;
 

@@ -2,7 +2,7 @@ namespace Editor.Core.EditorActions;
 
 public class CompoundAction : IEditorAction
 {
-    private readonly List<IEditorAction> _actions = new();
+    private readonly List<IEditorAction> _actions = [];
 
     public int Count => _actions.Count;
 

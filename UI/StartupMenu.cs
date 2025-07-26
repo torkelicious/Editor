@@ -1,10 +1,15 @@
+#region
+
 using Editor.Core;
+
+#endregion
 
 namespace Editor.UI;
 
 public static class StartupMenu
 {
     private const string Version = "0.0.0-R";
+
     private const string Logo =
         """
 
@@ -19,8 +24,9 @@ public static class StartupMenu
     private const string LogoProgramName = "TangentRöra";
     private const string License = "SPDX-License-Identifier: GPL-3.0-or-later";
     private const string Author = "torkelicious";
-    private static readonly string LicenseText = 
-      $@"
+
+    private static readonly string LicenseText =
+        $@"
 This software is Licensed under: {License}
 Copyright © {DateTime.Now.Year} {Author} 
 ";
@@ -35,8 +41,8 @@ Copyright © {DateTime.Now.Year} {Author}
     private static EditorStartupResult HandleCommandLineArgs(string[] args)
     {
         var filePath = args[0].Trim();
-        if (filePath == string.Empty) { return ShowInteractiveMenu(); }
-        
+        if (filePath == string.Empty) return ShowInteractiveMenu();
+
         if (File.Exists(filePath))
             return new EditorStartupResult
             {

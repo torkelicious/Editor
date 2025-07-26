@@ -1,4 +1,8 @@
+#region
+
 using Editor.Core;
+
+#endregion
 
 namespace Editor.UI;
 

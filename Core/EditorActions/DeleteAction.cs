@@ -1,4 +1,6 @@
-using Editor.Core;
+using System.Text;
+
+namespace Editor.Core.EditorActions;
 
 public class DeleteAction : IEditorAction
 {
@@ -21,18 +23,17 @@ public class DeleteAction : IEditorAction
     {
         _previousCursor = _document.CursorPosition;
         _document.MoveCursor(_position);
-
-        // Collect deleted text for undo
-        _deletedText = "";
+        var sb = new StringBuilder();
         for (var i = 0; i < _count; i++)
         {
             var charPos = _direction == DeleteDirection.Backward
                 ? _document.CursorPosition - 1
                 : _document.CursorPosition;
-            if (charPos < 0 || charPos >= _document.Length) break;
-            _deletedText += _document.GetCharAt(charPos);
-            _document.Delete(1, _direction);
+            if (charPos < 0 || charPos >= _document.Length) break; // Check bounds before getting char
+            sb.Append(_document.GetCharAt(charPos)); // Append the character
+            _document.Delete(1, _direction); // Perform the delete operation
         }
+        _deletedText = sb.ToString();
     }
 
     public void Undo()

@@ -1,10 +1,14 @@
+#region
+
 using System.Text;
+
+#endregion
 
 namespace Editor.Core;
 
 public class Document : IDisposable
 {
-    private readonly GapBuffer buffer; // If we implement more buffers use ITextBuffer type instead!!
+    private readonly ITextBuffer buffer; // If we implement more buffers use interface yadyada
     private string[]? cachedLines;
     private DateTime cacheTimestamp;
     private bool lineIndexValid;

@@ -1,4 +1,8 @@
+#region
+
 using Editor.Core;
+
+#endregion
 
 namespace Editor.UI;
 
@@ -78,7 +82,7 @@ public class StatusBar
         Console.BackgroundColor = ConsoleColor.White;
         Console.ForegroundColor = ConsoleColor.Black;
 
-        int y = Console.WindowHeight - linesPadding + 2;
+        var y = Console.WindowHeight - linesPadding + 2;
         Console.SetCursorPosition(0, y);
 
         // Clear the entire line first
@@ -86,17 +90,17 @@ public class StatusBar
         Console.SetCursorPosition(0, y);
 
         var helpText =
-            $"HJKL/Arrows: Move || Q: Quit (NORMAL) || I: INSERT mode || ESC: NORMAL mode || X: Delete (NORMAL) ||";
+            "HJKL/Arrows: Move || Q: Quit (NORMAL) || I: INSERT mode || ESC: NORMAL mode || X: Delete (NORMAL) ||";
 
         var rec = recorder(lastInput);
 
-        int maxHelpLength = Console.WindowWidth - rec.Length;
+        var maxHelpLength = Console.WindowWidth - rec.Length;
         if (helpText.Length > maxHelpLength)
             helpText = string.Concat(helpText.AsSpan(0, maxHelpLength - 3), "...");
 
         Console.Write(helpText);
 
-        int recPos = Console.WindowWidth - rec.Length;
+        var recPos = Console.WindowWidth - rec.Length;
         Console.SetCursorPosition(recPos, y);
         Console.Write(rec);
     }

@@ -1,10 +1,15 @@
-﻿using Editor.Core;
+﻿#region
+
+using Editor.Core;
+using Editor.Core.EditorActions;
 using Editor.Input;
 using Editor.UI;
 
+#endregion
+
 namespace Editor;
 
-internal class Program
+internal static class Program
 {
     private static bool debug;
 
@@ -12,18 +17,17 @@ internal class Program
     {
         if (args.Length > 0)
 
-            for (int i = 0; i < args.Length; i++)
-            {
+            for (var i = 0; i < args.Length; i++)
                 if (args[i] == "--debug")
                 {
                     debug = true;
                     args[i] = string.Empty;
+                    break;
                 }
-                break;
-            }
+
         try
         {
-            // Set window size if possible (Windows only)
+            /* Set window size if possible (Windows only)
             try
             {
                 if (Console.WindowWidth < ConsoleRenderer.MinimumConsoleWidth)
@@ -32,7 +36,7 @@ internal class Program
             catch
             {
                 // do nothing...
-            }
+            }*/
 
             // startup menu / handle file selection
             var startupResult = StartupMenu.ShowMenu(args);

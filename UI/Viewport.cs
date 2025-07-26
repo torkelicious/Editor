@@ -48,14 +48,6 @@ public class Viewport
         return (column - StartColumn, line - StartLine);
     }
 
-    public bool IsVisible(int line, int column)
-    {
-        return line >= StartLine &&
-               line < StartLine + VisibleLines &&
-               column >= StartColumn &&
-               column < StartColumn + VisibleColumns;
-    }
-
     public void ScrollUp(int lines = 1)
     {
         StartLine = Math.Max(0, StartLine - lines);
@@ -65,16 +57,4 @@ public class Viewport
     {
         StartLine += lines;
     }
-
-    public void ScrollLeft(int columns = 1)
-    {
-        StartColumn = Math.Max(0, StartColumn - columns);
-    }
-
-    public void ScrollRight(int columns = 1)
-    {
-        StartColumn += columns;
-    }
-
-    // half of these methods arent even being used lul
 }

@@ -1,4 +1,4 @@
-using Editor.Core;
+namespace Editor.Core.EditorActions;
 
 public class InsertAction : IEditorAction
 {
