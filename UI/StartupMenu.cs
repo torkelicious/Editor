@@ -5,7 +5,6 @@ namespace Editor.UI;
 public static class StartupMenu
 {
     private const string Version = "0.0.0-R";
-
     private const string Logo =
         """
 
@@ -18,6 +17,14 @@ public static class StartupMenu
         """;
 
     private const string LogoProgramName = "TangentRöra";
+    private const string License = "SPDX-License-Identifier: GPL-3.0-or-later";
+    private const string Author = "torkelicious";
+    private static readonly string LicenseText = 
+      $@"
+This software is Licensed under: {License}
+Copyright © {DateTime.Now.Year} {Author} 
+";
+
 
     public static EditorStartupResult ShowMenu(string[] args)
     {
@@ -109,6 +116,8 @@ public static class StartupMenu
 
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine($"             {LogoProgramName} [v{Version}]");
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        Console.Write(LicenseText);
         Console.ForegroundColor = ConsoleColor.White;
         Console.WriteLine(separator);
         Console.WriteLine();
