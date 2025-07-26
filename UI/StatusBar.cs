@@ -103,7 +103,7 @@ public class StatusBar
 
     private static string recorder(string lastInput = "")
     {
-        return $"[🔴{lastInput}]";
+        return $"🔴[{lastInput}]";
     }
 
     private static void ResetColors()
