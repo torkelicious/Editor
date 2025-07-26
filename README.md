@@ -1,3 +1,5 @@
+# tangentröra
+
 trashy text editor made in c#
 
 runs in the cli
