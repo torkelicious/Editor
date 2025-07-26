@@ -11,11 +11,16 @@ internal class Program
     private static void Main(string[] args)
     {
         if (args.Length > 0)
-            foreach (var arg in args)
-                // hacky...
-                if (arg == "--debug")
-                    debug = true;
 
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == "--debug")
+                {
+                    debug = true;
+                    args[i] = string.Empty;
+                }
+                break;
+            }
         try
         {
             // Set window size if possible (Windows only)

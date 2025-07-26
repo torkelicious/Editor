@@ -28,7 +28,8 @@ public static class StartupMenu
     private static EditorStartupResult HandleCommandLineArgs(string[] args)
     {
         var filePath = args[0].Trim();
-
+        if (filePath == string.Empty) { return ShowInteractiveMenu(); }
+        
         if (File.Exists(filePath))
             return new EditorStartupResult
             {

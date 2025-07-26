@@ -73,20 +73,37 @@ public class StatusBar
         }
     }
 
-    private static void DrawHelpLine(int linesPadding, string lastChar = " ")
+    private static void DrawHelpLine(int linesPadding, string lastInput = " ")
     {
         Console.BackgroundColor = ConsoleColor.White;
         Console.ForegroundColor = ConsoleColor.Black;
 
-        Console.SetCursorPosition(0, Console.WindowHeight - linesPadding + 2);
+        int y = Console.WindowHeight - linesPadding + 2;
+        Console.SetCursorPosition(0, y);
+
+        // Clear the entire line first
+        Console.Write(new string(' ', Console.WindowWidth));
+        Console.SetCursorPosition(0, y);
+
         var helpText =
-            $"HJKL/Arrows: Move || Q: Quit (NORMAL) || I: INSERT mode || ESC: NORMAL mode || X: Delete (NORMAL) ||    [{lastChar}] ";
+            $"HJKL/Arrows: Move || Q: Quit (NORMAL) || I: INSERT mode || ESC: NORMAL mode || X: Delete (NORMAL) ||";
 
-        // Truncate 
-        if (helpText.Length > Console.WindowWidth)
-            helpText = string.Concat(helpText.AsSpan(0, Console.WindowWidth - 3), "...");
+        var rec = recorder(lastInput);
 
-        Console.Write(helpText.PadRight(Console.WindowWidth));
+        int maxHelpLength = Console.WindowWidth - rec.Length;
+        if (helpText.Length > maxHelpLength)
+            helpText = string.Concat(helpText.AsSpan(0, maxHelpLength - 3), "...");
+
+        Console.Write(helpText);
+
+        int recPos = Console.WindowWidth - rec.Length;
+        Console.SetCursorPosition(recPos, y);
+        Console.Write(rec);
+    }
+
+    private static string recorder(string lastInput = "")
+    {
+        return $"[🔴{lastInput}]";
     }
 
     private static void ResetColors()
