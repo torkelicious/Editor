@@ -4,11 +4,11 @@ namespace Editor.UI;
 
 public class StatusBar
 {
-    public static void Render(Document document, EditorState editorState, int linesPadding)
+    public static void Render(Document document, EditorState editorState, int linesPadding, string lastInput = " ")
     {
         DrawSeparator(linesPadding);
         DrawModeAndPosition(document, editorState, linesPadding);
-        DrawHelpLine(linesPadding);
+        DrawHelpLine(linesPadding, lastInput);
         ResetColors();
     }
 
@@ -73,14 +73,14 @@ public class StatusBar
         }
     }
 
-    private static void DrawHelpLine(int linesPadding)
+    private static void DrawHelpLine(int linesPadding, string lastChar = " ")
     {
         Console.BackgroundColor = ConsoleColor.White;
         Console.ForegroundColor = ConsoleColor.Black;
 
         Console.SetCursorPosition(0, Console.WindowHeight - linesPadding + 2);
         var helpText =
-            "HJKL/Arrows: Move || Q: Quit (NORMAL) || I: INSERT mode || ESC: NORMAL mode || X: Delete (NORMAL)";
+            $"HJKL/Arrows: Move || Q: Quit (NORMAL) || I: INSERT mode || ESC: NORMAL mode || X: Delete (NORMAL) ||    [{lastChar}] ";
 
         // Truncate 
         if (helpText.Length > Console.WindowWidth)

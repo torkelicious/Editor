@@ -259,6 +259,16 @@ public class Document : IDisposable
         return cachedLines;
     }
 
+    public char GetCharAt(int index)
+    {
+        if (index < 0 ||
+            index >= buffer.Length)
+            return
+                '\0'; // null char to avoid exceptions yes im lazy (we check for this char in the inputhandler undo redo stuff)
+        return buffer[index];
+    }
+
+
     public string GetPerformanceInfo()
     {
         var currentMemory = GC.GetTotalMemory(false) / (1024 * 1024);

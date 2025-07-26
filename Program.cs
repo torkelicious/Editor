@@ -37,10 +37,12 @@ internal class Program
             var editorState = new EditorState();
             var viewport = new Viewport();
             var renderer = new ConsoleRenderer(viewport);
+            var undoManager = new UndoManager();
             renderer.RegisterWithDocument(document);
             // var inputHandler = new InputHandler(document, editorState, viewport);
             // !! We create inputHandler in the mainLoop func instead !!
-            MainLoop(document, editorState, viewport, renderer, startupResult);
+
+            MainLoop(document, editorState, viewport, renderer, startupResult, undoManager);
         }
         catch (Exception ex)
         {
@@ -50,9 +52,9 @@ internal class Program
     }
 
     private static void MainLoop(Document document, EditorState editorState, Viewport viewport,
-        ConsoleRenderer renderer, EditorStartupResult startupResult)
+        ConsoleRenderer renderer, EditorStartupResult startupResult, UndoManager undoManager)
     {
-        var inputHandler = new InputHandler(document, editorState, viewport);
+        var inputHandler = new InputHandler(document, editorState, viewport, undoManager);
 
         if (debug) document.showDebugInfo = true;
         Console.Clear();
@@ -66,8 +68,7 @@ internal class Program
             {
                 inputHandler.HandleInput();
                 editorState.UpdateFromDocument(document);
-                renderer.Render(document, editorState); // Render again after input
-
+                renderer.Render(document, editorState, inputHandler.lastInputToShow); // Render again after input
                 if (inputHandler.ShouldQuit)
                 {
                     ExitHandler.HandleExit(document, startupResult.IsNewFile);
@@ -77,8 +78,8 @@ internal class Program
             catch (Exception ex)
             {
                 ShowError(ex);
-                ExitHandler.HandleExit(document, startupResult.IsNewFile);
-                exitRequested = true;
+                //ExitHandler.HandleExit(document, startupResult.IsNewFile);
+                //exitRequested = true;
             }
     }
 

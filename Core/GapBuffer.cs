@@ -29,6 +29,7 @@ public class GapBuffer : ITextBuffer
     // Operations
     public void Insert(char character)
     {
+        MoveTo(Position);
         EnsureGapSize(1);
         buffer[gapStart++] = character;
         Position++;
@@ -37,6 +38,7 @@ public class GapBuffer : ITextBuffer
     public void Insert(string str)
     {
         if (string.IsNullOrEmpty(str)) return;
+        MoveTo(Position);
         EnsureGapSize(str.Length);
         foreach (var t in str)
             buffer[gapStart++] = t;
@@ -69,18 +71,20 @@ public class GapBuffer : ITextBuffer
     {
         position = Math.Max(0, Math.Min(position, Length));
 
-        if (position < gapStart) // Move left
+// Move left
+        if (position < gapStart)
         {
             var moveCount = gapStart - position;
             Array.Copy(buffer, position, buffer, gapEnd - moveCount, moveCount);
-            gapStart = position;
+            gapStart -= moveCount;
             gapEnd -= moveCount;
         }
-        else if (position > gapStart) // Move right
+// Move right
+        else if (position > gapStart)
         {
             var moveCount = position - gapStart;
             Array.Copy(buffer, gapEnd, buffer, gapStart, moveCount);
-            gapStart = position;
+            gapStart += moveCount;
             gapEnd += moveCount;
         }
 

@@ -8,4 +8,9 @@
         <PublishSingleFile>true</PublishSingleFile>
     </PropertyGroup>
 
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+        <PackageReference Include="xunit" Version="2.9.3"/>
+    </ItemGroup>
+
 </Project>

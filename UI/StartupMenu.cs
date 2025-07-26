@@ -139,7 +139,8 @@ public static class StartupMenu
              * Editor Controls:
                  (NORMAL:) 
               *   HJKL to move || I: Insert mode || A: Append || X: Delete || D: Delete Line || O: Insert into NewLine || Q: Quit
-              *   You can navigate quickly with TAB and SHIFT+TAB
+              *   Undo/Redo with U / R
+              *   You can navigate quickly with TAB and SHIFT+TAB, or W and B
 
                  (INSERT:)
               *   ARROW KEYS to move

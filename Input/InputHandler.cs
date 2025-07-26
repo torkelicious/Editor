@@ -1,19 +1,28 @@
 using Editor.Core;
+using Editor.Core.EditorActions;
 using Editor.UI;
 
 namespace Editor.Input;
 
-public class InputHandler(Document document, EditorState editorState, Viewport viewport)
+public class InputHandler(Document document, EditorState editorState, Viewport viewport, UndoManager undoManager)
 {
+    private CompoundAction? _insertSession;
+    public string lastInputToShow; // for status bar
     public bool ShouldQuit { get; private set; }
 
     public void HandleInput()
     {
         var key = Console.ReadKey(true);
-
         if (editorState.Mode == EditorMode.Normal)
+        {
+            lastInputToShow = key.Key.ToString().ToLower();
+            if (key.Modifiers.HasFlag(ConsoleModifiers.Shift)) lastInputToShow = $"Shift+{lastInputToShow.ToUpper()}";
             HandleNormalMode(key);
-        else if (editorState.Mode == EditorMode.Insert) HandleInsertMode(key);
+        }
+        else if (editorState.Mode == EditorMode.Insert)
+        {
+            HandleInsertMode(key);
+        }
 
         editorState.UpdateFromDocument(document);
         ClampCursorPosition();
@@ -55,14 +64,15 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
 
             case ConsoleKey.X:
                 // Delete character at cursor (vim 'x')
-                document.Delete();
+                undoManager.PerformAction(new DeleteAction(document, document.CursorPosition, DeleteDirection.Forward,
+                    1));
                 break;
 
-            // Tab/Shift-Tab indent in normal mode
             case ConsoleKey.Tab:
+            case ConsoleKey.W:
                 if ((key.Modifiers & ConsoleModifiers.Shift) == ConsoleModifiers.Shift)
                 {
-                    // Shift+Tab  move left 4 spaces
+                    // Shift+Tab or Shift+W move left 4 spaces
                     for (var i = 0; i < 4 && document.CursorPosition > 0; i++)
                         document.MoveCursor(document.CursorPosition - 1);
                 }
@@ -76,9 +86,13 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
                 }
 
                 break;
+            case ConsoleKey.B:
+                // move left 4 spaces
+                for (var i = 0; i < 4 && document.CursorPosition > 0; i++)
+                    document.MoveCursor(document.CursorPosition - 1);
+                break;
 
             case ConsoleKey.A:
-                // insert after cursor
                 MoveCursorRight();
                 editorState.Mode = EditorMode.Insert;
                 break;
@@ -93,18 +107,22 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
             case ConsoleKey.D:
                 // delete line with d
                 if (key.Modifiers == ConsoleModifiers.None)
-                    // Simple delete for now...
                     DeleteCurrentLine();
-
                 break;
 
-            // Scrolling
             case ConsoleKey.PageUp:
                 viewport.ScrollUp(viewport.VisibleLines / 2);
                 break;
 
             case ConsoleKey.PageDown:
                 viewport.ScrollDown(viewport.VisibleLines / 2);
+                break;
+
+            case ConsoleKey.U:
+                undoManager.Undo();
+                break;
+            case ConsoleKey.R:
+                undoManager.Redo();
                 break;
         }
     }
@@ -113,58 +131,87 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
     {
         switch (key.Key)
         {
-            // Movement 
+            // Movement
             case ConsoleKey.UpArrow:
                 MoveCursorUp();
                 break;
-
             case ConsoleKey.DownArrow:
                 MoveCursorDown();
                 break;
-
             case ConsoleKey.LeftArrow:
                 MoveCursorLeft();
                 break;
-
             case ConsoleKey.RightArrow:
                 MoveCursorRight();
                 break;
 
             case ConsoleKey.Escape:
                 editorState.Mode = EditorMode.Normal;
-                if (document.CursorPosition > 0) document.MoveCursor(document.CursorPosition - 1);
+                if (_insertSession != null && _insertSession.Count > 0)
+                {
+                    undoManager.PushAction(_insertSession); // Only register, do not execute again!!!
+                    _insertSession = null;
+                }
 
+                if (document.CursorPosition > 0) document.MoveCursor(document.CursorPosition - 1);
                 break;
 
-            // text operations
             case ConsoleKey.Enter:
-                document.Insert('\n');
+                BufferInsertWithUndo('\n');
                 break;
 
             case ConsoleKey.Backspace:
-                document.Delete(1, DeleteDirection.Backward);
+                if (document.CursorPosition > 0)
+                {
+                    document.MoveCursor(document.CursorPosition - 1);
+                    BufferDeleteWithUndo();
+                }
+
                 break;
 
             case ConsoleKey.Delete:
-                document.Delete();
+                BufferDeleteWithUndo(1, DeleteDirection.Backward);
                 break;
 
             case ConsoleKey.Tab:
-                /* insert 4 spaces
-                 * maybe using \t could be a good idea instead, something i must test.
-                 */
-                document.Insert("    ");
+                BufferInsertWithUndo("    ");
                 break;
 
             // regular input
             default:
-                if (!char.IsControl(key.KeyChar)) document.Insert(key.KeyChar);
-
+                if (!char.IsControl(key.KeyChar))
+                    BufferInsertWithUndo(key.KeyChar);
                 break;
         }
     }
 
-    // fast movement w the indexing
+    private void BufferInsertWithUndo(char c)
+    {
+        if (_insertSession == null)
+            _insertSession = new CompoundAction();
+        var action = new InsertAction(document, document.CursorPosition, c);
+        action.Do(); // Apply immediately so user sees input
+        _insertSession.Add(action);
+    }
+
+    private void BufferInsertWithUndo(string str)
+    {
+        if (_insertSession == null)
+            _insertSession = new CompoundAction();
+        var action = new InsertAction(document, document.CursorPosition, str);
+        action.Do();
+        _insertSession.Add(action);
+    }
+
+    private void BufferDeleteWithUndo(int count = 1, DeleteDirection direction = DeleteDirection.Forward)
+    {
+        if (_insertSession == null)
+            _insertSession = new CompoundAction();
+        var action = new DeleteAction(document, document.CursorPosition, direction, count);
+        action.Do();
+        _insertSession.Add(action);
+    }
+
     private void MoveCursorUp()
     {
         var (currentLine, currentCol) = document.CurrentLineColumn;
@@ -218,7 +265,8 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
 
         document.MoveCursor(lineStart);
         var deleteLength = lineEnd - lineStart;
-        if (deleteLength > 0) document.Delete(deleteLength);
+        if (deleteLength > 0)
+            undoManager.PerformAction(new DeleteAction(document, lineStart, DeleteDirection.Forward, deleteLength));
     }
 
     private void ClampCursorPosition()

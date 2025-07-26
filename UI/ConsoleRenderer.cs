@@ -20,7 +20,7 @@ public class ConsoleRenderer(Viewport viewport)
         MarkAllDirty();
     }
 
-    public void Render(Document document, EditorState editorState)
+    public void Render(Document document, EditorState editorState, string lastInput = " ")
     {
         EnsureMinimumSize();
 
@@ -46,7 +46,7 @@ public class ConsoleRenderer(Viewport viewport)
         }
 
         RenderDocumentContent(document, editorState);
-        StatusBar.Render(document, editorState, LinesPadding);
+        StatusBar.Render(document, editorState, LinesPadding, lastInput);
         PositionCursor(editorState);
     }
 
