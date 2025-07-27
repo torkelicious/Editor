@@ -2,6 +2,6 @@ namespace Editor.Core;
 
 public enum DeleteDirection
 {
-    Forward, // cursor (like x in vim)
+    Forward, // cursor
     Backward // backspace
 }

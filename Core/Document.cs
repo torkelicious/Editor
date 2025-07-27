@@ -153,14 +153,6 @@ public class Document : IDisposable
         SetState(DocumentState.Dirty);
     }
 
-
-    /*
-     public void Backspace(int count = 1)
-    {
-        Delete(count, DeleteDirection.Backward);       // This is not being used
-    }
-    */
-
     public void MoveCursor(int position)
     {
         buffer.MoveTo(position);
@@ -379,7 +371,7 @@ public class Document : IDisposable
         Dirty, // Has unsaved changes
         Loading, // Currently Reading / Loading from a file
         Saving, // Currently Writing / Saving to a file
-        ReadOnly, // File is ReadOnly / we lack permissions
+        ReadOnly, // File is ReadOnly / we lack permissions, not fully implemented yet!!!
         Error // File operation failed error state
     }
 }

@@ -67,7 +67,7 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
                 break;
 
             case ConsoleKey.X:
-                // Delete character at cursor (vim 'x')
+                // Delete character at cursor 
                 undoManager.PerformAction(new DeleteAction(document, document.CursorPosition, DeleteDirection.Forward,
                     1));
                 break;
@@ -193,7 +193,7 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
     {
         _insertSession ??= new CompoundAction();
         var action = new InsertAction(document, document.CursorPosition, c);
-        action.Do(); // Apply immediately so user sees input
+        action.Do(); // Apply immediately so we can see it visually
         _insertSession.Add(action);
     }
 

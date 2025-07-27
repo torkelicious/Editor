@@ -41,7 +41,7 @@ internal static class Program
             var renderer = new ConsoleRenderer(viewport);
             var undoManager = new UndoManager();
             renderer.RegisterWithDocument(document);
-            // !! We create inputHandler in the mainLoop func instead !!
+            // !! We create inputHandler in the mainLoop func !!
 
             MainLoop(document, editorState, viewport, renderer, startupResult, undoManager);
         }
@@ -60,7 +60,7 @@ internal static class Program
         if (debug) document.showDebugInfo = true;
         Console.Clear();
 
-        renderer.Render(document, editorState); // render before loop to avoid forcing user to input
+        renderer.Render(document, editorState); // render once before loop to avoid forcing user to input
 
         // Main editor loop
         var exitRequested = false;
@@ -69,7 +69,7 @@ internal static class Program
             {
                 inputHandler.HandleInput();
                 editorState.UpdateFromDocument(document);
-                renderer.Render(document, editorState, inputHandler.lastInputToShow); // Render again after input
+                renderer.Render(document, editorState, inputHandler.lastInputToShow); // Render after input
                 if (inputHandler.ShouldQuit)
                 {
                     ExitHandler.HandleExit(document, startupResult.IsNewFile);
@@ -79,8 +79,6 @@ internal static class Program
             catch (Exception ex)
             {
                 ShowError(ex);
-                //ExitHandler.HandleExit(document, startupResult.IsNewFile);
-                //exitRequested = true;
             }
     }
 

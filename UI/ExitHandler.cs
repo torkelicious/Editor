@@ -102,7 +102,7 @@ public static class ExitHandler
                     return;
                 }
 
-                // Check if file exists
+                // Check file 
                 if (File.Exists(filePath))
                 {
                     Console.WriteLine();
