@@ -8,4 +8,6 @@ accepts file paths as cli arguments
 
 ---
 sometimes the wheel needs to be reinvented 
-... and sometimes even really poorly brcause i was bored...
+... and sometimes even really poorly when im bored...
+
+This is mostly a learning project
