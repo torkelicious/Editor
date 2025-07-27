@@ -6,6 +6,10 @@ using System.Text;
 
 namespace Editor.Core;
 
+/*
+ * Wrapper for buffer via interface
+ */
+
 public class Document : IDisposable
 {
     private readonly ITextBuffer buffer; // If we implement more buffers use interface yadyada

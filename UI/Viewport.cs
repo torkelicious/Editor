@@ -3,11 +3,6 @@ namespace Editor.UI;
 public class Viewport
 {
     private const int HorizontalPadding = 5;
-    /*
-     * This class mainly handles viewport calculations so we can
-     * pass them over to the ConsoleRenderer class
-     * Most of this is ripped directly from the old prototype version of the code.
-     */
 
     public int StartLine { get; private set; }
     public int StartColumn { get; private set; }

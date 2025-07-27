@@ -27,18 +27,11 @@ internal static class Program
 
         try
         {
-            /* Set window size if possible (Windows only)
-            try
+            if (OperatingSystem.IsWindows())
             {
-                if (Console.WindowWidth < ConsoleRenderer.MinimumConsoleWidth)
-                    Console.SetWindowSize(ConsoleRenderer.MinimumConsoleWidth, Console.WindowHeight);
+                Console.SetWindowSize(120,35);
             }
-            catch
-            {
-                // do nothing...
-            }*/
 
-            // startup menu / handle file selection
             var startupResult = StartupMenu.ShowMenu(args);
             if (!startupResult.ShouldStartEditor || startupResult.Document == null) return; // user quit
             // editor components
@@ -48,7 +41,6 @@ internal static class Program
             var renderer = new ConsoleRenderer(viewport);
             var undoManager = new UndoManager();
             renderer.RegisterWithDocument(document);
-            // var inputHandler = new InputHandler(document, editorState, viewport);
             // !! We create inputHandler in the mainLoop func instead !!
 
             MainLoop(document, editorState, viewport, renderer, startupResult, undoManager);

@@ -11,9 +11,7 @@ public class ConsoleRenderer(Viewport viewport)
     private const int LinesPadding = 3;
     private const int ColumnPadding = 1;
     public const int MinimumConsoleWidth = 100;
-
     private readonly HashSet<int> dirtyLines = [];
-    private readonly StatusBar statusBar = new();
     private bool fullRedrawNeeded = true;
 
 
@@ -116,7 +114,7 @@ public class ConsoleRenderer(Viewport viewport)
             displayLine = displayLine[viewport.StartColumn..];
         else if (viewport.StartColumn > 0) displayLine = string.Empty;
 
-        // line truncation
+        // truncation
         var truncated = false;
         if (displayLine.Length > viewport.VisibleColumns)
         {
@@ -156,7 +154,7 @@ public class ConsoleRenderer(Viewport viewport)
             editorState.CursorColumn
         );
 
-        // clamp cursor within screen bounds
+        // clamp cursor within bounds
         screenX = Math.Max(0, Math.Min(screenX, Console.WindowWidth - 1));
         screenY = Math.Max(0, Math.Min(screenY, viewport.VisibleLines - 1));
 

@@ -7,7 +7,8 @@ namespace Editor.Core;
 public class GapBuffer : ITextBuffer
 {
     private const int MinGapSize = 32;
-
+    private const int MaxGapSize = 1024; // TODO: use this when paging is implemented !!
+    
     // Core
     private char[] buffer;
     private int gapStart, gapEnd;
@@ -52,14 +53,12 @@ public class GapBuffer : ITextBuffer
 
         if (direction == DeleteDirection.Forward)
         {
-            // Delete forward from cursor position (like 'x' in vim)
             var maxDel = Math.Min(count, Length - Position);
             gapEnd = Math.Min(gapEnd + maxDel, buffer.Length);
-            // Position stays the same - cursor doesn't move
         }
         else // Backward
         {
-            // Delete backward from cursor position (like backspace)
+            // (backspace)
             if (Position == 0) return;
             var maxDel = Math.Min(count, Position);
             gapStart = Math.Max(gapStart - maxDel, 0);
@@ -71,7 +70,7 @@ public class GapBuffer : ITextBuffer
     {
         position = Math.Max(0, Math.Min(position, Length));
 
-// Move left
+        // Move left
         if (position < gapStart)
         {
             var moveCount = gapStart - position;
@@ -79,7 +78,7 @@ public class GapBuffer : ITextBuffer
             gapStart -= moveCount;
             gapEnd -= moveCount;
         }
-// Move right
+        // Move right
         else if (position > gapStart)
         {
             var moveCount = position - gapStart;
@@ -92,17 +91,21 @@ public class GapBuffer : ITextBuffer
     }
 
     public void Dispose()
-    {
-    } // For interface compliance meh :/
-    // - - - - - - - - - - - - - - - - - - - - - - - //
+    { /*
+    For interface compliance, we already manage this stuff via our char array,
+    this is a remnant of when i was experimenting with multiple types of buffering via the interface
+    keeping it for interface compliance incase i reimplement a new buffer in the future
+    but it is safe to remove from both this class and the interface as long as the document class is updated.
+    */ }
+    
 
+    // Gap sizing
     private void EnsureGapSize(int requiredSize)
     {
         var currentGapSize = gapEnd - gapStart;
         if (currentGapSize < requiredSize) Grow(Math.Max(requiredSize, MinGapSize));
     }
 
-    // Gap sizing
     private void Grow(int additionalGapSize)
     {
         var newSize = buffer.Length + additionalGapSize;

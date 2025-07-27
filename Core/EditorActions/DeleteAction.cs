@@ -45,3 +45,4 @@ public class DeleteAction : IEditorAction
         _document.MoveCursor(_previousCursor);
     }
 }
+ 
