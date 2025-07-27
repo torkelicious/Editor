@@ -8,7 +8,7 @@ namespace Editor.UI;
 
 public static class StartupMenu
 {
-    private const string Version = "0.0.0-R";
+    private const string Version = "0.0.1";
 
     private const string Logo =
         """
