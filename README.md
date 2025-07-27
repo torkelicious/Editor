@@ -7,6 +7,7 @@ runs in the cli
 accepts file paths as cli arguments
 
 pseudo-modal text editor
+
 ---
 sometimes the wheel needs to be reinvented 
 ... and sometimes even really poorly when im bored...
