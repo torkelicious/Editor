@@ -30,3 +30,4 @@ You can navigate quickly with TAB and SHIFT+TAB (or W and B)
 ```
 
 if you want to try it, you should build it from source. its a small project, but im too busy/lazy/forgetfull to keep any binaries updated.
+Pre-built binaries can be found at https://github.com/torkelicious/Editor/releases/latest
