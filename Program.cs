@@ -27,7 +27,8 @@ internal static class Program
 
         try
         {
-            if (OperatingSystem.IsWindows()) Console.SetWindowSize(120, 35);
+            //if (OperatingSystem.IsWindows()) Console.SetWindowSize(120, 35); 
+            // This seems to work differently on different terminals and is not producing the desired effect sometimes
 
             var startupResult = StartupMenu.ShowMenu(args);
             if (!startupResult.ShouldStartEditor || startupResult.Document == null) return; // user quit
