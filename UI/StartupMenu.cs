@@ -155,6 +155,7 @@ Copyright © {DateTime.Now.Year} {Author}
              * Editor Controls:
                  (NORMAL:) 
               *   HJKL to move || I: Insert mode || A: Append || X: Delete || D: Delete Line || O: Insert into NewLine || Q: Quit
+              *   Y: Yank line || P: Paste yanked line
               *   Undo/Redo with U / R
               *   You can navigate quickly with TAB and SHIFT+TAB, or W and B
 
