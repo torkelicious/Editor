@@ -20,7 +20,10 @@ public class EditorState
         CursorLine = line - 1;
         CursorColumn = col - 1;
     }
+    // TODO: add a visual / select mode so we arent just copying lines
+    public List<string> Clipboard { get; set; } = [];
 }
+
 
 public enum EditorMode
 {

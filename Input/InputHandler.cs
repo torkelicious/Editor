@@ -128,6 +128,12 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
             case ConsoleKey.R:
                 undoManager.Redo();
                 break;
+            case ConsoleKey.Y:
+                YankLine();
+                break;
+            case ConsoleKey.P:
+                Paste();
+                break;
         }
     }
 
@@ -157,7 +163,10 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
                     _insertSession = null;
                 }
 
-                if (document.CursorPosition > 0) document.MoveCursor(document.CursorPosition - 1);
+                if (document.CursorPosition > 0 && document.CursorPosition <= document.Length && document[document.CursorPosition - 1] != '\n')
+                {
+                    document.MoveCursor(document.CursorPosition - 1);
+                }
                 break;
 
             case ConsoleKey.Enter:
@@ -268,6 +277,20 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
         var deleteLength = lineEnd - lineStart;
         if (deleteLength > 0)
             undoManager.PerformAction(new DeleteAction(document, lineStart, DeleteDirection.Forward, deleteLength));
+    }
+
+    private void YankLine()
+    {
+        var (currentLine, _) = document.CurrentLineColumn;
+        var lineText = document.GetLine(currentLine - 1);
+        editorState.Clipboard.Clear(); // we arent using any clipboard history stuff rn so we can just clear it since we always fetch the last item anyways
+        editorState.Clipboard.Add(lineText);  
+    }
+
+    private void Paste()
+    {
+        var action = new InsertAction(document, document.CursorPosition, editorState.Clipboard[^1]);
+        undoManager.PerformAction(action);
     }
 
     private void ClampCursorPosition()
