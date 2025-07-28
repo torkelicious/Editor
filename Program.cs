@@ -27,10 +27,7 @@ internal static class Program
 
         try
         {
-            if (OperatingSystem.IsWindows())
-            {
-                Console.SetWindowSize(120,35);
-            }
+            if (OperatingSystem.IsWindows()) Console.SetWindowSize(120, 35);
 
             var startupResult = StartupMenu.ShowMenu(args);
             if (!startupResult.ShouldStartEditor || startupResult.Document == null) return; // user quit

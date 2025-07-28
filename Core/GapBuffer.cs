@@ -8,7 +8,7 @@ public class GapBuffer : ITextBuffer
 {
     private const int MinGapSize = 32;
     private const int MaxGapSize = 1024; // TODO: use this when paging is implemented !!
-    
+
     // Core
     private char[] buffer;
     private int gapStart, gapEnd;
@@ -91,13 +91,15 @@ public class GapBuffer : ITextBuffer
     }
 
     public void Dispose()
-    { /*
-    For interface compliance, we already manage this stuff via our char array,
-    this is a remnant of when i was experimenting with multiple types of buffering via the interface
-    keeping it for interface compliance incase i reimplement a new buffer in the future
-    but it is safe to remove from both this class and the interface as long as the document class is updated.
-    */ }
-    
+    {
+        /*
+        For interface compliance, we already manage this stuff via our char array,
+        this is a remnant of when i was experimenting with multiple types of buffering via the interface
+        keeping it for interface compliance incase i reimplement a new buffer in the future
+        but it is safe to remove from both this class and the interface as long as the document class is updated.
+        */
+    }
+
 
     // Gap sizing
     private void EnsureGapSize(int requiredSize)

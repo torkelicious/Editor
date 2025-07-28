@@ -33,6 +33,7 @@ public class DeleteAction : IEditorAction
             sb.Append(_document.GetCharAt(charPos)); // Append the character
             _document.Delete(1, _direction); // Perform the delete operation
         }
+
         _deletedText = sb.ToString();
     }
 
@@ -45,4 +46,3 @@ public class DeleteAction : IEditorAction
         _document.MoveCursor(_previousCursor);
     }
 }
- 
