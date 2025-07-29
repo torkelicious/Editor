@@ -134,6 +134,14 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
             case ConsoleKey.P:
                 Paste();
                 break;
+            case ConsoleKey.G:
+                if (key.Modifiers == ConsoleModifiers.Shift)
+                {
+                    document.MoveCursor(document.Length); // go to end of buff 
+                    return;
+                }
+                document.MoveCursor(0); // go to start of buff
+                break;
         }
     }
 

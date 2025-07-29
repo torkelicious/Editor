@@ -362,9 +362,6 @@ public class Document : IDisposable
         return position;
     }
 
-    /*
-     * This is a wrapper for our buffer
-     */
     private enum DocumentState
     {
         Clean, // No changes

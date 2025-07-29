@@ -152,12 +152,13 @@ Copyright © {DateTime.Now.Year} {Author}
         Console.WriteLine(
             $"""
 
-             * Editor Controls:
+             // Editor Controls:
                  (NORMAL:) 
               *   HJKL to move || I: Insert mode || A: Append || X: Delete || D: Delete Line || O: Insert into NewLine || Q: Quit
               *   Y: Yank line || P: Paste yanked line
+              *   G: to go to start of buffer || SHIFT+G: to go to end of buffer 
               *   Undo/Redo with U / R
-              *   You can navigate quickly with TAB and SHIFT+TAB, or W and B
+              *   Navigate quickly with TAB and SHIFT+TAB (OR W and B)
 
                  (INSERT:)
               *   ARROW KEYS to move
