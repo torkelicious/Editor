@@ -74,7 +74,7 @@ public static class ExitHandler
 
                 default:
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Please enter Y, N, or C.");
+                    Console.WriteLine("Please enter Y or N.");
                     Console.WriteLine();
                     break;
             }
