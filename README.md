@@ -29,6 +29,7 @@ P: Paste from internal editor clipboard
 ESCAPE: Exit Insert mode
 Undo/Redo with U / R
 You can navigate quickly with TAB and SHIFT+TAB (or W and B)
+G Goes to start of buffer, SHIFT+G goes to end of buffer
 ```
 
 if you want to try it, you should build it from source. its a small project, but im too busy/lazy/forgetfull to keep any binaries updated.
