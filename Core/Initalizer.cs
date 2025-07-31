@@ -1,6 +1,7 @@
 #region
 
 using System.Runtime.InteropServices;
+using System.Text;
 using Editor.Core.EditorActions;
 using Editor.Input;
 using Editor.UI;
@@ -16,17 +17,20 @@ public static class Initalizer
 
     public static void initEditor(string[] args)
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        Console.OutputEncoding = Encoding.UTF8; // use UTF-8
+
+        Console.Write("\x1b[3J\x1b[2J\x1b[H"); // redundant ansi escape char clearing
+
+        if (OperatingSystem.IsWindows())
             try
             {
-                Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight);
-                Console.WriteLine("\x1b[3J");
-                Console.Clear();
+                HandleWindowsOS(); // this sucks bruh
             }
             catch
             {
                 /* do nothing */
             }
+
 
         if (args.Length > 0)
             for (var i = 0; i < args.Length; i++)
@@ -65,7 +69,7 @@ public static class Initalizer
         var inputHandler = new InputHandler(document, editorState, viewport, undoManager);
 
         if (isDebug) document.showDebugInfo = true;
-        Console.WriteLine("\x1b[3J");
+        //i gotta make up my * mind. Use ANSI escape seq or Console.Clear.. :/ ? 
         Console.Clear();
         renderer.Render(document, editorState); // render once before loop to avoid forcing user to input
         // Main editor loop
@@ -90,7 +94,6 @@ public static class Initalizer
 
     private static void ShowError(Exception ex, bool isFatal = false, bool quit = false)
     {
-        Console.WriteLine("\x1b[3J");
         Console.Clear();
         Console.ForegroundColor = ConsoleColor.Red;
         if (isFatal)
@@ -108,5 +111,39 @@ public static class Initalizer
 
         if (!quit) return;
         Environment.Exit(-1);
+    }
+
+    private static void HandleWindowsOS() // run on Windows only!
+    {
+        const int STD_OUTPUT_HANDLE = -11;
+        const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern IntPtr GetStdHandle(int nStdHandle);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
+
+        [DllImport("kernel32.dll")]
+        static extern bool SetConsoleOutputCP(uint wCodePageID);
+
+        [DllImport("kernel32.dll")]
+        static extern bool SetConsoleCP(uint wCodePageID);
+
+        var handle = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (GetConsoleMode(handle, out var mode))
+            SetConsoleMode(handle, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+        else
+            Console.Error.WriteLine("Could not get console mode.");
+
+        // Set UTF-8 code page
+        SetConsoleOutputCP(65001);
+        SetConsoleCP(65001);
+
+        Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight);
+        Console.Write("\x1b[3J\x1b[2J\x1b[H");
     }
 }
