@@ -10,6 +10,7 @@ public static class ExitHandler
 {
     public static void HandleExit(Document document, bool isNewFile)
     {
+        Console.WriteLine("\x1b[3J");
         Console.Clear();
         Console.BackgroundColor = ConsoleColor.Black;
         Console.ForegroundColor = ConsoleColor.Yellow;

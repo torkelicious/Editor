@@ -39,6 +39,8 @@ public class ConsoleRenderer(Viewport viewport)
 
         if (fullRedrawNeeded || viewportMoved)
         {
+            Console.WriteLine("\x1b[3J"); // if building for windows rendering is completely ****** when running as an EXE in CMD.. but  running from powershell seems to work fine..??? 
+                                          //the only way to make an EXE running from CMD to work is to clear the console (with these weird escape chars too) after each input and redrawing as it dosent seem to respect the cursor position??? WTF?
             Console.Clear();
             var startLine = viewport.StartLine;
             var endLine = Math.Min(startLine + viewport.VisibleLines, document.GetLineCount());
@@ -101,6 +103,7 @@ public class ConsoleRenderer(Viewport viewport)
             Console.WriteLine($"Window width too small! (Min: {MinimumConsoleWidth}c)");
             Console.WriteLine("Please resize your Console.");
             Thread.Sleep(500);
+            Console.WriteLine("\x1b[3J");
             Console.Clear();
         }
     }

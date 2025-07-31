@@ -1,5 +1,6 @@
 #region
 
+using System.Runtime.InteropServices;
 using Editor.Core.EditorActions;
 using Editor.Input;
 using Editor.UI;
@@ -15,6 +16,20 @@ public static class Initalizer
 
     public static void initEditor(string[] args)
     {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            try
+            {
+                Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight);
+                Console.WriteLine("\x1b[3J");
+                Console.Clear();
+            }
+            catch
+            {
+                /* do nothing */
+            }
+        }
+
         if (args.Length > 0)
             for (var i = 0; i < args.Length; i++)
                 if (args[i] == "--debug")
@@ -48,15 +63,13 @@ public static class Initalizer
 
     private static void MainLoop(Document document, EditorState editorState, Viewport viewport,
         ConsoleRenderer renderer, EditorStartupResult startupResult, UndoManager undoManager)
-
     {
         var inputHandler = new InputHandler(document, editorState, viewport, undoManager);
 
         if (isDebug) document.showDebugInfo = true;
+        Console.WriteLine("\x1b[3J");
         Console.Clear();
-
         renderer.Render(document, editorState); // render once before loop to avoid forcing user to input
-
         // Main editor loop
         var exitRequested = false;
         while (!exitRequested)
@@ -79,6 +92,7 @@ public static class Initalizer
 
     private static void ShowError(Exception ex, bool isFatal = false, bool quit = false)
     {
+        Console.WriteLine("\x1b[3J");
         Console.Clear();
         Console.ForegroundColor = ConsoleColor.Red;
         if (isFatal)

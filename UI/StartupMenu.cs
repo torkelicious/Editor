@@ -99,11 +99,13 @@ Copyright © {DateTime.Now.Year} {Author}
 
     private static void DrawMenu()
     {
+        Console.WriteLine("\x1b[3J");
         Console.Clear();
 
         // Ensure minimum width
         while (Console.WindowWidth < ConsoleRenderer.MinimumConsoleWidth)
         {
+            Console.WriteLine("\x1b[3J");
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"Window width too small! (Min: {ConsoleRenderer.MinimumConsoleWidth}c)");
@@ -114,6 +116,7 @@ Copyright © {DateTime.Now.Year} {Author}
         // Reset colors
         Console.BackgroundColor = ConsoleColor.Black;
         Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine("\x1b[3J");
         Console.Clear();
 
         var separator = new string('─', Math.Min(Console.WindowWidth, 60));
@@ -183,6 +186,7 @@ Copyright © {DateTime.Now.Year} {Author}
 
     private static EditorStartupResult OpenExistingFile()
     {
+        Console.WriteLine("\x1b[3J");
         Console.Clear();
         Console.WriteLine("Open File");
         Console.WriteLine(new string('─', 20));
@@ -251,6 +255,7 @@ Copyright © {DateTime.Now.Year} {Author}
 
     private static void ShowInvalidOption()
     {
+        Console.WriteLine("\x1b[3J");
         Console.Clear();
         Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine("Invalid option!");
