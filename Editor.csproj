@@ -5,7 +5,4 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="System.Management" Version="9.0.7"/>
-    </ItemGroup>
 </Project>
