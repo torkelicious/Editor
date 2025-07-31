@@ -140,6 +140,7 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
                     document.MoveCursor(document.Length); // go to end of buff 
                     return;
                 }
+
                 document.MoveCursor(0); // go to start of buff
                 break;
         }
