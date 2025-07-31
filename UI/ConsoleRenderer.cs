@@ -39,11 +39,11 @@ public class ConsoleRenderer(Viewport viewport)
 
         if (fullRedrawNeeded || viewportMoved)
         {
-            Console.WriteLine("\x1b[3J"); 
+            Console.WriteLine("\x1b[3J");
             // if building for windows rendering is completely ****** when running as an EXE in CMD.. but  running from powershell seems to work fine..??? 
-           //the only way to make an EXE running from CMD to work is to clear the console (with these weird escape chars too) after each input and redrawing as it dosent seem to respect the cursor position??? WTF?
-           // And why arent winEXEs ran in pwsh by default anyways ???
-           // TODO: fix i guess? 
+            //the only way to make an EXE running from CMD to work is to clear the console (with these weird escape chars too) after each input and redrawing as it dosent seem to respect the cursor position??? WTF?
+            // And why arent winEXEs ran in pwsh by default anyways ???
+            // TODO: fix i guess? 
             Console.Clear();
             var startLine = viewport.StartLine;
             var endLine = Math.Min(startLine + viewport.VisibleLines, document.GetLineCount());

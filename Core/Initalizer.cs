@@ -17,7 +17,6 @@ public static class Initalizer
     public static void initEditor(string[] args)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
             try
             {
                 Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight);
@@ -28,7 +27,6 @@ public static class Initalizer
             {
                 /* do nothing */
             }
-        }
 
         if (args.Length > 0)
             for (var i = 0; i < args.Length; i++)
