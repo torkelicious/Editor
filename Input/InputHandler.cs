@@ -280,9 +280,8 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
         if (lineEnd < document.Length && document[lineEnd] == '\n') lineEnd++;
         var deleteLength = lineEnd - lineStart;
         if (deleteLength > 0)
-            undoManager.PerformAction(new DeleteAction(document, lineStart - 1, DeleteDirection.Forward,
-                deleteLength + 1));
-        MoveCursorLeft(); // bit janky but has the desired effect... most of the time..
+            undoManager.PerformAction(new DeleteAction(document, lineStart, DeleteDirection.Forward, deleteLength));
+        MoveCursorLeft(); // still janky
     }
 
     private void YankLine()
