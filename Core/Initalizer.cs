@@ -20,7 +20,6 @@ public static class Initalizer
         Console.OutputEncoding = Encoding.UTF8; // use UTF-8
 
         if (OperatingSystem.IsWindows())
-        {
             try
             {
                 HandleWindowsOS(); // this sucks bruh
@@ -29,11 +28,8 @@ public static class Initalizer
             {
                 /* do nothing */
             }
-        }
         else
-        {
             Console.Write("\x1b[3J\x1b[2J\x1b[H"); // probably not needed but why not
-        }
 
         if (args.Length > 0)
             for (var i = 0; i < args.Length; i++)

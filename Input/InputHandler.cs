@@ -295,6 +295,7 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
 
     private void Paste()
     {
+        if (editorState.Clipboard.Count <= 0) return;
         var action = new InsertAction(document, document.CursorPosition, editorState.Clipboard[^1]);
         undoManager.PerformAction(action);
     }
