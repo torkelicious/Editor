@@ -25,7 +25,7 @@ public class ConsoleRenderer(Viewport viewport)
     {
         var availableLines = Console.WindowHeight - LinesPadding;
         var availableColumns = Console.WindowWidth - ColumnPadding;
-        
+
         var oldStartLine = viewport.StartLine;
         var oldStartColumn = viewport.StartColumn;
 

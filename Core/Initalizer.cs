@@ -71,7 +71,7 @@ public static class Initalizer
         if (isDebug) document.showDebugInfo = true;
         Console.Clear();
         renderer.Render(document, editorState); // render once before loop to avoid forcing user to input
-       
+
         // Main editor loop
         var exitRequested = false;
         while (!exitRequested)
