@@ -101,16 +101,6 @@ Copyright © {DateTime.Now.Year} {Author}
     {
         Console.Clear();
 
-        // Ensure minimum width
-        while (Console.WindowWidth < ConsoleRenderer.MinimumConsoleWidth)
-        {
-            Console.Clear();
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Window width too small! (Min: {ConsoleRenderer.MinimumConsoleWidth}c)");
-            Console.WriteLine("Please resize your Console.");
-            Thread.Sleep(500);
-        }
-
         // Reset colors
         Console.BackgroundColor = ConsoleColor.Black;
         Console.ForegroundColor = ConsoleColor.White;

@@ -10,7 +10,6 @@ public class ConsoleRenderer(Viewport viewport)
 {
     private const int LinesPadding = 3;
     private const int ColumnPadding = 1;
-    public const int MinimumConsoleWidth = 100;
     private readonly HashSet<int> dirtyLines = [];
     private bool fullRedrawNeeded = true;
 
@@ -24,11 +23,9 @@ public class ConsoleRenderer(Viewport viewport)
 
     public void Render(Document document, EditorState editorState, string lastInput = " ")
     {
-        EnsureMinimumSize();
-
         var availableLines = Console.WindowHeight - LinesPadding;
         var availableColumns = Console.WindowWidth - ColumnPadding;
-
+        
         var oldStartLine = viewport.StartLine;
         var oldStartColumn = viewport.StartColumn;
 
@@ -90,20 +87,6 @@ public class ConsoleRenderer(Viewport viewport)
     {
         fullRedrawNeeded = true;
         dirtyLines.Clear();
-    }
-
-    private static void EnsureMinimumSize()
-    {
-        while (Console.WindowWidth < MinimumConsoleWidth)
-        {
-            Console.Clear();
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Window width too small! (Min: {MinimumConsoleWidth}c)");
-            Console.WriteLine("Please resize your Console.");
-            Thread.Sleep(500);
-
-            Console.Clear();
-        }
     }
 
     private (string text, bool truncated) ProcessLineForDisplay(string line)

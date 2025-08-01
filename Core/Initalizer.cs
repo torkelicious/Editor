@@ -69,9 +69,9 @@ public static class Initalizer
         var inputHandler = new InputHandler(document, editorState, viewport, undoManager);
 
         if (isDebug) document.showDebugInfo = true;
-        //i gotta make up my * mind. Use ANSI escape seq or Console.Clear.. :/ ? 
         Console.Clear();
         renderer.Render(document, editorState); // render once before loop to avoid forcing user to input
+       
         // Main editor loop
         var exitRequested = false;
         while (!exitRequested)

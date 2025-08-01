@@ -11,6 +11,10 @@ public class Viewport
 
     public void UpdateDimensions(int availableLines, int availableColumns)
     {
+        if (VisibleLines != availableLines || VisibleColumns != availableColumns)
+        {
+            Console.Clear();
+        }
         VisibleLines = availableLines;
         VisibleColumns = availableColumns;
     }
