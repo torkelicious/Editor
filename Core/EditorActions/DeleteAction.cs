@@ -8,7 +8,7 @@ public class DeleteAction : IEditorAction
     private readonly DeleteDirection _direction;
     private readonly Document _document;
     private readonly int _position;
-    private string _deletedText;
+    private string _deletedText = string.Empty;
     private int _previousCursor;
 
     public DeleteAction(Document document, int position, DeleteDirection direction, int count)
