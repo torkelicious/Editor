@@ -11,7 +11,7 @@ namespace Editor.Input;
 public class InputHandler(Document document, EditorState editorState, Viewport viewport, UndoManager undoManager)
 {
     private CompoundAction? _insertSession;
-    public string lastInputToShow = string.Empty; 
+    public string lastInputToShow = string.Empty;
     public bool ShouldQuit { get; private set; }
 
     public void HandleInput()
