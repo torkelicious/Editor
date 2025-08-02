@@ -53,7 +53,7 @@ Copyright © {DateTime.Now.Year} {Author}
 
         try
         {
-            using var fileStream = File.Create(filePath);
+            using (var fileStream = File.Create(filePath)) { }
 
             return new EditorStartupResult
             {
