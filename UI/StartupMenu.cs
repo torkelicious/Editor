@@ -12,11 +12,11 @@ public static class StartupMenu
 
     private const string Logo =
         """
-          __                          __      _  _         
+          __                          __      _  _
          / /____ ____  ___ ____ ___  / /_____(_)(_)______ _
         / __/ _ `/ _ \/ _ `/ -_) _ \/ __/ __/ _ \/ __/ _ `/
-        \__/\_,_/_//_/\_, /\__/_//_/\__/_/  \___/_/  \_,_/ 
-                     /___/                                 
+        \__/\_,_/_//_/\_, /\__/_//_/\__/_/  \___/_/  \_,_/
+                     /___/
         """;
 
     private const string LogoProgramName = "TangentRöra";
@@ -26,9 +26,8 @@ public static class StartupMenu
     private static readonly string LicenseText =
         $@"
 This software is Licensed under: {License}
-Copyright © {DateTime.Now.Year} {Author} 
+Copyright © {DateTime.Now.Year} {Author}
 ";
-
 
     public static EditorStartupResult ShowMenu(string[] args)
     {
@@ -52,7 +51,8 @@ Copyright © {DateTime.Now.Year} {Author}
         try
         {
             using (File.Create(filePath))
-            { }
+            {
+            }
 
             return new EditorStartupResult
             {
@@ -63,8 +63,8 @@ Copyright © {DateTime.Now.Year} {Author}
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Could not create file: {ex.Message}");
-            Console.WriteLine("Going to menu...");
+            AnsiConsole.WriteLine($"Could not create file: {ex.Message}");
+            AnsiConsole.WriteLine("Going to menu...");
             Thread.Sleep(1500);
             return ShowInteractiveMenu();
         }
@@ -96,65 +96,45 @@ Copyright © {DateTime.Now.Year} {Author}
 
     private static void DrawMenu()
     {
-        Console.Clear();
-
-        // Reset colors
-        Console.BackgroundColor = ConsoleColor.Black;
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.Clear();
+        AnsiConsole.ResetColor();
+        AnsiConsole.Clear();
 
         var separator = new string('─', Math.Min(Console.WindowWidth, 60));
-        Console.ForegroundColor = ConsoleColor.DarkMagenta;
-        Console.WriteLine(Logo);
 
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine($"             {LogoProgramName} [v{Version}]");
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.Write(LicenseText);
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine(separator);
-        Console.WriteLine();
+        AnsiConsole.WriteLine("{MAGENTA}" + Logo);
+        AnsiConsole.WriteLine("{YELLOW}             " + LogoProgramName + " [v" + Version + "]");
+        AnsiConsole.WriteLine("{DARKGRAY}" + LicenseText);
+        AnsiConsole.WriteLine("{WHITE}" + separator);
+        AnsiConsole.WriteLine("");
 
-        Console.WriteLine("What would you like to do?");
-        Console.WriteLine();
+        AnsiConsole.WriteLine("What would you like to do?");
+        AnsiConsole.WriteLine("");
 
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write("  [N] ");
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine("Create a new file");
+        AnsiConsole.WriteLine("{GREEN}  [N] {WHITE}Create a new file");
+        AnsiConsole.WriteLine("{BLUE}  [O] {WHITE}Open an existing file");
+        AnsiConsole.WriteLine("{RED}  [Q] {WHITE}Quit");
 
-        Console.ForegroundColor = ConsoleColor.Blue;
-        Console.Write("  [O] ");
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine("Open an existing file");
+        AnsiConsole.WriteLine("");
+        AnsiConsole.WriteLine(separator);
 
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.Write("  [Q] ");
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine("Quit");
-
-        Console.WriteLine();
-        Console.WriteLine(separator);
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.WriteLine(
+        AnsiConsole.WriteLine(
             $"""
-             // Editor Controls:
-                 (NORMAL:) 
+             {"{DARKGRAY}"}// Editor Controls:
+                 (NORMAL:)
               *   HJKL to move || I: Insert mode || A: Append || X: Delete || D: Delete Line || O: Insert into NewLine || Q: Quit
               *   Y: Yank line || P: Paste yanked line
-              *   G: to go to start of buffer || SHIFT+G: to go to end of buffer 
+              *   G: to go to start of buffer || SHIFT+G: to go to end of buffer
               *   Undo/Redo with U / R
               *   Navigate quickly with TAB and SHIFT+TAB (OR W and B)
 
                  (INSERT:)
               *   ARROW KEYS to move
               *   ESCAPE: return to NORMAL mode
-             {separator}
+             {separator}{"{WHITE}"}
              """);
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine();
-        Console.Write("Enter your choice: ");
-    } // so many colors ^o^
+
+        AnsiConsole.Write("Enter your choice: ");
+    }
 
     private static EditorStartupResult CreateNewFile()
     {
@@ -168,14 +148,12 @@ Copyright © {DateTime.Now.Year} {Author}
 
     private static EditorStartupResult OpenExistingFile()
     {
-        Console.Clear();
-        Console.WriteLine("Open File");
-        Console.WriteLine(new string('─', 20));
-        Console.WriteLine();
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.WriteLine("(Press Ctrl+C to cancel)");
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.Write("Enter the path to the file: ");
+        AnsiConsole.Clear();
+        AnsiConsole.WriteLine("Open File");
+        AnsiConsole.WriteLine(new string('─', 20));
+        AnsiConsole.WriteLine("");
+        AnsiConsole.WriteLine("{DARKGRAY}(Press Ctrl+C to cancel)");
+        AnsiConsole.Write("{WHITE}Enter the path to the file: ");
 
         var filePath = string.Empty;
         try
@@ -198,13 +176,11 @@ Copyright © {DateTime.Now.Year} {Author}
         {
             if (!File.Exists(filePath))
             {
-                Console.WriteLine();
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.Write($"File '{filePath}' doesn't exist. Create it? (y/N): ");
-                Console.ForegroundColor = ConsoleColor.White;
+                AnsiConsole.WriteLine("");
+                AnsiConsole.Write($"{{YELLOW}}File '{filePath}' doesn't exist. Create it? (y/N): {{WHITE}}");
 
                 var response = Console.ReadKey().KeyChar;
-                Console.WriteLine();
+                AnsiConsole.WriteLine("");
 
                 if (char.ToLower(response) == 'y')
                 {
@@ -236,23 +212,19 @@ Copyright © {DateTime.Now.Year} {Author}
 
     private static void ShowInvalidOption()
     {
-        Console.Clear();
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("Invalid option!");
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine("Please enter a valid choice (N/O/Q)");
-        Console.WriteLine();
-        Console.WriteLine("Press any key to continue...");
+        AnsiConsole.Clear();
+        AnsiConsole.WriteLine("{RED}Invalid option!");
+        AnsiConsole.WriteLine("{WHITE}Please enter a valid choice (N/O/Q)");
+        AnsiConsole.WriteLine("");
+        AnsiConsole.WriteLine("Press any key to continue...");
         Console.ReadKey(true);
     }
 
     private static void ShowError(string message)
     {
-        Console.WriteLine();
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine(message);
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine("Press any key to continue...");
+        AnsiConsole.WriteLine("");
+        AnsiConsole.WriteLine("{RED}" + message);
+        AnsiConsole.WriteLine("{WHITE}Press any key to continue...");
         Console.ReadKey(true);
     }
 }
