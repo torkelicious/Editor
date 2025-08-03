@@ -51,7 +51,8 @@ Copyright © {DateTime.Now.Year} {Author}
 
         try
         {
-            using (var fileStream = File.Create(filePath)) { }
+            using (File.Create(filePath))
+            { }
 
             return new EditorStartupResult
             {
@@ -74,9 +75,7 @@ Copyright © {DateTime.Now.Year} {Author}
         while (true)
         {
             DrawMenu();
-
             var input = char.ToLower(Console.ReadKey(true).KeyChar);
-
             switch (input)
             {
                 case 'n':
@@ -102,7 +101,6 @@ Copyright © {DateTime.Now.Year} {Author}
         // Reset colors
         Console.BackgroundColor = ConsoleColor.Black;
         Console.ForegroundColor = ConsoleColor.White;
-
         Console.Clear();
 
         var separator = new string('─', Math.Min(Console.WindowWidth, 60));

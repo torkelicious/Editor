@@ -13,6 +13,27 @@ namespace Editor.Core;
 
 public static class Initalizer
 {
+    // winapi
+    // - - -
+    const int STD_OUTPUT_HANDLE = -11;
+    const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    static extern IntPtr GetStdHandle(int nStdHandle);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
+
+    [DllImport("kernel32.dll")]
+    static extern bool SetConsoleOutputCP(uint wCodePageID);
+
+    [DllImport("kernel32.dll")]
+    static extern bool SetConsoleCP(uint wCodePageID);
+    // - - -
+
     private static bool isDebug;
 
     public static void initEditor(string[] args)
@@ -43,6 +64,7 @@ public static class Initalizer
         try
         {
             var startupResult = StartupMenu.ShowMenu(args);
+            Console.Clear();
             if (!startupResult.ShouldStartEditor || startupResult.Document == null) return; // user quit
             // editor components
             var document = startupResult.Document;
@@ -52,7 +74,6 @@ public static class Initalizer
             var undoManager = new UndoManager();
             renderer.RegisterWithDocument(document);
             // !! We create inputHandler in the mainLoop func !!
-
             MainLoop(document, editorState, viewport, renderer, startupResult, undoManager);
         }
         catch (Exception ex)
@@ -114,24 +135,6 @@ public static class Initalizer
 
     private static void HandleWindowsOS() // run on Windows only!
     {
-        const int STD_OUTPUT_HANDLE = -11;
-        const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        static extern IntPtr GetStdHandle(int nStdHandle);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
-
-        [DllImport("kernel32.dll")]
-        static extern bool SetConsoleOutputCP(uint wCodePageID);
-
-        [DllImport("kernel32.dll")]
-        static extern bool SetConsoleCP(uint wCodePageID);
-
         var handle = GetStdHandle(STD_OUTPUT_HANDLE);
         if (GetConsoleMode(handle, out var mode))
             SetConsoleMode(handle, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
@@ -141,8 +144,16 @@ public static class Initalizer
         // Set UTF-8 code page
         SetConsoleOutputCP(65001);
         SetConsoleCP(65001);
+        try
+        {
+            Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight);
+        }
+        catch
+        {
+        }
 
-        Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight);
         Console.Write("\x1b[3J\x1b[2J\x1b[H");
     }
 }
+
+// i should look into using ansii escape codes for coloring ?
