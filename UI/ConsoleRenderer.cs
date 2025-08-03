@@ -69,7 +69,9 @@ public class ConsoleRenderer(Viewport viewport)
                 var screenY = lineIndex - viewport.StartLine;
                 Console.SetCursorPosition(0, screenY);
 
-                Console.Write(processedLine.text.PadRight(viewport.VisibleColumns)); // change this to use AnsiConsole ** when syntax highlighting is implemented, AnsiConsole.Write method must be modified in this case too.
+                Console.Write(
+                    processedLine.text.PadRight(viewport
+                        .VisibleColumns)); // change this to use AnsiConsole ** when syntax highlighting is implemented, AnsiConsole.Write method must be modified in this case too.
 
                 DrawScrollIndicators(processedLine, lineIndex, editorState.CursorLine, screenY);
             }

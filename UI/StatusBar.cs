@@ -37,10 +37,7 @@ public class StatusBar
     {
         var lineCount = document.GetLineCount();
         var totalLength = 0;
-        for (var i = 0; i < lineCount; i++)
-        {
-            totalLength += document.GetLine(i).Length;
-        }
+        for (var i = 0; i < lineCount; i++) totalLength += document.GetLine(i).Length;
         return HashCode.Combine(
             lineCount,
             totalLength,
@@ -83,7 +80,8 @@ public class StatusBar
         _buffer.AppendLine();
 
         // Help 
-        var helpText = "HJKL/Arrows: Move || Q: Quit (NORMAL) || I: INSERT mode || ESC: NORMAL mode || X: Delete (NORMAL) ||";
+        var helpText =
+            "HJKL/Arrows: Move || Q: Quit (NORMAL) || I: INSERT mode || ESC: NORMAL mode || X: Delete (NORMAL) ||";
         var rec = $"🔴[{lastInput}]";
         var maxHelpLength = Console.WindowWidth - rec.Length;
 
