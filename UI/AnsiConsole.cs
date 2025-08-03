@@ -157,4 +157,14 @@ public static class AnsiConsole
             Console.Write($"\x1b[{BackgroundColorMap[color]}m");
         }
     }
+
+    public static void HideCursor()
+    {
+        Console.Write("\x1b[?25l");
+    }
+
+    public static void ShowCursor()
+    {
+        Console.Write("\x1b[?25h");
+    }
 }

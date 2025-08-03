@@ -1,5 +1,6 @@
 #region
 
+using System.Text;
 using Editor.Core;
 
 #endregion
@@ -8,79 +9,95 @@ namespace Editor.UI;
 
 public class StatusBar
 {
+    private static string _lastRenderedContent = string.Empty;
+    private static int _lastDocumentHash = -1;
+    private static readonly StringBuilder _buffer = new();
+
     public static void Render(Document document, EditorState editorState, int linesPadding, string lastInput = " ")
     {
-        DrawSeparator(linesPadding);
-        DrawModeAndPosition(document, editorState, linesPadding);
-        DrawHelpLine(linesPadding, lastInput);
+        var newContent = BuildStatusBarContent(document, editorState, lastInput);
+        var currentDocumentHash = GetDocumentHash(document);
+
+        // Redraw only if content changed or document changed
+        if (newContent == _lastRenderedContent && currentDocumentHash == _lastDocumentHash) return;
+
+        _lastRenderedContent = newContent;
+        _lastDocumentHash = currentDocumentHash;
+
+        AnsiConsole.HideCursor();
+
+        Console.SetCursorPosition(0, Console.WindowHeight - linesPadding);
+        AnsiConsole.Write(newContent);
+
+        AnsiConsole.ShowCursor();
         AnsiConsole.ResetColor();
     }
 
-    private static void DrawSeparator(int linesPadding)
+    private static int GetDocumentHash(Document document)
     {
-        Console.SetCursorPosition(0, Console.WindowHeight - linesPadding);
-        AnsiConsole.Write("{DARKGRAY}" + new string('─', Console.WindowWidth));
+        var lineCount = document.GetLineCount();
+        var totalLength = 0;
+        for (var i = 0; i < lineCount; i++)
+        {
+            totalLength += document.GetLine(i).Length;
+        }
+        return HashCode.Combine(
+            lineCount,
+            totalLength,
+            document.IsDirty
+        );
     }
 
-    private static void DrawModeAndPosition(Document document, EditorState editorState, int linesPadding)
+    private static string BuildStatusBarContent(Document document, EditorState editorState, string lastInput)
     {
-        var y = Console.WindowHeight - linesPadding + 1;
-        Console.SetCursorPosition(0, y);
+        _buffer.Clear();
 
-        // Mode indicator
+        // Separator 
+        _buffer.AppendLine("{DARKGRAY}" + new string('─', Console.WindowWidth));
+
+        // Mode and position 
         var modeColor = editorState.Mode == EditorMode.Normal ? "BG_GREEN" : "BG_YELLOW";
         var modeText = $" {editorState.Mode.ToString().ToUpper()} ";
-        AnsiConsole.Write($"{{{modeColor}}}{{BLACK}}{modeText}{{RESET}}");
+        _buffer.Append($"{{{modeColor}}}{{BLACK}}{modeText}{{RESET}}");
 
-        // Position
         var positionText = $" {editorState.CursorLine + 1}:{editorState.CursorColumn + 1} ";
-        AnsiConsole.Write($"{{BG_WHITE}}{{BLACK}}{positionText}{{RESET}}");
+        _buffer.Append($"{{BG_WHITE}}{{BLACK}}{positionText}{{RESET}}");
 
-        // File status
-        if (document.IsDirty) AnsiConsole.Write("{BG_DARKBLUE}{WHITE}  MODIFIED  {RESET}");
+        if (document.IsDirty)
+            _buffer.Append("{BG_DARKBLUE}{WHITE}  MODIFIED  {RESET}");
 
         if (!document.IsUntitled)
         {
             var displayPath = document.FilePath!.Length > 50
                 ? "..." + document.FilePath[^47..]
                 : document.FilePath;
-            AnsiConsole.Write($"{{BG_DARKCYAN}}{{WHITE}}  📄 {displayPath}  {{RESET}}");
+            _buffer.Append($"{{BG_DARKCYAN}}{{WHITE}}  📄 {displayPath}  {{RESET}}");
         }
 
-        if (document.IsUntitled) AnsiConsole.Write("{BG_DARKMAGENTA}{WHITE}  ( NEW FILE )  {RESET}");
+        if (document.IsUntitled)
+            _buffer.Append("{BG_DARKMAGENTA}{WHITE}  ( NEW FILE )  {RESET}");
 
-        // Debug
         if (document.showDebugInfo)
-            AnsiConsole.Write($"{{BG_DARKBLUE}}{{WHITE}}{document.GetPerformanceInfo()}{{RESET}}");
-    }
+            _buffer.Append($"{{BG_DARKBLUE}}{{WHITE}}{document.GetPerformanceInfo()}{{RESET}}");
 
-    private static void DrawHelpLine(int linesPadding, string lastInput = " ")
-    {
-        var y = Console.WindowHeight - linesPadding + 2;
-        Console.SetCursorPosition(0, y);
+        _buffer.AppendLine();
 
-        // Clear the entire line first
-        AnsiConsole.Write("{BG_WHITE}" + new string(' ', Console.WindowWidth) + "{RESET}");
-        Console.SetCursorPosition(0, y);
-
-        var helpText =
-            "HJKL/Arrows: Move || Q: Quit (NORMAL) || I: INSERT mode || ESC: NORMAL mode || X: Delete (NORMAL) ||";
-
-        var rec = recorder(lastInput);
-
+        // Help 
+        var helpText = "HJKL/Arrows: Move || Q: Quit (NORMAL) || I: INSERT mode || ESC: NORMAL mode || X: Delete (NORMAL) ||";
+        var rec = $"🔴[{lastInput}]";
         var maxHelpLength = Console.WindowWidth - rec.Length;
+
         if (helpText.Length > maxHelpLength)
             helpText = string.Concat(helpText.AsSpan(0, maxHelpLength - 3), "...");
 
-        AnsiConsole.Write($"{{BOLD}}{{BG_WHITE}}{{BLACK}}{helpText}{{RESET}}");
+        // Build line
+        var helpLine = $"{{BOLD}}{{BG_WHITE}}{{BLACK}}{helpText}";
+        var spacesNeeded = Console.WindowWidth - helpText.Length - rec.Length;
+        helpLine += new string(' ', Math.Max(0, spacesNeeded));
+        helpLine += $"{rec}{{RESET}}";
 
-        var recPos = Console.WindowWidth - rec.Length;
-        Console.SetCursorPosition(recPos, y);
-        AnsiConsole.Write($"{{BG_WHITE}}{{BLACK}}{rec}{{RESET}}");
-    }
+        _buffer.Append(helpLine);
 
-    private static string recorder(string lastInput = "")
-    {
-        return $"🔴[{lastInput}]";
+        return _buffer.ToString();
     }
 }
