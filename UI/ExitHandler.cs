@@ -116,7 +116,6 @@ public static class ExitHandler
     private static void HandleNewFileCleanup(Document document)
     {
         if (document.IsUntitled && !string.IsNullOrEmpty(document.FilePath) && File.Exists(document.FilePath))
-        {
             try
             {
                 File.Delete(document.FilePath);
@@ -127,6 +126,5 @@ public static class ExitHandler
                 AnsiConsole.WriteLine(
                     $"{{RED}}Warning: Could not delete temporary file: {ex.Message}\nMay require manual intervention!");
             }
-        }
     }
 }

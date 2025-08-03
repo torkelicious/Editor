@@ -22,6 +22,8 @@ public static class Initalizer
 
     private static bool isDebug;
 
+    public static ConsoleRenderer renderer;
+
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern IntPtr GetStdHandle(int nStdHandle);
 
@@ -36,8 +38,6 @@ public static class Initalizer
 
     [DllImport("kernel32.dll")]
     private static extern bool SetConsoleCP(uint wCodePageID);
-
-    public static ConsoleRenderer renderer;
 
     public static void initEditor(string[] args)
     {
