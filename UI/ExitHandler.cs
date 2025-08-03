@@ -10,6 +10,7 @@ public static class ExitHandler
 {
     public static void HandleExit(Document document, bool isNewFile)
     {
+        AnsiConsole.HideCursor();
         AnsiConsole.Clear();
         AnsiConsole.WriteLine("{YELLOW}Exiting");
         AnsiConsole.WriteLine("");
@@ -20,10 +21,12 @@ public static class ExitHandler
             HandleNewFileCleanup(document);
         else
             AnsiConsole.WriteLine("{GREEN}No changes to save...");
+        AnsiConsole.ShowCursor();
     }
 
     private static void HandleUnsavedChanges(Document document, bool isNewFile)
     {
+        AnsiConsole.HideCursor();
         AnsiConsole.WriteLine("{YELLOW}You have unsaved changes!\n");
 
         while (true)
@@ -33,7 +36,7 @@ public static class ExitHandler
             AnsiConsole.Write("{WHITE} / ");
             AnsiConsole.Write("{RED}[n]o");
             AnsiConsole.Write("{WHITE}: ");
-
+            AnsiConsole.ShowCursor();
             var response = char.ToLower(Console.ReadKey().KeyChar);
             AnsiConsole.WriteLine("");
 
@@ -112,16 +115,18 @@ public static class ExitHandler
 
     private static void HandleNewFileCleanup(Document document)
     {
-        if (document.IsUntitled || !File.Exists(document.FilePath)) return;
-        try
+        if (document.IsUntitled && !string.IsNullOrEmpty(document.FilePath) && File.Exists(document.FilePath))
         {
-            File.Delete(document.FilePath);
-            AnsiConsole.WriteLine($"{{YELLOW}}Cleaned up file buffer: {document.FilePath}");
-        }
-        catch (Exception ex)
-        {
-            AnsiConsole.WriteLine(
-                $"{{RED}}Warning: Could not delete empty file: {ex.Message}\nMay require manual intervention!");
+            try
+            {
+                File.Delete(document.FilePath);
+                AnsiConsole.WriteLine($"{{YELLOW}}Cleaned up file {document.FilePath}");
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.WriteLine(
+                    $"{{RED}}Warning: Could not delete temporary file: {ex.Message}\nMay require manual intervention!");
+            }
         }
     }
 }

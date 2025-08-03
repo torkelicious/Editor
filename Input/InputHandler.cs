@@ -143,6 +143,13 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
 
                 document.MoveCursor(0); // go to start of buff
                 break;
+            case ConsoleKey.S:
+                if (key.Modifiers == ConsoleModifiers.Control)
+                {
+                    AttemptQuickSave(document);
+                }
+
+                break;
         }
     }
 
@@ -303,5 +310,69 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
     private void ClampCursorPosition()
     {
         if (document.CursorPosition > document.Length) document.MoveCursor(document.Length);
+    }
+
+    private void AttemptQuickSave(Document document)
+    {
+        try
+        {
+            if (document.IsUntitled)
+            {
+                AnsiConsole.HideCursor();
+                AnsiConsole.Clear();
+                AnsiConsole.WriteLine("{CYAN}Save File");
+                AnsiConsole.WriteLine(new string('─', 20));
+                AnsiConsole.WriteLine("");
+                AnsiConsole.Write("{WHITE}Enter filename to save as: ");
+                AnsiConsole.ShowCursor();
+                var filePath = Console.ReadLine()?.Trim();
+
+                if (string.IsNullOrEmpty(filePath))
+                {
+                    ShowQuickMessage("{RED}No filename entered. Save cancelled.");
+                    return;
+                }
+
+                if (File.Exists(filePath))
+                {
+                    AnsiConsole.WriteLine("");
+                    AnsiConsole.Write($"{{YELLOW}}File '{filePath}' already exists. Overwrite? (y/N): ");
+
+                    var overwrite = char.ToLower(Console.ReadKey().KeyChar);
+                    AnsiConsole.WriteLine("");
+
+                    if (overwrite != 'y')
+                    {
+                        ShowQuickMessage("{RED}Save cancelled.");
+                        return;
+                    }
+                }
+                document.SaveToFile(filePath);
+                ShowQuickMessage($"{{GREEN}}File saved successfully: {filePath}");
+            }
+            else
+            {
+                document.SaveToFile(document.FilePath);
+                ShowQuickMessage($"{{GREEN}}File saved: {document.FilePath}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowQuickMessage($"{{RED}}Error saving file: {ex.Message}");
+        }
+    }
+
+    private void ShowQuickMessage(string message)
+    {
+        AnsiConsole.Clear();
+        AnsiConsole.HideCursor();
+        AnsiConsole.WriteLine("");
+        AnsiConsole.WriteLine(message);
+        AnsiConsole.WriteLine("");
+        AnsiConsole.WriteLine("{DARKGRAY}Press any key to continue...");
+        Console.ReadKey(true);
+        AnsiConsole.Clear();
+        StatusBar.forceRedraw = true;
+        Initalizer.renderer.MarkAllDirty();
     }
 }

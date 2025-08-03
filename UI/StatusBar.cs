@@ -9,6 +9,7 @@ namespace Editor.UI;
 
 public class StatusBar
 {
+    public static bool forceRedraw = false;
     private static string _lastRenderedContent = string.Empty;
     private static int _lastDocumentHash = -1;
     private static readonly StringBuilder _buffer = new();
@@ -19,7 +20,7 @@ public class StatusBar
         var currentDocumentHash = GetDocumentHash(document);
 
         // Redraw only if content changed or document changed
-        if (newContent == _lastRenderedContent && currentDocumentHash == _lastDocumentHash) return;
+        if (newContent == _lastRenderedContent && currentDocumentHash == _lastDocumentHash && !forceRedraw) return;
 
         _lastRenderedContent = newContent;
         _lastDocumentHash = currentDocumentHash;
@@ -31,6 +32,9 @@ public class StatusBar
 
         AnsiConsole.ShowCursor();
         AnsiConsole.ResetColor();
+
+        forceRedraw = false;
+
     }
 
     private static int GetDocumentHash(Document document)

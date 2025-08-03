@@ -22,6 +22,7 @@ public class ConsoleRenderer(Viewport viewport)
 
     public void Render(Document document, EditorState editorState, string lastInput = " ")
     {
+        AnsiConsole.HideCursor();
         var availableLines = Console.WindowHeight - LinesPadding;
         var availableColumns = Console.WindowWidth - ColumnPadding;
 
@@ -46,6 +47,7 @@ public class ConsoleRenderer(Viewport viewport)
         RenderDocumentContent(document, editorState);
         StatusBar.Render(document, editorState, LinesPadding, lastInput);
         PositionCursor(editorState);
+        AnsiConsole.ShowCursor();
     }
 
     private void RenderDocumentContent(Document document, EditorState editorState)
@@ -69,6 +71,8 @@ public class ConsoleRenderer(Viewport viewport)
                 var screenY = lineIndex - viewport.StartLine;
                 Console.SetCursorPosition(0, screenY);
 
+                AnsiConsole.SetBackgroundColor(AnsiConsole.AnsiColor.Black);
+                AnsiConsole.SetForegroundColor(AnsiConsole.AnsiColor.White);
                 Console.Write(
                     processedLine.text.PadRight(viewport
                         .VisibleColumns)); // change this to use AnsiConsole ** when syntax highlighting is implemented, AnsiConsole.Write method must be modified in this case too.
@@ -84,7 +88,7 @@ public class ConsoleRenderer(Viewport viewport)
         dirtyLines.Add(lineIndex);
     }
 
-    private void MarkAllDirty()
+    public void MarkAllDirty()
     {
         fullRedrawNeeded = true;
         dirtyLines.Clear();

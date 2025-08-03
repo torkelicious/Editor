@@ -127,6 +127,7 @@ Copyright © {DateTime.Now.Year} {Author}
               *   G: to go to start of buffer || SHIFT+G: to go to end of buffer
               *   Undo/Redo with U / R
               *   Navigate quickly with TAB and SHIFT+TAB (OR W and B)
+              *   CTRL+S to Save
 
                  (INSERT:)
               *   ARROW KEYS to move

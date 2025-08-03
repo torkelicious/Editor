@@ -1,6 +1,8 @@
 #region
 
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using Editor.UI;
 
 #endregion
 
@@ -52,11 +54,12 @@ public class Document : IDisposable
     private bool IsEditable => State is DocumentState.Clean or DocumentState.Dirty;
     public int Length => buffer.Length;
     public int CursorPosition => buffer.Position;
-    public string? FilePath { get; private set; }
+    public string? FilePath { get; set; }
 
     private DateTime LastModified { get; set; }
 
     public bool IsUntitled => string.IsNullOrEmpty(FilePath);
+
     private long OriginalFileSize { get; }
 
     // Indexer
@@ -226,12 +229,14 @@ public class Document : IDisposable
         return (line, column);
     }
 
-    // Utility methods
+    // Utility 
     private void showLoadingInfo()
     {
+        AnsiConsole.HideCursor();
         var sizeMB = OriginalFileSize / (1024.0 * 1024.0);
         Console.WriteLine($"Loading file: {Path.GetFileName(FilePath)} ({sizeMB:F1}MB)");
         Console.WriteLine($"Using {buffer}");
+        AnsiConsole.ShowCursor();
     }
 
     public string GetLine(int lineNumber)

@@ -37,6 +37,8 @@ public static class Initalizer
     [DllImport("kernel32.dll")]
     private static extern bool SetConsoleCP(uint wCodePageID);
 
+    public static ConsoleRenderer renderer;
+
     public static void initEditor(string[] args)
     {
         Console.OutputEncoding = Encoding.UTF8; // use UTF-8
@@ -65,13 +67,13 @@ public static class Initalizer
         try
         {
             var startupResult = StartupMenu.ShowMenu(args);
-            Console.Clear();
+            AnsiConsole.Clear();
             if (!startupResult.ShouldStartEditor || startupResult.Document == null) return; // user quit
             // editor components
             var document = startupResult.Document;
             var editorState = new EditorState();
             var viewport = new Viewport();
-            var renderer = new ConsoleRenderer(viewport);
+            renderer = new ConsoleRenderer(viewport);
             var undoManager = new UndoManager();
             renderer.RegisterWithDocument(document);
             // !! We create inputHandler in the mainLoop func !!
@@ -90,8 +92,10 @@ public static class Initalizer
         var inputHandler = new InputHandler(document, editorState, viewport, undoManager);
 
         if (isDebug) document.showDebugInfo = true;
-        Console.Clear();
+        AnsiConsole.Clear();
+        AnsiConsole.HideCursor();
         renderer.Render(document, editorState); // render once before loop to avoid forcing user to input
+        AnsiConsole.ShowCursor();
 
         // Main editor loop
         var exitRequested = false;
@@ -100,7 +104,9 @@ public static class Initalizer
             {
                 inputHandler.HandleInput();
                 editorState.UpdateFromDocument(document);
+                AnsiConsole.HideCursor();
                 renderer.Render(document, editorState, inputHandler.lastInputToShow); // Render after input
+                AnsiConsole.ShowCursor();
                 if (inputHandler.ShouldQuit)
                 {
                     ExitHandler.HandleExit(document, startupResult.IsNewFile);
@@ -115,6 +121,7 @@ public static class Initalizer
 
     private static void ShowError(Exception ex, bool isFatal = false, bool quit = false)
     {
+        Console.Write("\x1b[?25l"); // write raw instead of using AnsiConsole wrapper for error safety
         Console.Clear();
         Console.ForegroundColor = ConsoleColor.Red;
         if (isFatal)
@@ -130,6 +137,7 @@ public static class Initalizer
             Console.WriteLine(ex.Message);
         }
 
+        Console.Write("\x1b[?25h");
         if (!quit) return;
         Environment.Exit(-1);
     }
@@ -156,5 +164,3 @@ public static class Initalizer
         Console.Write("\x1b[3J\x1b[2J\x1b[H");
     }
 }
-
-// i should look into using ansii escape codes for coloring ?
