@@ -12,13 +12,11 @@ public static class StartupMenu
 
     private const string Logo =
         """
-
           __                          __      _  _         
          / /____ ____  ___ ____ ___  / /_____(_)(_)______ _
         / __/ _ `/ _ \/ _ `/ -_) _ \/ __/ __/ _ \/ __/ _ `/
         \__/\_,_/_//_/\_, /\__/_//_/\__/_/  \___/_/  \_,_/ 
                      /___/                                 
-
         """;
 
     private const string LogoProgramName = "TangentRöra";
@@ -142,7 +140,6 @@ Copyright © {DateTime.Now.Year} {Author}
         Console.ForegroundColor = ConsoleColor.DarkGray;
         Console.WriteLine(
             $"""
-
              // Editor Controls:
                  (NORMAL:) 
               *   HJKL to move || I: Insert mode || A: Append || X: Delete || D: Delete Line || O: Insert into NewLine || Q: Quit
@@ -155,7 +152,6 @@ Copyright © {DateTime.Now.Year} {Author}
               *   ARROW KEYS to move
               *   ESCAPE: return to NORMAL mode
              {separator}
-
              """);
         Console.ForegroundColor = ConsoleColor.White;
         Console.WriteLine();
