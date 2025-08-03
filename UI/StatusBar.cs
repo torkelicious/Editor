@@ -9,7 +9,7 @@ namespace Editor.UI;
 
 public class StatusBar
 {
-    public static bool forceRedraw = false;
+    public static bool forceRedraw;
     private static string _lastRenderedContent = string.Empty;
     private static int _lastDocumentHash = -1;
     private static readonly StringBuilder _buffer = new();
@@ -34,7 +34,6 @@ public class StatusBar
         AnsiConsole.ResetColor();
 
         forceRedraw = false;
-
     }
 
     private static int GetDocumentHash(Document document)

@@ -144,10 +144,7 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
                 document.MoveCursor(0); // go to start of buff
                 break;
             case ConsoleKey.S:
-                if (key.Modifiers == ConsoleModifiers.Control)
-                {
-                    AttemptQuickSave(document);
-                }
+                if (key.Modifiers == ConsoleModifiers.Control) AttemptQuickSave(document);
 
                 break;
         }
@@ -347,6 +344,7 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
                         return;
                     }
                 }
+
                 document.SaveToFile(filePath);
                 ShowQuickMessage($"{{GREEN}}File saved successfully: {filePath}");
             }
