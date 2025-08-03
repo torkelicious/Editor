@@ -10,47 +10,32 @@ public static class ExitHandler
 {
     public static void HandleExit(Document document, bool isNewFile)
     {
-        Console.Clear();
-        Console.BackgroundColor = ConsoleColor.Black;
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("Exiting");
-        Console.WriteLine();
+        AnsiConsole.Clear();
+        AnsiConsole.WriteLine("{YELLOW}Exiting");
+        AnsiConsole.WriteLine("");
 
         if (document.IsDirty)
-        {
             HandleUnsavedChanges(document, isNewFile);
-        }
         else if (isNewFile && !document.IsUntitled)
-        {
             HandleNewFileCleanup(document);
-        }
         else
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("No changes to save...");
-        }
+            AnsiConsole.WriteLine("{GREEN}No changes to save...");
     }
 
     private static void HandleUnsavedChanges(Document document, bool isNewFile)
     {
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("You have unsaved changes!\n");
+        AnsiConsole.WriteLine("{YELLOW}You have unsaved changes!\n");
 
         while (true)
         {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("Save changes before exiting? ");
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("[Y]es");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write(" / ");
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("[n]o");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write(": ");
+            AnsiConsole.Write("{WHITE}Save changes before exiting? ");
+            AnsiConsole.Write("{GREEN}[Y]es");
+            AnsiConsole.Write("{WHITE} / ");
+            AnsiConsole.Write("{RED}[n]o");
+            AnsiConsole.Write("{WHITE}: ");
 
             var response = char.ToLower(Console.ReadKey().KeyChar);
-            Console.WriteLine();
+            AnsiConsole.WriteLine("");
 
             switch (response)
             {
@@ -61,21 +46,15 @@ public static class ExitHandler
 
                 case 'n':
                     if (isNewFile && !document.IsUntitled)
-                    {
                         HandleNewFileCleanup(document);
-                    }
                     else
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Exiting without saving changes.");
-                    }
+                        AnsiConsole.WriteLine("{RED}Exiting without saving changes.");
 
                     return;
 
                 default:
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Please enter Y or N.");
-                    Console.WriteLine();
+                    AnsiConsole.WriteLine("{RED}Please enter Y or N.");
+                    AnsiConsole.WriteLine("");
                     break;
             }
         }
@@ -88,35 +67,29 @@ public static class ExitHandler
             if (document.IsUntitled)
             {
                 // Need to get a file path
-                Console.WriteLine();
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.Write("Enter filename to save as: ");
-                Console.ForegroundColor = ConsoleColor.White;
+                AnsiConsole.WriteLine("");
+                AnsiConsole.Write("{CYAN}Enter filename to save as: ");
 
                 var filePath = Console.ReadLine()?.Trim();
 
                 if (string.IsNullOrEmpty(filePath))
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("No filename entered. Exiting without saving...");
+                    AnsiConsole.WriteLine("{RED}No filename entered. Exiting without saving...");
                     return;
                 }
 
                 // Check file 
                 if (File.Exists(filePath))
                 {
-                    Console.WriteLine();
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write($"File '{filePath}' already exists. Overwrite? (y/N): ");
-                    Console.ForegroundColor = ConsoleColor.White;
+                    AnsiConsole.WriteLine("");
+                    AnsiConsole.Write($"{{YELLOW}}File '{filePath}' already exists. Overwrite? (y/N): ");
 
                     var overwrite = char.ToLower(Console.ReadKey().KeyChar);
-                    Console.WriteLine();
+                    AnsiConsole.WriteLine("");
 
                     if (overwrite != 'y')
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Exiting without saving...");
+                        AnsiConsole.WriteLine("{RED}Exiting without saving...");
                         return;
                     }
                 }
@@ -128,14 +101,12 @@ public static class ExitHandler
                 document.SaveToFile();
             }
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"File saved successfully: {document.FilePath}");
+            AnsiConsole.WriteLine($"{{GREEN}}File saved successfully: {document.FilePath}");
         }
         catch (Exception ex)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Error saving file: {ex.Message}");
-            Console.WriteLine("Exiting without saving...");
+            AnsiConsole.WriteLine($"{{RED}}Error saving file: {ex.Message}");
+            AnsiConsole.WriteLine("{RED}Exiting without saving...");
         }
     }
 
@@ -145,14 +116,12 @@ public static class ExitHandler
         try
         {
             File.Delete(document.FilePath);
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"Cleaned up file buffer: {document.FilePath}");
+            AnsiConsole.WriteLine($"{{YELLOW}}Cleaned up file buffer: {document.FilePath}");
         }
         catch (Exception ex)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(
-                $"Warning: Could not delete empty file: {ex.Message}\nMay require manual intervention!");
+            AnsiConsole.WriteLine(
+                $"{{RED}}Warning: Could not delete empty file: {ex.Message}\nMay require manual intervention!");
         }
     }
 }

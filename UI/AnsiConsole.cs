@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
+
 namespace Editor.UI;
 
 public static class AnsiConsole
@@ -26,15 +27,16 @@ public static class AnsiConsole
 
     public enum CursorShape
     {
-        Block = 0,
         BlinkBlock = 1,
-        Underline = 4,
-        BlinkUnderline = 5,
-        Bar = 6,
-        BlinkBar = 7
+        SteadyBlock = 2,
+        BlinkUnderline = 3,
+        SteadyUnderline = 4,
+        BlinkBar = 5,
+        SteadyBar = 6
     }
 
-    private static readonly object _lockObject = new object();
+
+    private static readonly object _lockObject = new();
     private static readonly ConcurrentDictionary<string, Regex> _regexCache = new();
 
     private static readonly Dictionary<AnsiColor, int> BackgroundColorMap =
@@ -46,12 +48,27 @@ public static class AnsiConsole
     private static AnsiColor _fg = AnsiColor.White;
     private static AnsiColor _bg = AnsiColor.Black;
 
-    private static int GetBackgroundCode(AnsiColor color) => (int)color switch
+    public static AnsiColor ForegroundColor
     {
-        >= 30 and <= 37 => (int)color + 10, // Standard colors: 30-37 -> 40-47
-        >= 90 and <= 97 => (int)color + 10, // Bright colors: 90-97 -> 100-107
-        _ => throw new ArgumentOutOfRangeException(nameof(color))
-    };
+        get => _fg;
+        set => SetForegroundColor(value);
+    }
+
+    public static AnsiColor BackgroundColor
+    {
+        get => _bg;
+        set => SetBackgroundColor(value);
+    }
+
+    private static int GetBackgroundCode(AnsiColor color)
+    {
+        return (int)color switch
+        {
+            >= 30 and <= 37 => (int)color + 10, // Standard colors: 30-37 -> 40-47
+            >= 90 and <= 97 => (int)color + 10, // Bright colors: 90-97 -> 100-107
+            _ => throw new ArgumentOutOfRangeException(nameof(color))
+        };
+    }
 
     private static Dictionary<string, string> CreateFormattingCodes()
     {
@@ -73,18 +90,6 @@ public static class AnsiConsole
         return codes;
     }
 
-    public static AnsiColor ForegroundColor
-    {
-        get => _fg;
-        set => SetForegroundColor(value);
-    }
-
-    public static AnsiColor BackgroundColor
-    {
-        get => _bg;
-        set => SetBackgroundColor(value);
-    }
-
     public static void ResetColor()
     {
         lock (_lockObject)
@@ -97,10 +102,7 @@ public static class AnsiConsole
 
     private static string Format(string input)
     {
-        foreach (var tag in FormattingCodes)
-        {
-            input = ReplaceIgnoreCase(input, "{" + tag.Key + "}", tag.Value);
-        }
+        foreach (var tag in FormattingCodes) input = ReplaceIgnoreCase(input, "{" + tag.Key + "}", tag.Value);
 
         return input;
     }
@@ -113,16 +115,30 @@ public static class AnsiConsole
         return regex.Replace(input, replacement.Replace("$", "$$"));
     }
 
-    public static void Write(string input) => Console.Write(Format(input));
-    public static void WriteLine(string input) => Console.WriteLine(Format(input));
-    public static void Clear() => Console.Write("\x1b[2J\x1b[H");
+    public static void Write(string input)
+    {
+        Console.Write(Format(input));
+    }
+
+    public static void WriteLine(string input)
+    {
+        Console.WriteLine(Format(input));
+    }
+
+    public static void Clear()
+    {
+        Console.Write("\x1b[2J\x1b[H");
+    }
 
     public static void SetCursorShape(CursorShape shape)
     {
-        Console.Write($"\x1b[{(int)shape}q");
+        Console.Write($"\x1b[{(int)shape} q");
     }
 
-    public static void ResetCursor() => SetCursorShape(CursorShape.Block);
+    public static void ResetCursor()
+    {
+        SetCursorShape(CursorShape.SteadyBlock);
+    }
 
     public static void SetForegroundColor(AnsiColor color)
     {

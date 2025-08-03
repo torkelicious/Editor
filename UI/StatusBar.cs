@@ -13,14 +13,13 @@ public class StatusBar
         DrawSeparator(linesPadding);
         DrawModeAndPosition(document, editorState, linesPadding);
         DrawHelpLine(linesPadding, lastInput);
-        ResetColors();
+        AnsiConsole.ResetColor();
     }
 
     private static void DrawSeparator(int linesPadding)
     {
         Console.SetCursorPosition(0, Console.WindowHeight - linesPadding);
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.Write(new string('─', Console.WindowWidth));
+        AnsiConsole.Write("{DARKGRAY}" + new string('─', Console.WindowWidth));
     }
 
     private static void DrawModeAndPosition(Document document, EditorState editorState, int linesPadding)
@@ -28,65 +27,40 @@ public class StatusBar
         var y = Console.WindowHeight - linesPadding + 1;
         Console.SetCursorPosition(0, y);
 
-        var modeColor = editorState.Mode == EditorMode.Normal
-            ? ConsoleColor.Green
-            : ConsoleColor.Yellow;
-
-        Console.BackgroundColor = modeColor;
-        Console.ForegroundColor = ConsoleColor.Black;
+        // Mode indicator
+        var modeColor = editorState.Mode == EditorMode.Normal ? "BG_GREEN" : "BG_YELLOW";
         var modeText = $" {editorState.Mode.ToString().ToUpper()} ";
-        Console.Write(modeText);
+        AnsiConsole.Write($"{{{modeColor}}}{{BLACK}}{modeText}{{RESET}}");
 
-        // Pos
-        Console.BackgroundColor = ConsoleColor.White;
-        Console.ForegroundColor = ConsoleColor.Black;
+        // Position
         var positionText = $" {editorState.CursorLine + 1}:{editorState.CursorColumn + 1} ";
-        Console.Write(positionText);
+        AnsiConsole.Write($"{{BG_WHITE}}{{BLACK}}{positionText}{{RESET}}");
 
-        // File status 
-        if (document.IsDirty)
-        {
-            Console.BackgroundColor = ConsoleColor.DarkBlue;
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("  MODIFIED  ");
-        }
+        // File status
+        if (document.IsDirty) AnsiConsole.Write("{BG_DARKBLUE}{WHITE}  MODIFIED  {RESET}");
 
         if (!document.IsUntitled)
         {
-            Console.BackgroundColor = ConsoleColor.DarkCyan;
-            Console.ForegroundColor = ConsoleColor.White;
             var displayPath = document.FilePath!.Length > 50
                 ? "..." + document.FilePath[^47..]
                 : document.FilePath;
-            Console.Write($"  📄 {displayPath}  ");
+            AnsiConsole.Write($"{{BG_DARKCYAN}}{{WHITE}}  📄 {displayPath}  {{RESET}}");
         }
 
-        if (document.IsUntitled)
-        {
-            Console.BackgroundColor = ConsoleColor.DarkMagenta;
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("  ( NEW FILE )  ");
-        }
+        if (document.IsUntitled) AnsiConsole.Write("{BG_DARKMAGENTA}{WHITE}  ( NEW FILE )  {RESET}");
 
-        // Debug 
+        // Debug
         if (document.showDebugInfo)
-        {
-            Console.BackgroundColor = ConsoleColor.DarkBlue;
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write(document.GetPerformanceInfo());
-        }
+            AnsiConsole.Write($"{{BG_DARKBLUE}}{{WHITE}}{document.GetPerformanceInfo()}{{RESET}}");
     }
 
     private static void DrawHelpLine(int linesPadding, string lastInput = " ")
     {
-        Console.BackgroundColor = ConsoleColor.White;
-        Console.ForegroundColor = ConsoleColor.Black;
-
         var y = Console.WindowHeight - linesPadding + 2;
         Console.SetCursorPosition(0, y);
 
         // Clear the entire line first
-        Console.Write(new string(' ', Console.WindowWidth));
+        AnsiConsole.Write("{BG_WHITE}" + new string(' ', Console.WindowWidth) + "{RESET}");
         Console.SetCursorPosition(0, y);
 
         var helpText =
@@ -98,21 +72,15 @@ public class StatusBar
         if (helpText.Length > maxHelpLength)
             helpText = string.Concat(helpText.AsSpan(0, maxHelpLength - 3), "...");
 
-        Console.Write(helpText);
+        AnsiConsole.Write($"{{BOLD}}{{BG_WHITE}}{{BLACK}}{helpText}{{RESET}}");
 
         var recPos = Console.WindowWidth - rec.Length;
         Console.SetCursorPosition(recPos, y);
-        Console.Write(rec);
+        AnsiConsole.Write($"{{BG_WHITE}}{{BLACK}}{rec}{{RESET}}");
     }
 
     private static string recorder(string lastInput = "")
     {
         return $"🔴[{lastInput}]";
-    }
-
-    private static void ResetColors()
-    {
-        Console.BackgroundColor = ConsoleColor.Black;
-        Console.ForegroundColor = ConsoleColor.White;
     }
 }

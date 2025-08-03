@@ -101,8 +101,9 @@ Copyright © {DateTime.Now.Year} {Author}
 
         var separator = new string('─', Math.Min(Console.WindowWidth, 60));
 
-        AnsiConsole.WriteLine("{MAGENTA}" + Logo);
-        AnsiConsole.WriteLine("{YELLOW}             " + LogoProgramName + " [v" + Version + "]");
+        AnsiConsole.WriteLine("{MAGENTA}{BOLD}" + Logo + "{RESET}");
+        AnsiConsole.WriteLine("                              {YELLOW}{UNDERLINE}" + LogoProgramName + " [v" + Version +
+                              "]{RESET}");
         AnsiConsole.WriteLine("{DARKGRAY}" + LicenseText);
         AnsiConsole.WriteLine("{WHITE}" + separator);
         AnsiConsole.WriteLine("");
@@ -213,7 +214,7 @@ Copyright © {DateTime.Now.Year} {Author}
     private static void ShowInvalidOption()
     {
         AnsiConsole.Clear();
-        AnsiConsole.WriteLine("{RED}Invalid option!");
+        AnsiConsole.WriteLine("{RED}{BOLD}Invalid option!");
         AnsiConsole.WriteLine("{WHITE}Please enter a valid choice (N/O/Q)");
         AnsiConsole.WriteLine("");
         AnsiConsole.WriteLine("Press any key to continue...");
@@ -223,7 +224,7 @@ Copyright © {DateTime.Now.Year} {Author}
     private static void ShowError(string message)
     {
         AnsiConsole.WriteLine("");
-        AnsiConsole.WriteLine("{RED}" + message);
+        AnsiConsole.WriteLine("{RED}{BOLD}" + message);
         AnsiConsole.WriteLine("{WHITE}Press any key to continue...");
         Console.ReadKey(true);
     }

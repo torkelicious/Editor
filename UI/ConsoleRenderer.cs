@@ -13,7 +13,6 @@ public class ConsoleRenderer(Viewport viewport)
     private readonly HashSet<int> dirtyLines = [];
     private bool fullRedrawNeeded = true;
 
-
     public void RegisterWithDocument(Document document)
     {
         document.OnLineChanged += MarkLineDirty;
@@ -36,7 +35,7 @@ public class ConsoleRenderer(Viewport viewport)
 
         if (fullRedrawNeeded || viewportMoved)
         {
-            Console.Clear();
+            AnsiConsole.Clear();
             var startLine = viewport.StartLine;
             var endLine = Math.Min(startLine + viewport.VisibleLines, document.GetLineCount());
             for (var i = startLine; i < endLine; i++) dirtyLines.Add(i);
@@ -63,20 +62,20 @@ public class ConsoleRenderer(Viewport viewport)
             if (lineIndex >= startLine && lineIndex < endLine)
             {
                 var lineContent = document.GetLine(lineIndex);
+                var isCurrentLine = lineIndex == editorState.CursorLine;
 
-                var processedLine = ProcessLineForDisplay(
-                    lineContent
-                );
+                var processedLine = ProcessLineForDisplay(lineContent);
 
                 var screenY = lineIndex - viewport.StartLine;
                 Console.SetCursorPosition(0, screenY);
+
                 Console.Write(processedLine.text.PadRight(viewport.VisibleColumns));
+
                 DrawScrollIndicators(processedLine, lineIndex, editorState.CursorLine, screenY);
             }
 
         dirtyLines.Clear();
     }
-
 
     private void MarkLineDirty(int lineIndex)
     {
@@ -116,18 +115,14 @@ public class ConsoleRenderer(Viewport viewport)
         if (viewport.StartColumn > 0 && lineIndex == cursorLine)
         {
             Console.SetCursorPosition(0, screenY);
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write("<");
-            Console.ForegroundColor = ConsoleColor.White;
+            AnsiConsole.Write("{YELLOW}<{WHITE}");
         }
 
         // Right indicator
         if (lineContent.truncated && lineIndex == cursorLine)
         {
             Console.SetCursorPosition(viewport.VisibleColumns - 1, screenY);
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write(">");
-            Console.ForegroundColor = ConsoleColor.White;
+            AnsiConsole.Write("{YELLOW}>{WHITE}");
         }
     }
 
@@ -143,5 +138,15 @@ public class ConsoleRenderer(Viewport viewport)
         screenY = Math.Max(0, Math.Min(screenY, viewport.VisibleLines - 1));
 
         Console.SetCursorPosition(screenX, screenY);
+
+        // Set cursor shape based on mode
+        var cursorShape = editorState.Mode switch
+        {
+            EditorMode.Normal => AnsiConsole.CursorShape.SteadyBlock,
+            EditorMode.Insert => AnsiConsole.CursorShape.BlinkBar,
+            _ => AnsiConsole.CursorShape.SteadyBlock
+        };
+
+        AnsiConsole.SetCursorShape(cursorShape);
     }
 }
