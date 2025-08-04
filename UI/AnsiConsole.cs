@@ -76,6 +76,7 @@ public static class AnsiConsole
         {
             { "RESET", "\x1b[0m" },
             { "BOLD", "\x1b[1m" },
+            { "ITALIC", "\x1b[3m" },
             { "UNDERLINE", "\x1b[4m" },
             { "CLEAR", "\x1b[2J\x1b[H" }
         };

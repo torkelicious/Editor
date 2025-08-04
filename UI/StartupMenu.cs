@@ -105,7 +105,7 @@ Copyright © {DateTime.Now.Year} {Author}
         AnsiConsole.WriteLine("{MAGENTA}{BOLD}" + Logo + "{RESET}");
         AnsiConsole.WriteLine("                              {YELLOW}{UNDERLINE}" + LogoProgramName + " [v" + Version +
                               "]{RESET}");
-        AnsiConsole.WriteLine("{DARKGRAY}" + LicenseText);
+        AnsiConsole.WriteLine("{DARKGRAY}{ITALIC}" + LicenseText+"{RESET}");
         AnsiConsole.WriteLine("{WHITE}" + separator);
         AnsiConsole.WriteLine("");
 

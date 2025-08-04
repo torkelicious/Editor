@@ -16,6 +16,9 @@ public class StatusBar
 
     public static void Render(Document document, EditorState editorState, int linesPadding, string lastInput = " ")
     {
+
+        AnsiConsole.ResetColor();
+
         var newContent = BuildStatusBarContent(document, editorState, lastInput);
         var currentDocumentHash = GetDocumentHash(document);
 
@@ -57,7 +60,7 @@ public class StatusBar
 
         // Mode and position 
         var modeColor = editorState.Mode == EditorMode.Normal ? "BG_GREEN" : "BG_YELLOW";
-        var modeText = $" {editorState.Mode.ToString().ToUpper()} ";
+        var modeText = $"{{BOLD}} {editorState.Mode.ToString().ToUpper()} {{RESET}}";
         _buffer.Append($"{{{modeColor}}}{{BLACK}}{modeText}{{RESET}}");
 
         var positionText = $" {editorState.CursorLine + 1}:{editorState.CursorColumn + 1} ";
@@ -92,13 +95,11 @@ public class StatusBar
             helpText = string.Concat(helpText.AsSpan(0, maxHelpLength - 3), "...");
 
         // Build line
-        var helpLine = $"{{BG_WHITE}}{{BLACK}}{helpText}";
+        var helpLine = $"{{BG_WHITE}}{{BOLD}}{{BLACK}}{helpText}"; // this dosent show properly on some terminals
         var spacesNeeded = Console.WindowWidth - helpText.Length - rec.Length;
         helpLine += new string(' ', Math.Max(0, spacesNeeded));
-        helpLine += $"{rec}{{RESET}}";
-
+        helpLine += $"{{RESET}}{{BG_WHITE}}{{BLACK}}{{ITALIC}}{rec}{{RESET}}"; // this works but holy is this a mess of a string
         _buffer.Append(helpLine);
-
         return _buffer.ToString();
     }
 }
