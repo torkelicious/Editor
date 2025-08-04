@@ -92,7 +92,7 @@ public class StatusBar
             helpText = string.Concat(helpText.AsSpan(0, maxHelpLength - 3), "...");
 
         // Build line
-        var helpLine = $"{{BOLD}}{{BG_WHITE}}{{BLACK}}{helpText}";
+        var helpLine = $"{{BG_WHITE}}{{BLACK}}{helpText}";
         var spacesNeeded = Console.WindowWidth - helpText.Length - rec.Length;
         helpLine += new string(' ', Math.Max(0, spacesNeeded));
         helpLine += $"{rec}{{RESET}}";
