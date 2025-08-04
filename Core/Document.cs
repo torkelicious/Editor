@@ -53,7 +53,7 @@ public class Document : IDisposable
     private bool IsEditable => State is DocumentState.Clean or DocumentState.Dirty;
     public int Length => buffer.Length;
     public int CursorPosition => buffer.Position;
-    public string? FilePath { get; set; }
+    public string? FilePath { get; private set; }
 
     private DateTime LastModified { get; set; }
 
@@ -210,7 +210,7 @@ public class Document : IDisposable
     }
 
     // Navigation helpers
-    private (int line, int column) GetLineColumn(int position)
+    public (int line, int column) GetLineColumn(int position)
     {
         // !! this is a slow operation and should be used sparingly !!
         int line = 1, column = 1;

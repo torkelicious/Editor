@@ -1,5 +1,6 @@
 #region
 
+using System.Text;
 using Editor.Core;
 using Editor.Core.EditorActions;
 using Editor.UI;
@@ -26,6 +27,10 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
         else if (editorState.Mode == EditorMode.Insert)
         {
             HandleInsertMode(key);
+        }
+        else if (editorState.Mode == EditorMode.Visual)
+        {
+            HandleVisualMode(key);
         }
 
         editorState.UpdateFromDocument(document);
@@ -61,7 +66,9 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
             case ConsoleKey.I:
                 editorState.Mode = EditorMode.Insert;
                 break;
-
+            case ConsoleKey.V:
+                EnterVisualMode();
+                break;
             case ConsoleKey.Q:
                 ShouldQuit = true;
                 break;
@@ -208,6 +215,159 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
                 break;
         }
     }
+
+    private void HandleVisualMode(ConsoleKeyInfo key)
+    {
+        var prevSelection = editorState.HasSelection ? editorState.GetNormalizedSelection() : (0, 0);
+        var hadPrevSelection = editorState.HasSelection;
+
+        switch (key.Key)
+        {
+            case ConsoleKey.J:
+            case ConsoleKey.DownArrow:
+                MoveCursorDown();
+                break;
+            case ConsoleKey.K:
+            case ConsoleKey.UpArrow:
+                MoveCursorUp();
+                break;
+            case ConsoleKey.H:
+            case ConsoleKey.LeftArrow:
+                MoveCursorLeft();
+                break;
+
+            case ConsoleKey.L:
+            case ConsoleKey.RightArrow:
+                MoveCursorRight();
+                break;
+
+            case ConsoleKey.D:
+            case ConsoleKey.X:
+                DeleteSelection();
+                break;
+            case ConsoleKey.Y:
+                YankSelection();
+                break;
+
+            case ConsoleKey.Escape:
+                ExitVisualMode();
+                break;
+
+            case ConsoleKey.Tab:
+            case ConsoleKey.W:
+                if ((key.Modifiers & ConsoleModifiers.Shift) == ConsoleModifiers.Shift)
+                {
+                    // Shift+Tab or Shift+W move left 4 spaces
+                    for (var i = 0; i < 4 && document.CursorPosition > 0; i++)
+                        document.MoveCursor(document.CursorPosition - 1);
+                }
+                else
+                {
+                    // move right 4 spaces or to next tab stop
+                    var currentCol = document.CurrentLineColumn.column;
+                    var nextTabStop = ((currentCol - 1) / 4 + 1) * 4 + 1;
+                    var targetPos = document.CursorPosition + (nextTabStop - currentCol);
+                    document.MoveCursor(Math.Min(targetPos, document.Length));
+                }
+
+                break;
+            case ConsoleKey.B:
+                // move left 4 spaces
+                for (var i = 0; i < 4 && document.CursorPosition > 0; i++)
+                    document.MoveCursor(document.CursorPosition - 1);
+                break;
+
+            case ConsoleKey.G:
+                if (key.Modifiers == ConsoleModifiers.Shift)
+                {
+                    document.MoveCursor(document.Length); // go to end of buff 
+                    return;
+                }
+
+                document.MoveCursor(0); // go to start of buff
+                break;
+            case ConsoleKey.S:
+                if (key.Modifiers == ConsoleModifiers.Control) AttemptQuickSave(document);
+                break;
+        }
+
+        if (hadPrevSelection)
+        {
+            var prevStartLine = document.GetLineColumn(prevSelection.Item1).line - 1;
+            var prevEndLine = document.GetLineColumn(prevSelection.Item2).line - 1;
+            Initalizer.renderer.MarkLinesDirty(prevStartLine, prevEndLine);
+        }
+
+        if (editorState.HasSelection)
+        {
+            var (newStart, newEnd) = editorState.GetNormalizedSelection();
+            var newStartLine = document.GetLineColumn(newStart).line - 1;
+            var newEndLine = document.GetLineColumn(newEnd).line - 1;
+            Initalizer.renderer.MarkLinesDirty(newStartLine, newEndLine);
+        }
+    }
+
+    private void EnterVisualMode()
+    {
+        editorState.Mode = EditorMode.Visual;
+        editorState.SelectionStart = document.CursorPosition;
+    }
+
+    private void ExitVisualMode()
+    {
+        if (editorState.SelectionStart.HasValue)
+        {
+            var (selStart, selEnd) = editorState.GetNormalizedSelection();
+            var startLineNum = document.GetLineColumn(selStart).line - 1;
+            var endLineNum = document.GetLineColumn(selEnd).line - 1;
+
+            Initalizer.renderer.MarkLinesDirty(startLineNum, endLineNum);
+        }
+
+        editorState.SelectionStart = null;
+        editorState.Mode = EditorMode.Normal;
+    }
+
+    private void DeleteSelection()
+    {
+        if (!editorState.SelectionStart.HasValue) return;
+        var (start, end) = editorState.GetNormalizedSelection();
+        var startLineNum = document.GetLineColumn(start).line - 1;
+        var endLineNum = document.GetLineColumn(end).line - 1;
+
+        var len = end - start;
+        document.MoveCursor(start);
+        undoManager.PerformAction(new DeleteAction(document, start, DeleteDirection.Forward, len));
+
+        // Mark lines dirty before exiting
+        Initalizer.renderer.MarkLinesDirty(startLineNum, endLineNum);
+        ExitVisualMode();
+    }
+
+    private void YankSelection()
+    {
+        if (!editorState.SelectionStart.HasValue) return;
+        var (start, end) = editorState.GetNormalizedSelection();
+        var startLineNum = document.GetLineColumn(start).line - 1;
+        var endLineNum = document.GetLineColumn(end).line - 1;
+
+        var selectedText = GetTextRange(start, end - start);
+        editorState.Clipboard.Clear();
+        editorState.Clipboard.Add(selectedText);
+
+        // Mark lines dirty before exiting
+        Initalizer.renderer.MarkLinesDirty(startLineNum, endLineNum);
+        ExitVisualMode();
+    }
+
+    private string GetTextRange(int start, int len)
+    {
+        var result = new StringBuilder();
+        for (var i = start; i < start + len && i < document.Length; i++) result.Append(document[i]);
+
+        return result.ToString();
+    }
+
 
     private void BufferInsertWithUndo(char c)
     {
@@ -360,7 +520,7 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
         }
     }
 
-    private void ShowQuickMessage(string message)
+    private static void ShowQuickMessage(string message)
     {
         AnsiConsole.Clear();
         AnsiConsole.HideCursor();

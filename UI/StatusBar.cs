@@ -16,7 +16,6 @@ public class StatusBar
 
     public static void Render(Document document, EditorState editorState, int linesPadding, string lastInput = " ")
     {
-
         AnsiConsole.ResetColor();
 
         var newContent = BuildStatusBarContent(document, editorState, lastInput);
@@ -59,7 +58,13 @@ public class StatusBar
         _buffer.AppendLine("{DARKGRAY}" + new string('─', Console.WindowWidth));
 
         // Mode and position 
-        var modeColor = editorState.Mode == EditorMode.Normal ? "BG_GREEN" : "BG_YELLOW";
+        var modeColor = editorState.Mode switch
+        {
+            EditorMode.Normal => "BG_GREEN",
+            EditorMode.Insert => "BG_YELLOW",
+            EditorMode.Visual => "BG_CYAN"
+        };
+
         var modeText = $"{{BOLD}} {editorState.Mode.ToString().ToUpper()} {{RESET}}";
         _buffer.Append($"{{{modeColor}}}{{BLACK}}{modeText}{{RESET}}");
 
@@ -86,8 +91,18 @@ public class StatusBar
         _buffer.AppendLine();
 
         // Help 
-        var helpText =
-            "HJKL/Arrows: Move || Q: Quit (NORMAL) || I: INSERT mode || ESC: NORMAL mode || X: Delete (NORMAL) ||";
+        /* var helpText =
+             "HJKL/Arrows: Move || Q: Quit (NORMAL) || I: INSERT mode || ESC: NORMAL mode || X: Delete (NORMAL) ||";
+         */
+        var helpText = editorState.Mode switch
+        {
+            EditorMode.Normal =>
+                "HJKL:Move | [I]nsert | [V]isual | X:Del | [D]elLine | [Y]ankLine/[P]aste | [U]ndo/[R]edo | [Q]uit",
+            EditorMode.Insert => "Type to insert | Arrows:Move | ESC:Normal",
+            EditorMode.Visual => "HJKL:Select | [Y]ank Selection | D/X: Delete Selection | ESC:Normal",
+            _ => "Unknown mode"
+        };
+
         var rec = $"🔴[{lastInput}]";
         var maxHelpLength = Console.WindowWidth - rec.Length;
 
@@ -98,7 +113,8 @@ public class StatusBar
         var helpLine = $"{{BG_WHITE}}{{BOLD}}{{BLACK}}{helpText}"; // this dosent show properly on some terminals
         var spacesNeeded = Console.WindowWidth - helpText.Length - rec.Length;
         helpLine += new string(' ', Math.Max(0, spacesNeeded));
-        helpLine += $"{{RESET}}{{BG_WHITE}}{{BLACK}}{{ITALIC}}{rec}{{RESET}}"; // this works but holy is this a mess of a string
+        helpLine +=
+            $"{{RESET}}{{BG_WHITE}}{{BLACK}}{{ITALIC}}{rec}{{RESET}}"; // this works but holy is this a mess of a string
         _buffer.Append(helpLine);
         return _buffer.ToString();
     }

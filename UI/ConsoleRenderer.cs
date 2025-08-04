@@ -58,25 +58,30 @@ public class ConsoleRenderer(Viewport viewport)
         dirtyLines.Add(editorState.CursorLine);
         if (editorState.CursorLine != editorState.PreviousCursorLine) dirtyLines.Add(editorState.PreviousCursorLine);
 
+        if (editorState.HasSelection)
+        {
+            var (selStart, selEnd) = editorState.GetNormalizedSelection();
+            var startLineNum = document.GetLineColumn(selStart).line - 1;
+            var endLineNum = document.GetLineColumn(selEnd).line - 1;
+            for (var i = startLineNum; i <= endLineNum; i++) dirtyLines.Add(i);
+        }
+
+
         var linesToRender = new HashSet<int>(dirtyLines);
 
         foreach (var lineIndex in linesToRender)
             if (lineIndex >= startLine && lineIndex < endLine)
             {
                 var lineContent = document.GetLine(lineIndex);
-                var isCurrentLine = lineIndex == editorState.CursorLine;
 
-                var processedLine = ProcessLineForDisplay(lineContent);
+                var processedLine = ProcessLineForDisplay(lineContent, lineIndex, editorState, document);
 
                 var screenY = lineIndex - viewport.StartLine;
                 Console.SetCursorPosition(0, screenY);
 
                 AnsiConsole.SetBackgroundColor(AnsiConsole.AnsiColor.Black);
                 AnsiConsole.SetForegroundColor(AnsiConsole.AnsiColor.White);
-                Console.Write(
-                    processedLine.text.PadRight(viewport
-                        .VisibleColumns)); // change this to use AnsiConsole ** when syntax highlighting is implemented, AnsiConsole.Write method must be modified in this case too.
-
+                AnsiConsole.Write(processedLine.text.PadRight(viewport.VisibleColumns));
                 DrawScrollIndicators(processedLine, lineIndex, editorState.CursorLine, screenY);
             }
 
@@ -94,14 +99,50 @@ public class ConsoleRenderer(Viewport viewport)
         dirtyLines.Clear();
     }
 
-    private (string text, bool truncated) ProcessLineForDisplay(string line)
+    private (string text, bool truncated) ProcessLineForDisplay(string line, int lineIndex, EditorState editorState,
+        Document document)
     {
         var displayLine = line;
+
+        if (editorState.HasSelection)
+        {
+            var (selStart, selEnd) = editorState.GetNormalizedSelection();
+            var lineStartPos = document.GetPositionFromLine(lineIndex + 1);
+            var lineEndPos = lineStartPos + line.Length;
+
+            // Check if this line is within the selection range
+            var lineInSelection = selStart <= lineEndPos && selEnd > lineStartPos;
+
+            if (lineInSelection)
+            {
+                if (line.Length > 0)
+                {
+                    // Handle non-empty lines
+                    var relativeStart = Math.Max(0, selStart - lineStartPos);
+                    var relativeEnd = Math.Min(line.Length, selEnd - lineStartPos);
+
+                    if (relativeStart < relativeEnd)
+                    {
+                        var before = line[..relativeStart];
+                        var selected = line[relativeStart..relativeEnd];
+                        var after = line[relativeEnd..];
+
+                        displayLine = $"{before}{{BG_BLUE}}{selected}{{RESET}}{after}";
+                    }
+                }
+                else
+                {
+                    // Handle empty lines - show highlighted space
+                    displayLine = "{BG_BLUE} {RESET}";
+                }
+            }
+        }
 
         // horizontal scrolling
         if (viewport.StartColumn > 0 && displayLine.Length > viewport.StartColumn)
             displayLine = displayLine[viewport.StartColumn..];
-        else if (viewport.StartColumn > 0) displayLine = string.Empty;
+        else if (viewport.StartColumn > 0)
+            displayLine = string.Empty;
 
         // truncation
         var truncated = false;
@@ -150,9 +191,15 @@ public class ConsoleRenderer(Viewport viewport)
         {
             EditorMode.Normal => AnsiConsole.CursorShape.SteadyBlock,
             EditorMode.Insert => AnsiConsole.CursorShape.BlinkBar,
+            EditorMode.Visual => AnsiConsole.CursorShape.SteadyBar,
             _ => AnsiConsole.CursorShape.SteadyBlock
         };
 
         AnsiConsole.SetCursorShape(cursorShape);
+    }
+
+    public void MarkLinesDirty(int startLine, int endLine)
+    {
+        for (var i = startLine; i <= endLine; i++) dirtyLines.Add(i);
     }
 }

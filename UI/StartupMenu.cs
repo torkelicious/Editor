@@ -105,7 +105,7 @@ Copyright © {DateTime.Now.Year} {Author}
         AnsiConsole.WriteLine("{MAGENTA}{BOLD}" + Logo + "{RESET}");
         AnsiConsole.WriteLine("                              {YELLOW}{UNDERLINE}" + LogoProgramName + " [v" + Version +
                               "]{RESET}");
-        AnsiConsole.WriteLine("{DARKGRAY}{ITALIC}" + LicenseText+"{RESET}");
+        AnsiConsole.WriteLine("{DARKGRAY}{ITALIC}" + LicenseText + "{RESET}");
         AnsiConsole.WriteLine("{WHITE}" + separator);
         AnsiConsole.WriteLine("");
 
@@ -123,19 +123,25 @@ Copyright © {DateTime.Now.Year} {Author}
             $"""
              {"{DARKGRAY}"}// Editor Controls:
                  (NORMAL:)
-              *   HJKL to move || I: Insert mode || A: Append || X: Delete || D: Delete Line || O: Insert into NewLine || Q: Quit
-              *   Y: Yank line || P: Paste yanked line
+              *   HJKL to move || I: Insert mode || A: Append || V: Visual mode
+              *   X: Delete || D: Delete Line || O: Insert into NewLine || Q: Quit
+              *   Y: Yank line || P: Paste || U/R: Undo/Redo
               *   G: to go to start of buffer || SHIFT+G: to go to end of buffer
-              *   Undo/Redo with U / R
               *   Navigate quickly with TAB and SHIFT+TAB (OR W and B)
-              *   CTRL+S to Save
+              *   PageUp/PageDn to QuickScroll
+              *   CTRL+S to QuickSave 
 
                  (INSERT:)
-              *   ARROW KEYS to move
+              *   ARROW KEYS to move || Type to insert
               *   ESCAPE: return to NORMAL mode
+              
+                 (VISUAL:)
+              *   HJKL to extend selection || Y: Yank selection || D/X: Delete selection
+              *   ESCAPE: return to NORMAL mode
+              
+              Read "help.md" for more info.
              {separator}{"{WHITE}"}
              """);
-
         AnsiConsole.Write("Enter your choice: ");
     }
 
