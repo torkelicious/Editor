@@ -18,21 +18,24 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
     public void HandleInput()
     {
         var key = Console.ReadKey(true);
-        if (editorState.Mode == EditorMode.Normal)
+        if (editorState.Mode is EditorMode.Normal or EditorMode.Visual)
         {
             lastInputToShow = key.Key.ToString().ToLower();
-            if (key.Modifiers.HasFlag(ConsoleModifiers.Shift)) lastInputToShow = $"Shift+{lastInputToShow.ToUpper()}";
-            HandleNormalMode(key);
+
+            if (key.Modifiers.HasFlag(ConsoleModifiers.Shift))
+                lastInputToShow = $"Shift+{lastInputToShow.ToUpper()}";
+            else if (key.Modifiers.HasFlag(ConsoleModifiers.Control))
+                lastInputToShow = $"^+{lastInputToShow.ToUpper()}";
+
+            if (editorState.Mode == EditorMode.Normal)
+                HandleNormalMode(key);
+            else
+                HandleVisualMode(key);
         }
         else if (editorState.Mode == EditorMode.Insert)
         {
             HandleInsertMode(key);
         }
-        else if (editorState.Mode == EditorMode.Visual)
-        {
-            HandleVisualMode(key);
-        }
-
         editorState.UpdateFromDocument(document);
         ClampCursorPosition();
     }
