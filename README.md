@@ -27,6 +27,7 @@ O: Insert into NewLine
 Q: Quit
 Y: Copy Line to internal editor clipboard
 P: Paste from internal editor clipboard
+CTRL+S: Quicksave
 ESCAPE: Exit Insert mode
 Undo/Redo with U / R
 You can navigate quickly with TAB and SHIFT+TAB (or W and B)
