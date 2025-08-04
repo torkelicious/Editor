@@ -20,7 +20,8 @@ This is mostly a learning project
 controls:
 HJKL to move (Arrow keys in INSERT mode)
 I: Enter Insert mode 
-A: Append (enter Insert after cursor) 
+A: Append (enter Insert after cursor)
+V: Enter Visual Mode
 X: Delete char on cursor
 D: Delete Line
 O: Insert into NewLine
@@ -28,11 +29,13 @@ Q: Quit
 Y: Copy Line to internal editor clipboard
 P: Paste from internal editor clipboard
 CTRL+S: Quicksave
-ESCAPE: Exit Insert mode
+ESCAPE: Return to Normal mode
 Undo/Redo with U / R
 You can navigate quickly with TAB and SHIFT+TAB (or W and B)
 G: Goes to start of buffer, SHIFT+G: goes to end of buffer
 ```
+
+https://github.com/torkelicious/Editor/blob/main/help.md goes into more detail.
 
 if you want to try it, you should build it from source. its a small project, but im too busy/lazy/forgetfull to keep any
 binaries updated.
