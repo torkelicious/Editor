@@ -19,12 +19,11 @@ public static class Initalizer
 
     private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
 
-    private static string configDir = @"";
     // - - -
 
     private static bool isDebug;
 
-    public static ConsoleRenderer renderer;
+    public static ConsoleRenderer renderer = null!; // stop warning me bruh idgaf !!!
 
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern IntPtr GetStdHandle(int nStdHandle);
@@ -162,6 +161,7 @@ public static class Initalizer
         }
         catch
         {
+            // ignored
         }
 
         Console.Write("\x1b[3J\x1b[2J\x1b[H");

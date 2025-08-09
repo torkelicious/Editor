@@ -20,7 +20,7 @@ public static class StartupMenu
                      /___/
         """;
 
-    public const string programName = "TangentRöra";
+    private const string programName = "TangentRöra";
     private const string License = "SPDX-License-Identifier: GPL-3.0-or-later";
     private const string Author = "torkelicious";
 
@@ -164,10 +164,10 @@ Copyright © {DateTime.Now.Year} {Author}
         AnsiConsole.WriteLine("{DARKGRAY}(Press Ctrl+C to cancel)");
         AnsiConsole.Write("{WHITE}Enter the path to the file: ");
 
-        var filePath = string.Empty;
+        string filePath;
         try
         {
-            filePath = Console.ReadLine()?.Trim();
+            filePath = Console.ReadLine()?.Trim()!;
         }
         catch (InvalidOperationException)
         {

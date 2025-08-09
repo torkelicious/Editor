@@ -36,7 +36,7 @@ public static class AnsiConsole
     }
 
 
-    private static readonly object _lockObject = new();
+    private static readonly Lock _lockObject = new();
     private static readonly ConcurrentDictionary<string, Regex> _regexCache = new();
 
     private static readonly Dictionary<AnsiColor, int> BackgroundColorMap =

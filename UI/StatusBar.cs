@@ -9,12 +9,12 @@ namespace Editor.UI;
 
 public class StatusBar
 {
-    public static bool useNerdFonts = Config.Options.UseNerdFonts;
-    private static string fileIcon = "📄";
+    private static readonly bool useNerdFonts = Config.Options is { UseNerdFonts: true };
+    private static string? fileIcon = "📄";
     private static string recorderIcon = "🔴";
     private static string modifiedIcon = "📝";
-    public static string fileTypeNF = string.Empty;
-    private static readonly bool showFileType = true;
+    public static string? fileTypeNF = string.Empty;
+    private static readonly bool showFileType = Config.Options is { StatusBarShowFileType: true };
     public static bool forceRedraw;
     private static string _lastRenderedContent = string.Empty;
     private static int _lastDocumentHash = -1;
@@ -65,7 +65,8 @@ public class StatusBar
         {
             EditorMode.Normal => "BG_GREEN",
             EditorMode.Insert => "BG_YELLOW",
-            EditorMode.Visual => "BG_CYAN"
+            EditorMode.Visual => "BG_CYAN",
+            _ => "BG_WHITE"
         };
 
         var modeText = $"{{BOLD}} {editorState.Mode.ToString().ToUpper()} {{RESET}}";

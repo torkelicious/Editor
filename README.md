@@ -35,7 +35,31 @@ You can navigate quickly with TAB and SHIFT+TAB (or W and B)
 G: Goes to start of buffer, SHIFT+G: goes to end of buffer
 ```
 
-https://github.com/torkelicious/Editor/blob/main/help.md goes into more detail.
+Configuration file is located at:
+
+**Linux / Unix-likes:**
+
+```
+~/.config/tgent/config.json
+```
+
+**Windows:**
+
+```
+%APPDATA%\tgent\config.json
+```
+
+**macOS:**
+
+```
+~/Library/Application Support/tgent/config.json
+```
+
+### detailed information can be found in help.md
+
+https://github.com/torkelicious/Editor/blob/main/help.md
+
+---
 
 if you want to try it, you should build it from source. its a small project, but im too busy/lazy/forgetfull to keep any
 binaries updated.

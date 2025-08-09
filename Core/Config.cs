@@ -1,15 +1,16 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Editor.Core;
 
 public static class Config
 {
     private const string ConfigFileName = "config.json";
-    public static string ConfigDir { get; private set; }
-    public static string ConfigFilePath { get; private set; }
+    private static string? ConfigDir { get; set; }
+    private static string? ConfigFilePath { get; set; }
     public static ConfigOptions? Options { get; private set; }
 
-    public static void FindConfigDirectory()
+    private static void FindConfigDirectory()
     {
         if (OperatingSystem.IsWindows())
             ConfigDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "tgent");
@@ -30,24 +31,26 @@ public static class Config
         FindConfigDirectory();
 
         if (!Directory.Exists(ConfigDir))
-            Directory.CreateDirectory(ConfigDir);
+            if (ConfigDir != null)
+                Directory.CreateDirectory(ConfigDir);
 
         if (File.Exists(ConfigFilePath))
         {
             var json = File.ReadAllText(ConfigFilePath);
-            Options = JsonSerializer.Deserialize<ConfigOptions>(json);
+            Options = JsonSerializer.Deserialize(json, ConfigOptionsJsonContext.Default.ConfigOptions) ??
+                      new ConfigOptions();
         }
         else
         {
-            Options = new ConfigOptions(); // defaults 
+            Options = new ConfigOptions(); // defaults
             Save();
         }
     }
 
-    public static void Save()
+    private static void Save()
     {
-        var json = JsonSerializer.Serialize(Options, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(ConfigFilePath, json);
+        var json = JsonSerializer.Serialize(Options, ConfigOptionsJsonContext.Default.ConfigOptions);
+        if (ConfigFilePath != null) File.WriteAllText(ConfigFilePath, json);
     }
 }
 
@@ -55,4 +58,11 @@ public class ConfigOptions
 {
     public bool UseNerdFonts { get; set; }
     public bool EnableDebugMode { get; set; }
+    public bool StatusBarShowFileType { get; set; } = true;
+}
+
+[JsonSerializable(typeof(ConfigOptions))]
+[JsonSourceGenerationOptions(WriteIndented = true)]
+internal partial class ConfigOptionsJsonContext : JsonSerializerContext
+{
 }

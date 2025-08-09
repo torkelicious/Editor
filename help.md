@@ -5,9 +5,11 @@ SPDX-License-Identifier: GPL-3.0-or-later*
 
 by torkelicious
 
-updated on the *4th of August 2025*
+updated on the *9th of August 2025*
 
 ---
+
+# Controls:
 
 ## NORMAL MODE
 
@@ -95,3 +97,39 @@ Text selection mode
 - `ESC` - Return to Normal mode (clear selection)
 
 ---
+
+# Configuration
+
+The config file is located at:
+
+    Linux / Unix-like systems:
+    ~/.config/tgent/config.json
+
+    Windows:
+    %APPDATA%\tgent\config.json
+
+    macOS:
+    ~/Library/Application Support/tgent/config.json
+
+**Default Options:**
+
+```
+{
+  "UseNerdFonts": false,
+  "EnableDebugMode": false,
+  "StatusBarShowFileType": true
+}
+```
+
+---
+
+`UseNerdFonts:`
+When enabled, replaces emojis in the status bar with corresponding Nerd Font icons based on file types.
+You can customize these icons by editing `resources/filetypeicons.json`
+
+`EnableDebugMode:`
+When enabled, displays performance information in the status bar.
+
+`StatusBarShowFileType:`
+When enabled, shows a human-readable file type / extension of the current open file in the status bar.
+The human-readable name can also be customized via `resources/filetypeicons.json`

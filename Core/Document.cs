@@ -16,11 +16,11 @@ public class Document : IDisposable
     private readonly ITextBuffer buffer; // If we implement more buffers use interface yadyada
     private string[]? cachedLines;
     private DateTime cacheTimestamp;
-    private string FileExtension;
-    public string FileExtensionReadable;
+    private string? FileExtension;
+    public string? FileExtensionReadable;
     private bool lineIndexValid;
     private List<int>? lineStartPositions; // Fast line lookup
-    public bool showDebugInfo = Config.Options.EnableDebugMode;
+    public bool showDebugInfo = Config.Options is { EnableDebugMode: true };
 
     // Constructor
     public Document(string? filePath = null)
@@ -369,11 +369,11 @@ public class Document : IDisposable
     public void SetFileType()
     {
         FileExtension = Path.GetExtension(FilePath)?.ToLowerInvariant() ?? string.Empty;
-        string IconNF;
+        string? IconNF = null;
 
         if (!FileTypeLookup.TryGet(FileExtension, out var fileType))
         {
-            var fileName = Path.GetFileName(FilePath)?.ToLowerInvariant() ?? "";
+            var fileName = Path.GetFileName(FilePath)?.ToLowerInvariant() ?? string.Empty;
 
             if (!FileTypeLookup.TryGet(fileName, out fileType))
             {
@@ -390,14 +390,17 @@ public class Document : IDisposable
             }
             else
             {
-                FileExtensionReadable = fileType.name;
-                IconNF = fileType.icon;
+                if (fileType != null)
+                {
+                    FileExtensionReadable = fileType.name;
+                    IconNF = fileType.icon;
+                }
             }
         }
         else
         {
-            FileExtensionReadable = fileType.name;
-            IconNF = fileType.icon;
+            FileExtensionReadable = fileType?.name;
+            if (fileType != null) IconNF = fileType.icon;
         }
 
         StatusBar.fileTypeNF = IconNF;
