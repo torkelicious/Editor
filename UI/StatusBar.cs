@@ -13,7 +13,7 @@ public class StatusBar
     private static string fileIcon = "📄";
     private static string recorderIcon = "🔴";
     private static string modifiedIcon = "📝";
-    private static string fileTypeNF = string.Empty;
+    public static string fileTypeNF = string.Empty;
     private static readonly bool showFileType = true;
     public static bool forceRedraw;
     private static string _lastRenderedContent = string.Empty;
