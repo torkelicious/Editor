@@ -508,6 +508,7 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
                         return;
                     }
                 }
+
                 document.SaveToFile(filePath);
                 ShowQuickMessage($"{{GREEN}}File saved successfully: {filePath}");
                 document.SetFileType();

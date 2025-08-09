@@ -9,7 +9,7 @@ namespace Editor.UI;
 
 public class StatusBar
 {
-    public static bool useNerdFonts = false;
+    public static bool useNerdFonts = Config.Options.UseNerdFonts;
     private static string fileIcon = "📄";
     private static string recorderIcon = "🔴";
     private static string modifiedIcon = "📝";
@@ -78,12 +78,9 @@ public class StatusBar
 
         if (!document.IsUntitled)
         {
-            string fileEx = String.Empty;
-            if (showFileType)
-            {
-                fileEx = document.FileExtensionReadable;
-            }
-            
+            var fileEx = string.Empty;
+            if (showFileType) fileEx = document.FileExtensionReadable;
+
             var displayPath = document.FilePath!.Length > 50
                 ? "..." + document.FilePath[^47..]
                 : document.FilePath;

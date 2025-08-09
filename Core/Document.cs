@@ -1,7 +1,6 @@
 #region
 
 using System.Text;
-using System.Text.Json;
 using Editor.UI;
 
 #endregion
@@ -21,7 +20,7 @@ public class Document : IDisposable
     public string FileExtensionReadable;
     private bool lineIndexValid;
     private List<int>? lineStartPositions; // Fast line lookup
-    public bool showDebugInfo = false;
+    public bool showDebugInfo = Config.Options.EnableDebugMode;
 
     // Constructor
     public Document(string? filePath = null)
@@ -400,9 +399,10 @@ public class Document : IDisposable
             FileExtensionReadable = fileType.name;
             IconNF = fileType.icon;
         }
+
         StatusBar.fileTypeNF = IconNF;
     }
-    
+
     private enum DocumentState
     {
         Clean, // No changes
@@ -412,5 +412,4 @@ public class Document : IDisposable
         ReadOnly, // File is ReadOnly / we lack permissions, not fully implemented yet!!!
         Error // File operation failed error state
     }
-
 }

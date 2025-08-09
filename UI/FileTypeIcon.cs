@@ -9,24 +9,20 @@ public static class FileTypeLookup
 
     static FileTypeLookup()
     {
-        string configPath = "filetypes.json"; // Adjust path if needed
+        var configPath = "filetypes.json";
         if (File.Exists(configPath))
-        {
             try
             {
                 var json = File.ReadAllText(configPath);
-                _fileTypes = JsonSerializer.Deserialize<Dictionary<string, FileType>>(json) 
+                _fileTypes = JsonSerializer.Deserialize<Dictionary<string, FileType>>(json)
                              ?? new Dictionary<string, FileType>();
             }
             catch
             {
                 _fileTypes = new Dictionary<string, FileType>();
             }
-        }
         else
-        {
             _fileTypes = new Dictionary<string, FileType>();
-        }
     }
 
     public static bool TryGet(string key, out FileType fileType)

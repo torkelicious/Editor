@@ -1,81 +1,318 @@
 {
-  ".cs": { "name": "C#", "icon": "\uE732" },
-  ".js": { "name": "JavaScript", "icon": "\uE701" },
-  ".ts": { "name": "TypeScript", "icon": "\uE8CA" },
-  ".py": { "name": "Python", "icon": "\uE7FC" },
-  ".java": { "name": "Java", "icon": "\uE738" },
-  ".cpp": { "name": "C++", "icon": "\uE7A3" },
-  ".cc": { "name": "C++", "icon": "\uE7A3" },
-  ".cxx": { "name": "C++", "icon": "\uE7A3" },
-  ".c": { "name": "C", "icon": "\uE60E" },
-  ".h": { "name": "Header", "icon": "\uF1DC" },
-  ".hpp": { "name": "Header", "icon": "\uF1DC" },
-  ".rs": { "name": "Rust", "icon": "\uE7A8" },
-  ".go": { "name": "Go", "icon": "\uF1D3" },
-  ".php": { "name": "PHP", "icon": "\uE73D" },
-  ".rb": { "name": "Ruby", "icon": "\uE739" },
-  ".swift": { "name": "Swift", "icon": "\uE755" },
-  ".kt": { "name": "Kotlin", "icon": "\uE634" },
-  ".kts": { "name": "Kotlin", "icon": "\uE634" },
-  ".scala": { "name": "Scala", "icon": "\uE737" },
-  ".lua": { "name": "Lua", "icon": "\uE826" },
-  ".m": { "name": "Objective-C", "icon": "\uE84D" },
-  ".vb": { "name": "Visual Basic", "icon": "\uE8D5" },
-  ".fs": { "name": "F#", "icon": "\uE7A7" },
-  ".fsx": { "name": "F#", "icon": "\uE7A7" },
-  ".asm": { "name": "Assembly", "icon": "\uE6AB" },
-  ".s": { "name": "Assembly", "icon": "\uE6AB" },
-  ".html": { "name": "HTML", "icon": "\uE60E" },
-  ".htm": { "name": "HTML", "icon": "\uE60E" },
-  ".css": { "name": "CSS", "icon": "\uE6B8" },
-  ".json": { "name": "JSON", "icon": "\uEB0F" },
-  ".xml": { "name": "XML", "icon": "\uF5C0" },
-  ".yml": { "name": "YAML", "icon": "\uE8EB" },
-  ".yaml": { "name": "YAML", "icon": "\uE8EB" },
-  ".toml": { "name": "TOML", "icon": "\uE6B2" },
-  ".ini": { "name": "INI", "icon": "\uE615" },
-  ".cfg": { "name": "Config", "icon": "\uE615" },
-  ".config": { "name": "Config", "icon": "\uE615" },
-  ".conf": { "name": "Config", "icon": "\uE615" },
-  ".env": { "name": "Environment Config", "icon": "\uF452" },
-  ".md": { "name": "Markdown", "icon": "\uE73E" },
-  ".txt": { "name": "Text", "icon": "\uF16A" },
-  ".rst": { "name": "reStructuredText", "icon": "\uF16A" },
-  ".tex": { "name": "LaTeX", "icon": "\uE81F" },
-  ".rtf": { "name": "Rich Text", "icon": "\uF16A" },
-  ".doc": { "name": "Word Document", "icon": "\uF2AC" },
-  ".docx": { "name": "Word Document", "icon": "\uF2AC" },
-  ".odt": { "name": "OpenDocument Text", "icon": "\uF2AC" },
-  ".pdf": { "name": "PDF", "icon": "\uEAEA" },
-  ".epub": { "name": "eBook", "icon": "\uEA7B" },
-  ".sql": { "name": "SQL", "icon": "\uE64D" },
-  ".sqlite": { "name": "SQLite", "icon": "\uE7C4" },
-  ".db": { "name": "Database", "icon": "\uE64D" },
-  ".accdb": { "name": "Access Database", "icon": "\uE64D" },
-  ".sh": { "name": "Shell", "icon": "\uF1C3" },
-  ".bash": { "name": "Bash", "icon": "\uF1C3" },
-  ".zsh": { "name": "Zsh", "icon": "\uE691" },
-  ".fish": { "name": "Fish", "icon": "\uEE41" },
-  ".ps1": { "name": "PowerShell", "icon": "\uE86C" },
-  ".bat": { "name": "Batch", "icon": "\uEBF4" },
-  ".cmd": { "name": "Command", "icon": "\uEBF4" },
-  ".log": { "name": "Log", "icon": "\uF4ED" },
-  ".out": { "name": "Output", "icon": "\uF4ED" },
-  ".err": { "name": "Error Log", "icon": "\uF4ED" },
-  ".csv": { "name": "CSV", "icon": "\uE64A" },
-  ".tsv": { "name": "TSV", "icon": "\uE64A" },
-  ".csproj": { "name": "C# Project", "icon": "\uF048" },
-  ".vbproj": { "name": "Visual Basic Project", "icon": "\uF048" },
-  ".fsproj": { "name": "F# Project", "icon": "\uF048" },
-  ".sln": { "name": "Solution", "icon": "\uF048" },
-  ".vcxproj": { "name": "Visual C++ Project", "icon": "\uF048" },
-  ".makefile": { "name": "Makefile", "icon": "\uE673" },
-  "makefile": { "name": "Makefile", "icon": "\uE673" },
-  ".cmake": { "name": "CMake", "icon": "\uE794" },
-  ".gitignore": { "name": "Git Ignore", "icon": "\uE702" },
-  ".gitattributes": { "name": "Git Attributes", "icon": "\uE702" },
-  ".gitattribute": { "name": "Git Attributes", "icon": "\uE702" },
-  "dockerfile": { "name": "dockerfile", "icon": "\uE7B0" },
-  "readme": { "name": "readme", "icon": "\uEDA4" },
-  "pkgbuild": { "name": "pkgbuild", "icon": "\uDB82\uDCC7" }
+  ".cs": {
+    "name": "C#",
+    "icon": "\uE732"
+  },
+  ".js": {
+    "name": "JavaScript",
+    "icon": "\uE701"
+  },
+  ".ts": {
+    "name": "TypeScript",
+    "icon": "\uE8CA"
+  },
+  ".py": {
+    "name": "Python",
+    "icon": "\uE7FC"
+  },
+  ".java": {
+    "name": "Java",
+    "icon": "\uE738"
+  },
+  ".cpp": {
+    "name": "C++",
+    "icon": "\uE7A3"
+  },
+  ".cc": {
+    "name": "C++",
+    "icon": "\uE7A3"
+  },
+  ".cxx": {
+    "name": "C++",
+    "icon": "\uE7A3"
+  },
+  ".c": {
+    "name": "C",
+    "icon": "\uE60E"
+  },
+  ".h": {
+    "name": "Header",
+    "icon": "\uF1DC"
+  },
+  ".hpp": {
+    "name": "Header",
+    "icon": "\uF1DC"
+  },
+  ".rs": {
+    "name": "Rust",
+    "icon": "\uE7A8"
+  },
+  ".go": {
+    "name": "Go",
+    "icon": "\uF1D3"
+  },
+  ".php": {
+    "name": "PHP",
+    "icon": "\uE73D"
+  },
+  ".rb": {
+    "name": "Ruby",
+    "icon": "\uE739"
+  },
+  ".swift": {
+    "name": "Swift",
+    "icon": "\uE755"
+  },
+  ".kt": {
+    "name": "Kotlin",
+    "icon": "\uE634"
+  },
+  ".kts": {
+    "name": "Kotlin",
+    "icon": "\uE634"
+  },
+  ".scala": {
+    "name": "Scala",
+    "icon": "\uE737"
+  },
+  ".lua": {
+    "name": "Lua",
+    "icon": "\uE826"
+  },
+  ".m": {
+    "name": "Objective-C",
+    "icon": "\uE84D"
+  },
+  ".vb": {
+    "name": "Visual Basic",
+    "icon": "\uE8D5"
+  },
+  ".fs": {
+    "name": "F#",
+    "icon": "\uE7A7"
+  },
+  ".fsx": {
+    "name": "F#",
+    "icon": "\uE7A7"
+  },
+  ".asm": {
+    "name": "Assembly",
+    "icon": "\uE6AB"
+  },
+  ".s": {
+    "name": "Assembly",
+    "icon": "\uE6AB"
+  },
+  ".html": {
+    "name": "HTML",
+    "icon": "\uE60E"
+  },
+  ".htm": {
+    "name": "HTML",
+    "icon": "\uE60E"
+  },
+  ".css": {
+    "name": "CSS",
+    "icon": "\uE6B8"
+  },
+  ".json": {
+    "name": "JSON",
+    "icon": "\uEB0F"
+  },
+  ".xml": {
+    "name": "XML",
+    "icon": "\uF5C0"
+  },
+  ".yml": {
+    "name": "YAML",
+    "icon": "\uE8EB"
+  },
+  ".yaml": {
+    "name": "YAML",
+    "icon": "\uE8EB"
+  },
+  ".toml": {
+    "name": "TOML",
+    "icon": "\uE6B2"
+  },
+  ".ini": {
+    "name": "INI",
+    "icon": "\uE615"
+  },
+  ".cfg": {
+    "name": "Config",
+    "icon": "\uE615"
+  },
+  ".config": {
+    "name": "Config",
+    "icon": "\uE615"
+  },
+  ".conf": {
+    "name": "Config",
+    "icon": "\uE615"
+  },
+  ".env": {
+    "name": "Environment Config",
+    "icon": "\uF452"
+  },
+  ".md": {
+    "name": "Markdown",
+    "icon": "\uE73E"
+  },
+  ".txt": {
+    "name": "Text",
+    "icon": "\uF16A"
+  },
+  ".rst": {
+    "name": "reStructuredText",
+    "icon": "\uF16A"
+  },
+  ".tex": {
+    "name": "LaTeX",
+    "icon": "\uE81F"
+  },
+  ".rtf": {
+    "name": "Rich Text",
+    "icon": "\uF16A"
+  },
+  ".doc": {
+    "name": "Word Document",
+    "icon": "\uF2AC"
+  },
+  ".docx": {
+    "name": "Word Document",
+    "icon": "\uF2AC"
+  },
+  ".odt": {
+    "name": "OpenDocument Text",
+    "icon": "\uF2AC"
+  },
+  ".pdf": {
+    "name": "PDF",
+    "icon": "\uEAEA"
+  },
+  ".epub": {
+    "name": "eBook",
+    "icon": "\uEA7B"
+  },
+  ".sql": {
+    "name": "SQL",
+    "icon": "\uE64D"
+  },
+  ".sqlite": {
+    "name": "SQLite",
+    "icon": "\uE7C4"
+  },
+  ".db": {
+    "name": "Database",
+    "icon": "\uE64D"
+  },
+  ".accdb": {
+    "name": "Access Database",
+    "icon": "\uE64D"
+  },
+  ".sh": {
+    "name": "Shell",
+    "icon": "\uF1C3"
+  },
+  ".bash": {
+    "name": "Bash",
+    "icon": "\uF1C3"
+  },
+  ".zsh": {
+    "name": "Zsh",
+    "icon": "\uE691"
+  },
+  ".fish": {
+    "name": "Fish",
+    "icon": "\uEE41"
+  },
+  ".ps1": {
+    "name": "PowerShell",
+    "icon": "\uE86C"
+  },
+  ".bat": {
+    "name": "Batch",
+    "icon": "\uEBF4"
+  },
+  ".cmd": {
+    "name": "Command",
+    "icon": "\uEBF4"
+  },
+  ".log": {
+    "name": "Log",
+    "icon": "\uF4ED"
+  },
+  ".out": {
+    "name": "Output",
+    "icon": "\uF4ED"
+  },
+  ".err": {
+    "name": "Error Log",
+    "icon": "\uF4ED"
+  },
+  ".csv": {
+    "name": "CSV",
+    "icon": "\uE64A"
+  },
+  ".tsv": {
+    "name": "TSV",
+    "icon": "\uE64A"
+  },
+  ".csproj": {
+    "name": "C# Project",
+    "icon": "\uF048"
+  },
+  ".vbproj": {
+    "name": "Visual Basic Project",
+    "icon": "\uF048"
+  },
+  ".fsproj": {
+    "name": "F# Project",
+    "icon": "\uF048"
+  },
+  ".sln": {
+    "name": "Solution",
+    "icon": "\uF048"
+  },
+  ".vcxproj": {
+    "name": "Visual C++ Project",
+    "icon": "\uF048"
+  },
+  ".makefile": {
+    "name": "Makefile",
+    "icon": "\uE673"
+  },
+  "makefile": {
+    "name": "Makefile",
+    "icon": "\uE673"
+  },
+  ".cmake": {
+    "name": "CMake",
+    "icon": "\uE794"
+  },
+  ".gitignore": {
+    "name": "Git Ignore",
+    "icon": "\uE702"
+  },
+  ".gitattributes": {
+    "name": "Git Attributes",
+    "icon": "\uE702"
+  },
+  ".gitattribute": {
+    "name": "Git Attributes",
+    "icon": "\uE702"
+  },
+  "dockerfile": {
+    "name": "dockerfile",
+    "icon": "\uE7B0"
+  },
+  "readme": {
+    "name": "readme",
+    "icon": "\uEDA4"
+  },
+  "pkgbuild": {
+    "name": "pkgbuild",
+    "icon": "\uDB82\uDCC7"
+  }
 }

@@ -18,6 +18,8 @@ public static class Initalizer
     private const int STD_OUTPUT_HANDLE = -11;
 
     private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
+
+    private static string configDir = @"";
     // - - -
 
     private static bool isDebug;
@@ -41,20 +43,17 @@ public static class Initalizer
 
     public static void initEditor(string[] args)
     {
-        Console.OutputEncoding = Encoding.UTF8; // use UTF-8
-
+        Console.OutputEncoding = Encoding.UTF8;
         if (OperatingSystem.IsWindows())
             try
             {
-                HandleWindowsOS(); // this sucks bruh
+                HandleWindowsOS();
             }
-            catch
+            catch (Exception e)
             {
-                Console.WriteLine("Terminal may be unsupported");
-                /* do nothing */
+                Console.WriteLine(e);
+                Console.WriteLine("Terminal may be unsupported, or render wrong!");
             }
-        else
-            Console.Write("\x1b[3J\x1b[2J\x1b[H"); // probably not needed but why not
 
         if (args.Length > 0)
             for (var i = 0; i < args.Length; i++)
@@ -65,11 +64,9 @@ public static class Initalizer
                         isDebug = true;
                         args[i] = string.Empty;
                         break;
-                    case "--nerdf":
-                        StatusBar.useNerdFonts = true;
-                        args[i] = string.Empty;
-                        break;
                 }
+
+        Config.Load();
 
         try
         {

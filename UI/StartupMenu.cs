@@ -20,7 +20,7 @@ public static class StartupMenu
                      /___/
         """;
 
-    private const string LogoProgramName = "TangentRöra";
+    public const string programName = "TangentRöra";
     private const string License = "SPDX-License-Identifier: GPL-3.0-or-later";
     private const string Author = "torkelicious";
 
@@ -103,7 +103,7 @@ Copyright © {DateTime.Now.Year} {Author}
         var separator = new string('─', Math.Min(Console.WindowWidth, 60));
 
         AnsiConsole.WriteLine("{MAGENTA}{BOLD}" + Logo + "{RESET}");
-        AnsiConsole.WriteLine("                              {YELLOW}{UNDERLINE}" + LogoProgramName + " [v" + Version +
+        AnsiConsole.WriteLine("                              {YELLOW}{UNDERLINE}" + programName + " [v" + Version +
                               "]{RESET}");
         AnsiConsole.WriteLine("{DARKGRAY}{ITALIC}" + LicenseText + "{RESET}");
         AnsiConsole.WriteLine("{WHITE}" + separator);
