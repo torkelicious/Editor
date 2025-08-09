@@ -17,7 +17,7 @@ public class Document : IDisposable
     private string[]? cachedLines;
     private DateTime cacheTimestamp;
     private string FileExtension;
-    private string FileExtensionReadable;
+    public string FileExtensionReadable;
     private bool lineIndexValid;
     private List<int>? lineStartPositions; // Fast line lookup
     public bool showDebugInfo = false;

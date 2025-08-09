@@ -14,7 +14,7 @@ public class StatusBar
     private static string recorderIcon = "🔴";
     private static string modifiedIcon = "📝";
     public static string fileTypeNF = string.Empty;
-
+    private static bool showFileType = true;
     public static bool forceRedraw;
     private static string _lastRenderedContent = string.Empty;
     private static int _lastDocumentHash = -1;
@@ -58,10 +58,8 @@ public class StatusBar
     private static string BuildStatusBarContent(Document document, EditorState editorState, string lastInput)
     {
         _buffer.Clear();
-
         // Separator 
         _buffer.AppendLine("{DARKGRAY}" + new string('─', Console.WindowWidth));
-
         // Mode and position 
         var modeColor = editorState.Mode switch
         {
@@ -72,7 +70,6 @@ public class StatusBar
 
         var modeText = $"{{BOLD}} {editorState.Mode.ToString().ToUpper()} {{RESET}}";
         _buffer.Append($"{{{modeColor}}}{{BLACK}}{modeText}{{RESET}}");
-
         var positionText = $" {editorState.CursorLine + 1}:{editorState.CursorColumn + 1} ";
         _buffer.Append($"{{BG_WHITE}}{{BLACK}}{positionText}{{RESET}}");
 
@@ -85,7 +82,7 @@ public class StatusBar
                 ? "..." + document.FilePath[^47..]
                 : document.FilePath;
             _buffer.Append(
-                $"{{BG_DARKCYAN}}{{BOLD}}{{BLACK}} {fileIcon} {{RESET}}{{BG_DARKCYAN}}{{WHITE}}{displayPath}{{RESET}}");
+                $"{{BG_DARKCYAN}}{{BOLD}}{{BLACK}} {fileIcon} {document.FileExtensionReadable} {{RESET}}{{BG_DARKCYAN}}{{WHITE}}{displayPath}{{RESET}}");
         }
 
         if (document.IsUntitled)
