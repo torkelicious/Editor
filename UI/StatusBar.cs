@@ -13,8 +13,8 @@ public class StatusBar
     private static string fileIcon = "📄";
     private static string recorderIcon = "🔴";
     private static string modifiedIcon = "📝";
-    public static string fileTypeNF = string.Empty;
-    private static bool showFileType = true;
+    private static string fileTypeNF = string.Empty;
+    private static readonly bool showFileType = true;
     public static bool forceRedraw;
     private static string _lastRenderedContent = string.Empty;
     private static int _lastDocumentHash = -1;
@@ -78,11 +78,17 @@ public class StatusBar
 
         if (!document.IsUntitled)
         {
+            string fileEx = String.Empty;
+            if (showFileType)
+            {
+                fileEx = document.FileExtensionReadable;
+            }
+            
             var displayPath = document.FilePath!.Length > 50
                 ? "..." + document.FilePath[^47..]
                 : document.FilePath;
             _buffer.Append(
-                $"{{BG_DARKCYAN}}{{BOLD}}{{BLACK}} {fileIcon} {document.FileExtensionReadable} {{RESET}}{{BG_DARKCYAN}}{{WHITE}}{displayPath}{{RESET}}");
+                $"{{BG_DARKCYAN}}{{BOLD}}{{BLACK}} {fileIcon} {fileEx} {{RESET}}{{BG_DARKCYAN}}{{WHITE}}{displayPath}{{RESET}}");
         }
 
         if (document.IsUntitled)
@@ -122,7 +128,7 @@ public class StatusBar
         if (useNerdFonts)
         {
             fileIcon = fileTypeNF;
-            recorderIcon = "";
+            recorderIcon = "󰑋"; // idk what to put here
             modifiedIcon = "󰳼";
         }
         else
