@@ -50,6 +50,7 @@ public static class Initalizer
             }
             catch
             {
+                Console.WriteLine("Terminal may be unsupported");
                 /* do nothing */
             }
         else
@@ -57,11 +58,17 @@ public static class Initalizer
 
         if (args.Length > 0)
             for (var i = 0; i < args.Length; i++)
-                if (args[i] == "--debug")
+                switch (args[i])
                 {
-                    isDebug = true;
-                    args[i] = string.Empty;
-                    break;
+                    case "--debug"
+                        : // Debug info WILL break rendering on small enough terminals as it is not truncated (and it should not be!!)
+                        isDebug = true;
+                        args[i] = string.Empty;
+                        break;
+                    case "--nerdf":
+                        StatusBar.useNerdFonts = true;
+                        args[i] = string.Empty;
+                        break;
                 }
 
         try
@@ -90,13 +97,12 @@ public static class Initalizer
         ConsoleRenderer renderer, EditorStartupResult startupResult, UndoManager undoManager)
     {
         var inputHandler = new InputHandler(document, editorState, viewport, undoManager);
-
+        StatusBar.setIcons();
         if (isDebug) document.showDebugInfo = true;
         AnsiConsole.Clear();
         AnsiConsole.HideCursor();
         renderer.Render(document, editorState); // render once before loop to avoid forcing user to input
         AnsiConsole.ShowCursor();
-
         // Main editor loop
         var exitRequested = false;
         while (!exitRequested)
@@ -123,7 +129,7 @@ public static class Initalizer
     {
         Console.Write("\x1b[?25l"); // write raw instead of using AnsiConsole wrapper for error safety
         Console.Clear();
-        Console.ForegroundColor = ConsoleColor.Red;
+        Console.ForegroundColor = ConsoleColor.Red; // avoid using ansiconsole colors for error safety too 
         if (isFatal)
         {
             Console.WriteLine("Fatal error:");

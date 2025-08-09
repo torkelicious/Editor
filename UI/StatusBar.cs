@@ -9,6 +9,12 @@ namespace Editor.UI;
 
 public class StatusBar
 {
+    public static bool useNerdFonts = false;
+    private static string fileIcon = "📄";
+    private static string recorderIcon = "🔴";
+    private static string modifiedIcon = "📝";
+    public static string fileTypeNF = string.Empty;
+
     public static bool forceRedraw;
     private static string _lastRenderedContent = string.Empty;
     private static int _lastDocumentHash = -1;
@@ -34,7 +40,6 @@ public class StatusBar
 
         AnsiConsole.ShowCursor();
         AnsiConsole.ResetColor();
-
         forceRedraw = false;
     }
 
@@ -72,14 +77,15 @@ public class StatusBar
         _buffer.Append($"{{BG_WHITE}}{{BLACK}}{positionText}{{RESET}}");
 
         if (document.IsDirty)
-            _buffer.Append("{BG_DARKBLUE}{WHITE}  MODIFIED  {RESET}");
+            _buffer.Append($"{{BG_DARKBLUE}}{{WHITE}} {modifiedIcon} MODIFIED  {{RESET}}");
 
         if (!document.IsUntitled)
         {
             var displayPath = document.FilePath!.Length > 50
                 ? "..." + document.FilePath[^47..]
                 : document.FilePath;
-            _buffer.Append($"{{BG_DARKCYAN}}{{WHITE}}  📄 {displayPath}  {{RESET}}");
+            _buffer.Append(
+                $"{{BG_DARKCYAN}}{{BOLD}}{{BLACK}} {fileIcon} {{RESET}}{{BG_DARKCYAN}}{{WHITE}}{displayPath}{{RESET}}");
         }
 
         if (document.IsUntitled)
@@ -90,10 +96,6 @@ public class StatusBar
 
         _buffer.AppendLine();
 
-        // Help 
-        /* var helpText =
-             "HJKL/Arrows: Move || Q: Quit (NORMAL) || I: INSERT mode || ESC: NORMAL mode || X: Delete (NORMAL) ||";
-         */
         var helpText = editorState.Mode switch
         {
             EditorMode.Normal =>
@@ -102,8 +104,7 @@ public class StatusBar
             EditorMode.Visual => "HJKL:Select | [Y]ank Selection | D/X: Delete Selection | ESC:Normal",
             _ => "Unknown mode"
         };
-
-        var rec = $"🔴[{lastInput}]";
+        var rec = $"{{RED}}{recorderIcon}{{BLACK}}[{lastInput}]";
         var maxHelpLength = Console.WindowWidth - rec.Length;
 
         if (helpText.Length > maxHelpLength)
@@ -117,5 +118,20 @@ public class StatusBar
             $"{{RESET}}{{BG_WHITE}}{{BLACK}}{{ITALIC}}{rec}{{RESET}}"; // this works but holy is this a mess of a string
         _buffer.Append(helpLine);
         return _buffer.ToString();
+    }
+
+    public static void setIcons()
+    {
+        if (useNerdFonts)
+        {
+            fileIcon = fileTypeNF;
+            recorderIcon = "";
+            modifiedIcon = "󰳼";
+        }
+        else
+        {
+            fileIcon = "📄";
+            recorderIcon = "🔴";
+        }
     }
 }

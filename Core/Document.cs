@@ -16,10 +16,10 @@ public class Document : IDisposable
     private readonly ITextBuffer buffer; // If we implement more buffers use interface yadyada
     private string[]? cachedLines;
     private DateTime cacheTimestamp;
+    private string FileExtension;
+    private string FileExtensionReadable;
     private bool lineIndexValid;
-
     private List<int>? lineStartPositions; // Fast line lookup
-
     public bool showDebugInfo = false;
 
     // Constructor
@@ -44,22 +44,21 @@ public class Document : IDisposable
             lineStartPositions = [0];
             lineIndexValid = true;
         }
+
+        SetFileType();
     }
 
     // Properties
     private DocumentState State { get; set; }
-
     public bool IsDirty => State == DocumentState.Dirty;
     private bool IsEditable => State is DocumentState.Clean or DocumentState.Dirty;
     public int Length => buffer.Length;
     public int CursorPosition => buffer.Position;
     public string? FilePath { get; private set; }
-
     private DateTime LastModified { get; set; }
-
     public bool IsUntitled => string.IsNullOrEmpty(FilePath);
-
     private long OriginalFileSize { get; }
+
 
     // Indexer
     public char this[int index] => buffer[index];
@@ -174,6 +173,7 @@ public class Document : IDisposable
             SetState(DocumentState.Clean);
             LastModified = File.GetLastWriteTimeUtc(filePath);
             OnDocumentChanged?.Invoke();
+            StatusBar.setIcons();
         }
         catch
         {
@@ -365,6 +365,273 @@ public class Document : IDisposable
 
         return position;
     }
+
+    public void SetFileType()
+    {
+        FileExtension = Path.GetExtension(FilePath) ?? string.Empty;
+        string IconNF;
+        switch (FileExtension)
+        {
+            // programming Languages
+            case ".cs":
+                FileExtensionReadable = "C#";
+                IconNF = "";
+                break;
+            case ".js":
+                FileExtensionReadable = "JavaScript";
+                IconNF = "";
+                break;
+            case ".ts":
+                FileExtensionReadable = "TypeScript";
+                IconNF = "";
+                break;
+            case ".py":
+                FileExtensionReadable = "Python";
+                IconNF = "";
+                break;
+            case ".java":
+                FileExtensionReadable = "Java";
+                IconNF = "";
+                break;
+            case ".cpp":
+            case ".cc":
+            case ".cxx":
+                FileExtensionReadable = "C++";
+                IconNF = "";
+                break;
+            case ".c":
+                FileExtensionReadable = "C";
+                IconNF = "";
+                break;
+            case ".h":
+            case ".hpp":
+                FileExtensionReadable = "Header";
+                IconNF = "";
+                break;
+            case ".rs":
+                FileExtensionReadable = "Rust";
+                IconNF = "";
+                break;
+            case ".go":
+                FileExtensionReadable = "Go";
+                IconNF = "󰟓";
+                break;
+            case ".php":
+                FileExtensionReadable = "PHP";
+                IconNF = "";
+                break;
+            case ".rb":
+                FileExtensionReadable = "Ruby";
+                IconNF = "";
+                break;
+            case ".swift":
+                FileExtensionReadable = "Swift";
+                IconNF = "";
+                break;
+            case ".kt":
+            case ".kts":
+                FileExtensionReadable = "Kotlin";
+                IconNF = "";
+                break;
+            case ".scala":
+                FileExtensionReadable = "Scala";
+                IconNF = "";
+                break;
+            case ".lua":
+                FileExtensionReadable = "Lua";
+                IconNF = "";
+                break;
+            case ".m":
+                FileExtensionReadable = "Objective-C";
+                IconNF = "";
+                break;
+            case ".vb":
+                FileExtensionReadable = "Visual Basic";
+                IconNF = "";
+                break;
+            case ".fs":
+            case ".fsx":
+                FileExtensionReadable = "F#";
+                IconNF = "";
+                break;
+            case ".asm":
+            case ".s":
+                FileExtensionReadable = "Assembly";
+                IconNF = "";
+                break;
+            // web Technologies
+            case ".html":
+            case ".htm":
+                FileExtensionReadable = "HTML";
+                IconNF = "";
+                break;
+            case ".css":
+                FileExtensionReadable = "CSS";
+                IconNF = "";
+                break;
+            // data/config 
+            case ".json":
+                FileExtensionReadable = "JSON";
+                IconNF = "";
+                break;
+            case ".xml":
+                FileExtensionReadable = "XML";
+                IconNF = "󰗀";
+                break;
+            case ".yml":
+            case ".yaml":
+                FileExtensionReadable = "YAML";
+                IconNF = "";
+                break;
+            case ".toml":
+                IconNF = "";
+                FileExtensionReadable = "TOML";
+                break;
+            case ".ini":
+                FileExtensionReadable = "INI";
+                IconNF = "";
+                break;
+            case ".cfg":
+            case ".config":
+            case ".conf":
+                FileExtensionReadable = "Config";
+                IconNF = "";
+                break;
+            // docs
+            case ".md":
+                FileExtensionReadable = "Markdown";
+                IconNF = "";
+                break;
+            case ".txt":
+                FileExtensionReadable = "Text";
+                IconNF = "󰦪";
+                break;
+            case ".rst":
+                IconNF = "󰦪";
+                FileExtensionReadable = "reStructuredText";
+                break;
+            case ".tex":
+                FileExtensionReadable = "LaTeX";
+                IconNF = "";
+                break;
+            case ".rtf":
+                FileExtensionReadable = "Rich Text";
+                IconNF = "󰦪";
+                break;
+            // db/query
+            case ".sql":
+                FileExtensionReadable = "SQL";
+                IconNF = "";
+                break;
+            case ".sqlite":
+                FileExtensionReadable = "SQLite";
+                IconNF = "";
+                break;
+            case ".db":
+                FileExtensionReadable = "Database";
+                IconNF = "";
+                break;
+            // scripts/shells
+            case ".sh":
+                FileExtensionReadable = "Shell";
+                IconNF = "󱆃";
+                break;
+            case ".bash":
+                FileExtensionReadable = "Bash";
+                IconNF = "󱆃";
+                break;
+            case ".zsh":
+                FileExtensionReadable = "Zsh";
+                IconNF = "";
+                break;
+            case ".fish":
+                FileExtensionReadable = "Fish";
+                IconNF = "";
+                break;
+            case ".ps1":
+                FileExtensionReadable = "PowerShell";
+                IconNF = "";
+                break;
+            case ".bat":
+                FileExtensionReadable = "Batch";
+                IconNF = "";
+                break;
+            case ".cmd":
+                FileExtensionReadable = "Command";
+                IconNF = "";
+                break;
+            // logs
+            case ".log":
+                FileExtensionReadable = "Log";
+                IconNF = "";
+                break;
+            case ".out":
+                FileExtensionReadable = "Output";
+                IconNF = "";
+                break;
+            case ".err":
+                FileExtensionReadable = "Error Log";
+                IconNF = "";
+                break;
+            // build/proj files
+            case ".csproj":
+            case ".vbproj":
+            case ".fsproj":
+                FileExtensionReadable = "Project";
+                IconNF = "󰘐";
+                break;
+            case ".sln":
+                FileExtensionReadable = "Solution";
+                IconNF = "󰘐";
+                break;
+            case ".vcxproj":
+                FileExtensionReadable = "Visual C++ Project";
+                IconNF = "󰘐";
+                break;
+            case ".makefile":
+            case "makefile":
+                FileExtensionReadable = "Makefile";
+                IconNF = "";
+                break;
+            case ".cmake":
+                FileExtensionReadable = "CMake";
+                IconNF = "";
+                break;
+            // git
+            case ".gitignore":
+                FileExtensionReadable = "Git Ignore";
+                IconNF = "";
+                break;
+            case ".gitattributes":
+                FileExtensionReadable = "Git Attributes";
+                IconNF = "";
+                break;
+            // No extension case
+            case "":
+                var fileName = string.IsNullOrEmpty(FilePath)
+                    ? ""
+                    : Path.GetFileName(FilePath)?.ToLowerInvariant() ?? "";
+                if (fileName is "makefile" or "dockerfile" or "readme" or "pkgbuild")
+                {
+                    FileExtensionReadable = fileName;
+                    IconNF = "";
+                }
+                else
+                {
+                    FileExtensionReadable = "Plain Text";
+                    IconNF = "󰦪";
+                }
+
+                break;
+            default:
+                FileExtensionReadable = FileExtension.TrimStart('.');
+                IconNF = "";
+                break;
+        }
+
+        StatusBar.fileTypeNF = IconNF;
+    }
+
 
     private enum DocumentState
     {
