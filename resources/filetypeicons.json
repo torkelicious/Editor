@@ -1,11 +1,11 @@
 {
   ".cs": {
     "name": "C#",
-    "icon": "\uE732"
+    "icon": "\ue7b2"
   },
   ".js": {
     "name": "JavaScript",
-    "icon": "\uE701"
+    "icon": "\uf2ee"
   },
   ".ts": {
     "name": "TypeScript",
@@ -13,7 +13,7 @@
   },
   ".py": {
     "name": "Python",
-    "icon": "\uE7FC"
+    "icon": "\ue73c"
   },
   ".java": {
     "name": "Java",
@@ -21,19 +21,19 @@
   },
   ".cpp": {
     "name": "C++",
-    "icon": "\uE7A3"
+    "icon": "\ue61d"
   },
   ".cc": {
     "name": "C++",
-    "icon": "\uE7A3"
+    "icon": "\ue61d"
   },
   ".cxx": {
     "name": "C++",
-    "icon": "\uE7A3"
+    "icon": "\ue61d"
   },
   ".c": {
     "name": "C",
-    "icon": "\uE60E"
+    "icon": "\ue61e"
   },
   ".h": {
     "name": "Header",
@@ -49,7 +49,7 @@
   },
   ".go": {
     "name": "Go",
-    "icon": "\uF1D3"
+    "icon": "\udb81\udfd3"
   },
   ".php": {
     "name": "PHP",
@@ -121,15 +121,15 @@
   },
   ".xml": {
     "name": "XML",
-    "icon": "\uF5C0"
+    "icon": "\udb81\uddc0"
   },
   ".yml": {
     "name": "YAML",
-    "icon": "\uE8EB"
+    "icon": "\ue8eb"
   },
   ".yaml": {
     "name": "YAML",
-    "icon": "\uE8EB"
+    "icon": "\ue8eb"
   },
   ".toml": {
     "name": "TOML",
@@ -161,11 +161,12 @@
   },
   ".txt": {
     "name": "Text",
-    "icon": "\uF16A"
+    "icon": "\udb82\uddaa"
   },
   ".rst": {
     "name": "reStructuredText",
-    "icon": "\uF16A"
+    "icon": "\udb82\uddaa"
+
   },
   ".tex": {
     "name": "LaTeX",
@@ -173,7 +174,8 @@
   },
   ".rtf": {
     "name": "Rich Text",
-    "icon": "\uF16A"
+    "icon": "\udb82\uddaa"
+
   },
   ".doc": {
     "name": "Word Document",
@@ -181,19 +183,19 @@
   },
   ".docx": {
     "name": "Word Document",
-    "icon": "\uF2AC"
+    "icon": "\ue6a5"
   },
   ".odt": {
     "name": "OpenDocument Text",
-    "icon": "\uF2AC"
+    "icon": "\udb80\ude19"
   },
   ".pdf": {
     "name": "PDF",
-    "icon": "\uEAEA"
+    "icon": "\ueaeb"
   },
   ".epub": {
     "name": "eBook",
-    "icon": "\uEA7B"
+    "icon": "\uf405"
   },
   ".sql": {
     "name": "SQL",
@@ -213,11 +215,11 @@
   },
   ".sh": {
     "name": "Shell",
-    "icon": "\uF1C3"
+    "icon": "\udb84\udd83"
   },
   ".bash": {
     "name": "Bash",
-    "icon": "\uF1C3"
+    "icon": "\udb84\udd83"
   },
   ".zsh": {
     "name": "Zsh",
@@ -233,11 +235,11 @@
   },
   ".bat": {
     "name": "Batch",
-    "icon": "\uEBF4"
+    "icon": "\uebc4"
   },
   ".cmd": {
     "name": "Command",
-    "icon": "\uEBF4"
+    "icon": "\uebc4"
   },
   ".log": {
     "name": "Log",
@@ -261,23 +263,24 @@
   },
   ".csproj": {
     "name": "C# Project",
-    "icon": "\uF048"
+    "icon": "\udb81\ude10"
   },
   ".vbproj": {
     "name": "Visual Basic Project",
-    "icon": "\uF048"
+    "icon": "\udb81\ude10"
   },
   ".fsproj": {
     "name": "F# Project",
-    "icon": "\uF048"
+    "icon": "\udb81\ude10"
   },
   ".sln": {
     "name": "Solution",
-    "icon": "\uF048"
+    "icon": "\udb81\ude10"
   },
   ".vcxproj": {
     "name": "Visual C++ Project",
-    "icon": "\uF048"
+    "icon": "\udb81\ude10"
+
   },
   ".makefile": {
     "name": "Makefile",
