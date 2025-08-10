@@ -29,7 +29,6 @@ public static class Config
     public static void Load()
     {
         FindConfigDirectory();
-
         if (!Directory.Exists(ConfigDir))
             if (ConfigDir != null)
                 Directory.CreateDirectory(ConfigDir);
