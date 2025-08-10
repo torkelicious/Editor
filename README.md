@@ -64,4 +64,7 @@ https://github.com/torkelicious/Editor/blob/main/help.md
 if you want to try it, you should build it from source. its a small project, but im too busy/lazy/forgetfull to keep any
 binaries updated.
 
+See `/scripts` for more information on building from source:
+https://github.com/torkelicious/Editor/tree/main/scripts
+
 Pre-built binaries can be found at https://github.com/torkelicious/Editor/releases/latest
