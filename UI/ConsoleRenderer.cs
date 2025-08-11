@@ -22,6 +22,7 @@ public class ConsoleRenderer(Viewport viewport)
 
     public void Render(Document document, EditorState editorState, string lastInput = " ")
     {
+        AnsiConsole.ResetColor();
         AnsiConsole.HideCursor();
         var availableLines = Console.WindowHeight - LinesPadding;
         var availableColumns = Console.WindowWidth - ColumnPadding;
@@ -48,6 +49,7 @@ public class ConsoleRenderer(Viewport viewport)
         StatusBar.Render(document, editorState, LinesPadding, lastInput);
         PositionCursor(editorState);
         AnsiConsole.ShowCursor();
+        AnsiConsole.ResetColor();
     }
 
     private void RenderDocumentContent(Document document, EditorState editorState)
@@ -79,9 +81,10 @@ public class ConsoleRenderer(Viewport viewport)
                 var screenY = lineIndex - viewport.StartLine;
                 Console.SetCursorPosition(0, screenY);
 
-                AnsiConsole.SetBackgroundColor(AnsiConsole.AnsiColor.Black);
-                AnsiConsole.SetForegroundColor(AnsiConsole.AnsiColor.White);
-                AnsiConsole.Write(processedLine.text.PadRight(viewport.VisibleColumns));
+                //AnsiConsole.SetBackgroundColor(AnsiConsole.AnsiColor.Black);
+                //AnsiConsole.SetForegroundColor(AnsiConsole.AnsiColor.White);
+                AnsiConsole.Write("{RESET}");
+                AnsiConsole.Write(processedLine.text.PadRight(viewport.VisibleColumns)); // use console.write for now
                 DrawScrollIndicators(processedLine, lineIndex, editorState.CursorLine, screenY);
             }
 
@@ -99,61 +102,56 @@ public class ConsoleRenderer(Viewport viewport)
         dirtyLines.Clear();
     }
 
-    private (string text, bool truncated) ProcessLineForDisplay(string line, int lineIndex, EditorState editorState,
-        Document document)
+private (string text, bool truncated) ProcessLineForDisplay(string line, int lineIndex, EditorState editorState,
+    Document document)
+{
+    // escape braces in the user content with backslashes to avoid messing with colors
+    var displayLine = line.Replace("{", "\\{").Replace("}", "\\}");
+
+    if (editorState.HasSelection)
     {
-        var displayLine = line;
+        AnsiConsole.ResetColor();
+        var (selStart, selEnd) = editorState.GetNormalizedSelection();
+        var lineStartPos = document.GetPositionFromLine(lineIndex + 1);
+        var lineEndPos = lineStartPos + line.Length;
 
-        if (editorState.HasSelection)
+        var lineInSelection = selStart <= lineEndPos && selEnd > lineStartPos;
+
+        if (lineInSelection)
         {
-            var (selStart, selEnd) = editorState.GetNormalizedSelection();
-            var lineStartPos = document.GetPositionFromLine(lineIndex + 1);
-            var lineEndPos = lineStartPos + line.Length;
-
-            // Check if this line is within the selection range
-            var lineInSelection = selStart <= lineEndPos && selEnd > lineStartPos;
-
-            if (lineInSelection)
+            if (line.Length > 0)
             {
-                if (line.Length > 0)
-                {
-                    // Handle non-empty lines
-                    var relativeStart = Math.Max(0, selStart - lineStartPos);
-                    var relativeEnd = Math.Min(line.Length, selEnd - lineStartPos);
+                var relativeStart = Math.Max(0, selStart - lineStartPos);
+                var relativeEnd = Math.Min(line.Length, selEnd - lineStartPos);
 
-                    if (relativeStart < relativeEnd)
-                    {
-                        var before = line[..relativeStart];
-                        var selected = line[relativeStart..relativeEnd];
-                        var after = line[relativeEnd..];
-
-                        displayLine = $"{before}{{BG_BLUE}}{selected}{{RESET}}{after}";
-                    }
-                }
-                else
+                if (relativeStart < relativeEnd)
                 {
-                    // Handle empty lines - show highlighted space
-                    displayLine = "{BG_BLUE} {RESET}";
+                    // escape in parts then add color codes
+                    var before = line[..relativeStart].Replace("{", "\\{").Replace("}", "\\}");
+                    var selected = line[relativeStart..relativeEnd].Replace("{", "\\{").Replace("}", "\\}");
+                    var after = line[relativeEnd..].Replace("{", "\\{").Replace("}", "\\}");
+                    displayLine = $"{before}{{BG_BLUE}}{selected}{{RESET}}{after}";
                 }
             }
+            else
+            {
+                displayLine = "{BG_BLUE} {RESET}";
+            }
         }
-
-        // horizontal scrolling
-        if (viewport.StartColumn > 0 && displayLine.Length > viewport.StartColumn)
-            displayLine = displayLine[viewport.StartColumn..];
-        else if (viewport.StartColumn > 0)
-            displayLine = string.Empty;
-
-        // truncation
-        var truncated = false;
-        if (displayLine.Length > viewport.VisibleColumns)
-        {
-            displayLine = displayLine[..viewport.VisibleColumns];
-            truncated = true;
-        }
-
-        return (displayLine, truncated);
     }
+    if (viewport.StartColumn > 0 && displayLine.Length > viewport.StartColumn)
+        displayLine = displayLine[viewport.StartColumn..];
+    else if (viewport.StartColumn > 0)
+        displayLine = string.Empty;
+    var truncated = false;
+    if (displayLine.Length > viewport.VisibleColumns)
+    {
+        displayLine = displayLine[..viewport.VisibleColumns];
+        truncated = true;
+    }
+
+    return (displayLine, truncated);
+}
 
     private void DrawScrollIndicators((string text, bool truncated) lineContent, int lineIndex, int cursorLine,
         int screenY)

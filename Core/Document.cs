@@ -165,7 +165,7 @@ public class Document : IDisposable
         SetState(DocumentState.Loading);
         try
         {
-            var content = File.ReadAllText(filePath);
+            var content = File.ReadAllText(filePath, Encoding.UTF8);
             buffer.Insert(content);
             buffer.MoveTo(0);
             FilePath = filePath;
@@ -189,7 +189,7 @@ public class Document : IDisposable
         {
             var targetPath = filePath ?? FilePath ?? throw new InvalidOperationException("No file path specified");
             var content = GetText();
-            File.WriteAllText(targetPath, content);
+            File.WriteAllText(targetPath, content, Encoding.UTF8);
             FilePath = targetPath;
             SetState(DocumentState.Clean);
             LastModified = DateTime.UtcNow;

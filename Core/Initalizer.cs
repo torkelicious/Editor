@@ -42,7 +42,8 @@ public static class Initalizer
 
     public static void initEditor(string[] args)
     {
-        Console.OutputEncoding = Encoding.UTF8;
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+        Console.InputEncoding = System.Text.Encoding.UTF8;
         if (OperatingSystem.IsWindows())
             try
             {
@@ -151,7 +152,6 @@ public static class Initalizer
             SetConsoleMode(handle, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
         else
             Console.Error.WriteLine("Could not get console mode.");
-
         // Set UTF-8 code page
         SetConsoleOutputCP(65001);
         SetConsoleCP(65001);

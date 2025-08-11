@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using Editor.Core;
 
@@ -13,7 +14,7 @@ public static class FileTypeLookup
         if (File.Exists(resourcePath))
             try
             {
-                var json = File.ReadAllText(resourcePath);
+                var json = File.ReadAllText(resourcePath, Encoding.UTF8);
                 var doc = JsonDocument.Parse(json);
                 _fileTypes = new Dictionary<string, FileType?>();
 

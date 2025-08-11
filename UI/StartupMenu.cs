@@ -40,6 +40,7 @@ Copyright © {DateTime.Now.Year} {Author}
     {
         var filePath = args[0].Trim();
         if (filePath == string.Empty) return ShowInteractiveMenu();
+        filePath = Path.GetFullPath(filePath); // normalize path
 
         if (File.Exists(filePath))
             return new EditorStartupResult
@@ -51,6 +52,12 @@ Copyright © {DateTime.Now.Year} {Author}
 
         try
         {
+            // mkdir if needed
+            var directory = Path.GetDirectoryName(filePath);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
             using (File.Create(filePath))
             {
             }

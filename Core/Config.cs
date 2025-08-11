@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -35,7 +36,7 @@ public static class Config
 
         if (File.Exists(ConfigFilePath))
         {
-            var json = File.ReadAllText(ConfigFilePath);
+            var json = File.ReadAllText(ConfigFilePath, Encoding.UTF8);
             Options = JsonSerializer.Deserialize(json, ConfigOptionsJsonContext.Default.ConfigOptions) ??
                       new ConfigOptions();
         }
@@ -49,7 +50,7 @@ public static class Config
     private static void Save()
     {
         var json = JsonSerializer.Serialize(Options, ConfigOptionsJsonContext.Default.ConfigOptions);
-        if (ConfigFilePath != null) File.WriteAllText(ConfigFilePath, json);
+        if (ConfigFilePath != null) File.WriteAllText(ConfigFilePath, json, Encoding.UTF8);
     }
 }
 

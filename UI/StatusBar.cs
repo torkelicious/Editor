@@ -22,7 +22,6 @@ public class StatusBar
     public static void Render(Document document, EditorState editorState, int linesPadding, string lastInput = " ")
     {
         AnsiConsole.ResetColor();
-
         var newContent = BuildStatusBarContent(document, editorState, lastInput);
         var currentDocumentHash = GetDocumentHash(document);
 
