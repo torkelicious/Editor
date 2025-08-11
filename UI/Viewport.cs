@@ -1,3 +1,5 @@
+using Editor.Core;
+
 namespace Editor.UI;
 
 public class Viewport
@@ -11,9 +13,14 @@ public class Viewport
 
     public void UpdateDimensions(int availableLines, int availableColumns)
     {
-        if (VisibleLines != availableLines || VisibleColumns != availableColumns) AnsiConsole.Clear();
-        VisibleLines = availableLines;
-        VisibleColumns = availableColumns;
+       if (VisibleColumns == availableColumns && VisibleLines == availableLines)
+       {
+           return;
+       }
+       VisibleLines = availableLines;
+       VisibleColumns = availableColumns;
+       Initalizer.renderer.MarkAllDirty();
+       // -.-
     }
 
     public void AdjustToShowCursor(int cursorLine, int cursorColumn)
