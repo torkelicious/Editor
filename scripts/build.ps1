@@ -39,7 +39,7 @@ if (-not ($LinuxNative -or $FrameworkDependent -or $Win -or $Linux))
 
 if ($LinuxNative)
 {
-    Write-Host "  Publishing Native AOT Linux self-contained...`n"
+    Write-Host "  Publishing NativeAOT Linux build...`n"
     Clean-Dir "$outputBase/linuxNative"
     dotnet publish $ProjectPath `
         -c Release `
