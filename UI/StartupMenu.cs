@@ -70,7 +70,18 @@ Copyright © {DateTime.Now.Year} {Author}
             return ShowInteractiveMenu();
         }
     }
-
+    
+    private static EditorStartupResult OpenConfig()
+    {
+        var filePath = Config.ConfigFilePath;
+        return new EditorStartupResult
+        {
+            Document = new Document(filePath),
+            ShouldStartEditor = true,
+            IsNewFile = false
+        };
+    }
+    
     private static EditorStartupResult ShowInteractiveMenu()
     {
         while (true)
@@ -87,7 +98,8 @@ Copyright © {DateTime.Now.Year} {Author}
 
                 case 'q':
                     return new EditorStartupResult { ShouldStartEditor = false };
-
+                case 'c':
+                    return OpenConfig();
                 default:
                     ShowInvalidOption();
                     break;
@@ -114,6 +126,7 @@ Copyright © {DateTime.Now.Year} {Author}
 
         AnsiConsole.WriteLine("{GREEN}  [N] {WHITE}Create a new file");
         AnsiConsole.WriteLine("{BLUE}  [O] {WHITE}Open an existing file");
+        AnsiConsole.WriteLine("{YELLOW}  [C] {WHITE}Open Config file");
         AnsiConsole.WriteLine("{RED}  [Q] {WHITE}Quit");
 
         AnsiConsole.WriteLine("");

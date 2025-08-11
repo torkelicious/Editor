@@ -7,7 +7,7 @@ public static class Config
 {
     private const string ConfigFileName = "config.json";
     private static string? ConfigDir { get; set; }
-    private static string? ConfigFilePath { get; set; }
+    public static string? ConfigFilePath { get; set; }
     public static ConfigOptions? Options { get; private set; }
 
     private static void FindConfigDirectory()

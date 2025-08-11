@@ -108,6 +108,12 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
                 break;
 
             case ConsoleKey.A:
+                if (key.Modifiers == ConsoleModifiers.Shift)
+                {
+                    MoveToEndOfLine();
+                    editorState.Mode = EditorMode.Insert;
+                    break;
+                }
                 MoveCursorRight();
                 editorState.Mode = EditorMode.Insert;
                 break;

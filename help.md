@@ -5,7 +5,7 @@ SPDX-License-Identifier: GPL-3.0-or-later*
 
 by torkelicious
 
-updated on the *9th of August 2025*
+updated on the *11th of August 2025*
 
 ---
 
@@ -28,6 +28,7 @@ Default mode for Navigation and Editing
 
 - `I` - Enter Insert mode at cursor
 - `A` - Enter Insert mode after cursor (Append)
+- `SHIFT + A` - Enter Insert mode at end of line (Append)
 - `V` - Enter Visual mode for text selection
 - `O` - Insert new line below and enter Insert mode
 

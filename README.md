@@ -21,6 +21,7 @@ controls:
 HJKL to move (Arrow keys in INSERT mode)
 I: Enter Insert mode 
 A: Append (enter Insert after cursor)
+SHIFT + A: Append at end of line 
 V: Enter Visual Mode
 X: Delete char on cursor
 D: Delete Line
