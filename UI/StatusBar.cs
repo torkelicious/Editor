@@ -19,7 +19,6 @@ public class StatusBar
     private static string _lastRenderedContent = string.Empty;
     private static int _lastDocumentHash = -1;
     private static readonly StringBuilder _buffer = new();
-    private static int lastStatusBarCharLen = 0;
 
     public static void Render(Document document, EditorState editorState, int linesPadding, string lastInput = " ")
     {
@@ -29,9 +28,7 @@ public class StatusBar
         var currentDocumentHash = GetDocumentHash(document);
 
         // Redraw only if content changed or document changed
-        if (newContent == _lastRenderedContent && currentDocumentHash == _lastDocumentHash && !forceRedraw &&
-            _buffer.Length == lastStatusBarCharLen) return;
-        lastStatusBarCharLen = _buffer.Length;
+        if (newContent == _lastRenderedContent && currentDocumentHash == _lastDocumentHash) return;
         _lastRenderedContent = newContent;
         _lastDocumentHash = currentDocumentHash;
         AnsiConsole.HideCursor();
