@@ -129,6 +129,7 @@ public static class AnsiConsole
     public static void Clear()
     {
         Console.Write("\x1b[2J\x1b[H");
+        Console.Write("\e[3J");
     }
 
     public static void SetCursorShape(CursorShape shape)
