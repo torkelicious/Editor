@@ -155,8 +155,8 @@ public static class Initalizer
         // Set UTF-8 code page
         SetConsoleOutputCP(65001);
         SetConsoleCP(65001);
-        
-        if (OperatingSystem.IsWindows()){ // this is stupid af but i need to shut up the compiler warnings
+
+        if (OperatingSystem.IsWindows()) // this is stupid af but i need to shut up the compiler warnings
             try
             {
                 Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight);
@@ -165,7 +165,7 @@ public static class Initalizer
             {
                 // ignored
             }
-        }
+
         Console.Write("\x1b[3J\x1b[2J\x1b[H");
     }
 }

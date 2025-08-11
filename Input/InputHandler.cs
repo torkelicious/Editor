@@ -99,6 +99,7 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
                     var targetPos = document.CursorPosition + (nextTabStop - currentCol);
                     document.MoveCursor(Math.Min(targetPos, document.Length));
                 }
+
                 break;
             case ConsoleKey.B:
                 // move left 4 spaces
@@ -113,6 +114,7 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
                     editorState.Mode = EditorMode.Insert;
                     break;
                 }
+
                 MoveCursorRight();
                 editorState.Mode = EditorMode.Insert;
                 break;
@@ -540,7 +542,6 @@ public class InputHandler(Document document, EditorState editorState, Viewport v
         AnsiConsole.WriteLine("{DARKGRAY}Press any key to continue...");
         Console.ReadKey(true);
         AnsiConsole.Clear();
-        StatusBar.forceRedraw = true;
         Initalizer.renderer.MarkAllDirty();
     }
 }

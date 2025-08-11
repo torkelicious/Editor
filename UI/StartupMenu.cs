@@ -70,7 +70,7 @@ Copyright © {DateTime.Now.Year} {Author}
             return ShowInteractiveMenu();
         }
     }
-    
+
     private static EditorStartupResult OpenConfig()
     {
         var filePath = Config.ConfigFilePath;
@@ -81,7 +81,7 @@ Copyright © {DateTime.Now.Year} {Author}
             IsNewFile = false
         };
     }
-    
+
     private static EditorStartupResult ShowInteractiveMenu()
     {
         while (true)

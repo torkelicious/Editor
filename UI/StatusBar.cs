@@ -15,7 +15,6 @@ public class StatusBar
     private static string modifiedIcon = "📝";
     public static string? fileTypeNF = string.Empty;
     private static readonly bool showFileType = Config.Options is { StatusBarShowFileType: true };
-    public static bool forceRedraw;
     private static string _lastRenderedContent = string.Empty;
     private static int _lastDocumentHash = -1;
     private static readonly StringBuilder _buffer = new();
@@ -43,7 +42,6 @@ public class StatusBar
         AnsiConsole.Write(newContent);
         AnsiConsole.ShowCursor();
         AnsiConsole.ResetColor();
-        forceRedraw = false;
     }
 
     private static int GetDocumentHash(Document document)

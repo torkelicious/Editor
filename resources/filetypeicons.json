@@ -166,7 +166,6 @@
   ".rst": {
     "name": "reStructuredText",
     "icon": "\udb82\uddaa"
-
   },
   ".tex": {
     "name": "LaTeX",
@@ -175,7 +174,6 @@
   ".rtf": {
     "name": "Rich Text",
     "icon": "\udb82\uddaa"
-
   },
   ".doc": {
     "name": "Word Document",
@@ -280,7 +278,6 @@
   ".vcxproj": {
     "name": "Visual C++ Project",
     "icon": "\udb81\ude10"
-
   },
   ".makefile": {
     "name": "Makefile",

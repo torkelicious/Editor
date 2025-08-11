@@ -13,14 +13,11 @@ public class Viewport
 
     public void UpdateDimensions(int availableLines, int availableColumns)
     {
-       if (VisibleColumns == availableColumns && VisibleLines == availableLines)
-       {
-           return;
-       }
-       VisibleLines = availableLines;
-       VisibleColumns = availableColumns;
-       Initalizer.renderer.MarkAllDirty();
-       // -.-
+        if (VisibleColumns == availableColumns && VisibleLines == availableLines) return;
+        VisibleLines = availableLines;
+        VisibleColumns = availableColumns;
+        Initalizer.renderer.MarkAllDirty();
+        // -.-
     }
 
     public void AdjustToShowCursor(int cursorLine, int cursorColumn)
