@@ -79,10 +79,11 @@ public class ConsoleRenderer(Viewport viewport)
                 var processedLine = ProcessLineForDisplay(lineContent, lineIndex, editorState, document);
                 var screenY = lineIndex - viewport.StartLine;
                 Console.SetCursorPosition(0, screenY);
-                AnsiConsole.Write(processedLine.text.PadRight(viewport.VisibleColumns)); 
+                AnsiConsole.Write(processedLine.text.PadRight(viewport.VisibleColumns));
                 DrawScrollIndicators(processedLine, lineIndex, editorState.CursorLine, screenY);
                 AnsiConsole.ResetColor();
             }
+
         dirtyLines.Clear();
     }
 
@@ -97,54 +98,56 @@ public class ConsoleRenderer(Viewport viewport)
         dirtyLines.Clear();
     }
 
-private (string text, bool truncated) ProcessLineForDisplay(string line, int lineIndex, EditorState editorState,
-    Document document)
-{
-    // escape braces in the user content with backslashes to avoid messing with colors
-    var displayLine = line.Replace("{", "\\{").Replace("}", "\\}");
-
-    if (editorState.HasSelection)
+    private (string text, bool truncated) ProcessLineForDisplay(string line, int lineIndex, EditorState editorState,
+        Document document)
     {
-        var (selStart, selEnd) = editorState.GetNormalizedSelection();
-        var lineStartPos = document.GetPositionFromLine(lineIndex + 1);
-        var lineEndPos = lineStartPos + line.Length;
+        // escape braces in the user content with backslashes to avoid messing with colors
+        var displayLine = line.Replace("{", "\\{").Replace("}", "\\}");
 
-        var lineInSelection = selStart <= lineEndPos && selEnd > lineStartPos;
-
-        if (lineInSelection)
+        if (editorState.HasSelection)
         {
-            if (line.Length > 0)
-            {
-                var relativeStart = Math.Max(0, selStart - lineStartPos);
-                var relativeEnd = Math.Min(line.Length, selEnd - lineStartPos);
+            var (selStart, selEnd) = editorState.GetNormalizedSelection();
+            var lineStartPos = document.GetPositionFromLine(lineIndex + 1);
+            var lineEndPos = lineStartPos + line.Length;
 
-                if (relativeStart < relativeEnd)
+            var lineInSelection = selStart <= lineEndPos && selEnd > lineStartPos;
+
+            if (lineInSelection)
+            {
+                if (line.Length > 0)
                 {
-                    // escape in parts then add color codes
-                    var before = line[..relativeStart].Replace("{", "\\{").Replace("}", "\\}");
-                    var selected = line[relativeStart..relativeEnd].Replace("{", "\\{").Replace("}", "\\}");
-                    var after = line[relativeEnd..].Replace("{", "\\{").Replace("}", "\\}");
-                    displayLine = $"{before}{{BG_BLUE}}{selected}{{RESET}}{after}";
+                    var relativeStart = Math.Max(0, selStart - lineStartPos);
+                    var relativeEnd = Math.Min(line.Length, selEnd - lineStartPos);
+
+                    if (relativeStart < relativeEnd)
+                    {
+                        // escape in parts then add color codes
+                        var before = line[..relativeStart].Replace("{", "\\{").Replace("}", "\\}");
+                        var selected = line[relativeStart..relativeEnd].Replace("{", "\\{").Replace("}", "\\}");
+                        var after = line[relativeEnd..].Replace("{", "\\{").Replace("}", "\\}");
+                        displayLine = $"{before}{{BG_BLUE}}{selected}{{RESET}}{after}";
+                    }
+                }
+                else
+                {
+                    displayLine = "{BG_BLUE} {RESET}";
                 }
             }
-            else
-            {
-                displayLine = "{BG_BLUE} {RESET}";
-            }
         }
+
+        if (viewport.StartColumn > 0 && displayLine.Length > viewport.StartColumn)
+            displayLine = displayLine[viewport.StartColumn..];
+        else if (viewport.StartColumn > 0)
+            displayLine = string.Empty;
+        var truncated = false;
+        if (displayLine.Length > viewport.VisibleColumns)
+        {
+            displayLine = displayLine[..viewport.VisibleColumns];
+            truncated = true;
+        }
+
+        return (displayLine, truncated);
     }
-    if (viewport.StartColumn > 0 && displayLine.Length > viewport.StartColumn)
-        displayLine = displayLine[viewport.StartColumn..];
-    else if (viewport.StartColumn > 0)
-        displayLine = string.Empty;
-    var truncated = false;
-    if (displayLine.Length > viewport.VisibleColumns)
-    {
-        displayLine = displayLine[..viewport.VisibleColumns];
-        truncated = true;
-    }
-    return (displayLine, truncated);
-}
 
     private void DrawScrollIndicators((string text, bool truncated) lineContent, int lineIndex, int cursorLine,
         int screenY)

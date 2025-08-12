@@ -54,10 +54,7 @@ Copyright © {DateTime.Now.Year} {Author}
         {
             // mkdir if needed
             var directory = Path.GetDirectoryName(filePath);
-            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) Directory.CreateDirectory(directory);
             using (File.Create(filePath))
             {
             }
