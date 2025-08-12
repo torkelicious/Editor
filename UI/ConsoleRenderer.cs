@@ -74,20 +74,15 @@ public class ConsoleRenderer(Viewport viewport)
         foreach (var lineIndex in linesToRender)
             if (lineIndex >= startLine && lineIndex < endLine)
             {
+                AnsiConsole.ResetColor();
                 var lineContent = document.GetLine(lineIndex);
-
                 var processedLine = ProcessLineForDisplay(lineContent, lineIndex, editorState, document);
-
                 var screenY = lineIndex - viewport.StartLine;
                 Console.SetCursorPosition(0, screenY);
-
-                //AnsiConsole.SetBackgroundColor(AnsiConsole.AnsiColor.Black);
-                //AnsiConsole.SetForegroundColor(AnsiConsole.AnsiColor.White);
-                AnsiConsole.Write("{RESET}");
-                AnsiConsole.Write(processedLine.text.PadRight(viewport.VisibleColumns)); // use console.write for now
+                AnsiConsole.Write(processedLine.text.PadRight(viewport.VisibleColumns)); 
                 DrawScrollIndicators(processedLine, lineIndex, editorState.CursorLine, screenY);
+                AnsiConsole.ResetColor();
             }
-
         dirtyLines.Clear();
     }
 
@@ -110,7 +105,6 @@ private (string text, bool truncated) ProcessLineForDisplay(string line, int lin
 
     if (editorState.HasSelection)
     {
-        AnsiConsole.ResetColor();
         var (selStart, selEnd) = editorState.GetNormalizedSelection();
         var lineStartPos = document.GetPositionFromLine(lineIndex + 1);
         var lineEndPos = lineStartPos + line.Length;
@@ -149,7 +143,6 @@ private (string text, bool truncated) ProcessLineForDisplay(string line, int lin
         displayLine = displayLine[..viewport.VisibleColumns];
         truncated = true;
     }
-
     return (displayLine, truncated);
 }
 

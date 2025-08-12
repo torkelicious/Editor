@@ -101,23 +101,23 @@ public static class AnsiConsole
         }
     }
 
-private static string Format(string input)
-{
-    // temp replace escaped braces w placeholder
-    var placeholder1 = "___ESCAPED_OPEN_BRACE___";
-    var placeholder2 = "___ESCAPED_CLOSE_BRACE___";
+    private static string Format(string input)
+    {
+        // temp replace escaped braces w placeholder
+        var placeholder1 = "___ESCAPED_OPEN_BRACE___";
+        var placeholder2 = "___ESCAPED_CLOSE_BRACE___";
 
-    input = input.Replace("\\{", placeholder1).Replace("\\}", placeholder2);
+        input = input.Replace("\\{", placeholder1).Replace("\\}", placeholder2);
 
-    // processing
-    foreach (var tag in FormattingCodes)
-        input = ReplaceIgnoreCase(input, "{" + tag.Key + "}", tag.Value);
+        // processing
+        foreach (var tag in FormattingCodes)
+            input = ReplaceIgnoreCase(input, "{" + tag.Key + "}", tag.Value);
 
-    // convert placeholders back to literals 
-    input = input.Replace(placeholder1, "{").Replace(placeholder2, "}");
+        // convert placeholders back to literals 
+        input = input.Replace(placeholder1, "{").Replace(placeholder2, "}");
 
-    return input;
-}
+        return input;
+    }
 
     private static string ReplaceIgnoreCase(string input, string search, string replacement)
     {

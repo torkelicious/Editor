@@ -166,6 +166,7 @@ public class Document : IDisposable
         try
         {
             var content = File.ReadAllText(filePath, Encoding.UTF8);
+            content = content.Replace("\r\n", "\n").Replace("\r", "\n"); // normalize to unix formatting, alot of stuff breaks otherwise
             buffer.Insert(content);
             buffer.MoveTo(0);
             FilePath = filePath;
