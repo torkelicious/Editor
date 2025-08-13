@@ -47,6 +47,9 @@ if ($LinuxNative)
         /p:PublishAot=true `
         /p:PublishTrimmed=true `
         /p:PublishSingleFile=true `
+        /p:DebugType=None `
+        /p:DebugSymbols=false `
+        /p:StripSymbols=true `
         --self-contained true `
         -o "$outputBase/linuxNative"
 }
@@ -57,6 +60,9 @@ if ($FrameworkDependent)
     Clean-Dir "$outputBase/Portable-dependent"
     dotnet publish $ProjectPath `
         -c Release `
+        /p:DebugType=None `
+        /p:DebugSymbols=false `
+        /p:StripSymbols=true `
         --self-contained false `
         -o "$outputBase/Portable-dependent"
 }
@@ -72,6 +78,7 @@ if ($Win)
         /p:PublishSingleFile=true `
         /p:EnableCompressionInSingleFile=true `
         /p:DebugType=None `
+        /p:DebugSymbols=false `
         /p:StripSymbols=true `
         --self-contained true `
         -o "$outputBase/Win"
@@ -88,6 +95,7 @@ if ($Linux)
         /p:PublishSingleFile=true `
         /p:EnableCompressionInSingleFile=true `
         /p:DebugType=None `
+        /p:DebugSymbols=false `
         /p:StripSymbols=true `
         --self-contained true `
         -o "$outputBase/Linux"
