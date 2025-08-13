@@ -17,7 +17,7 @@ public static class ExitHandler
 
         if (document.IsDirty)
             HandleUnsavedChanges(document, isNewFile);
-        else if (isNewFile && !document.IsUntitled)
+        else if (document.cleanOnExit)
             HandleNewFileCleanup(document);
         else
             AnsiConsole.WriteLine("{GREEN}No changes to save...");
@@ -48,13 +48,11 @@ public static class ExitHandler
                     return;
 
                 case 'n':
-                    if (isNewFile && !document.IsUntitled)
+                    if (document.cleanOnExit)
                         HandleNewFileCleanup(document);
                     else
                         AnsiConsole.WriteLine("{RED}Exiting without saving changes.");
-
                     return;
-
                 default:
                     AnsiConsole.WriteLine("{RED}Please enter Y or N.");
                     AnsiConsole.WriteLine("");
@@ -115,7 +113,7 @@ public static class ExitHandler
 
     private static void HandleNewFileCleanup(Document document)
     {
-        if (document.IsUntitled && !string.IsNullOrEmpty(document.FilePath) && File.Exists(document.FilePath))
+        if (document.cleanOnExit && !string.IsNullOrEmpty(document.FilePath) && File.Exists(document.FilePath))
             try
             {
                 File.Delete(document.FilePath);

@@ -22,23 +22,42 @@ public class StatusBar
     public static void Render(Document document, EditorState editorState, int linesPadding, string lastInput = " ")
     {
         AnsiConsole.ResetColor();
+
         var newContent = BuildStatusBarContent(document, editorState, lastInput);
         var currentDocumentHash = GetDocumentHash(document);
 
-        // Redraw only if content changed or document changed
+        //  redraw only if content changed or document changed
         if (newContent == _lastRenderedContent && currentDocumentHash == _lastDocumentHash) return;
+
         _lastRenderedContent = newContent;
         _lastDocumentHash = currentDocumentHash;
+
         AnsiConsole.HideCursor();
-        // overwrite previous content with whitespace to avoid old text showing on screen
-        var statusBarStartY = Console.WindowHeight - linesPadding;
-        Console.SetCursorPosition(0, statusBarStartY);
-        Console.Write(new string(' ', Console.WindowWidth));
-        Console.SetCursorPosition(0, statusBarStartY + 1);
-        Console.Write(new string(' ', Console.WindowWidth));
+
+        var width = Math.Max(1, Console.WindowWidth);
+        var height = Math.Max(1, Console.WindowHeight);
+        var statusBarStartY = Math.Max(0, height - linesPadding);
+
+        // overwrite previous content with whitespace to avoid old text showing 
+        if (statusBarStartY < height)
+        {
+            Console.SetCursorPosition(0, statusBarStartY);
+            Console.Write(new string(' ', width));
+        }
+
+        if (statusBarStartY + 1 < height)
+        {
+            Console.SetCursorPosition(0, statusBarStartY + 1);
+            Console.Write(new string(' ', width));
+        }
+
         // draw new bar
-        Console.SetCursorPosition(0, statusBarStartY);
-        AnsiConsole.Write(newContent);
+        if (statusBarStartY < height)
+        {
+            Console.SetCursorPosition(0, statusBarStartY);
+            AnsiConsole.Write(newContent);
+        }
+
         AnsiConsole.ShowCursor();
         AnsiConsole.ResetColor();
     }
@@ -48,6 +67,7 @@ public class StatusBar
         var lineCount = document.GetLineCount();
         var totalLength = 0;
         for (var i = 0; i < lineCount; i++) totalLength += document.GetLine(i).Length;
+
         return HashCode.Combine(
             lineCount,
             totalLength,
@@ -58,9 +78,13 @@ public class StatusBar
     private static string BuildStatusBarContent(Document document, EditorState editorState, string lastInput)
     {
         _buffer.Clear();
-        // Separator 
-        _buffer.AppendLine("{DARKGRAY}" + new string('─', Console.WindowWidth));
-        // Mode and position 
+
+        var width = Math.Max(1, Console.WindowWidth);
+
+        // separator
+        _buffer.AppendLine("{DARKGRAY}" + new string('─', width));
+
+        // Mode and position
         var modeColor = editorState.Mode switch
         {
             EditorMode.Normal => "BG_GREEN",
@@ -71,6 +95,7 @@ public class StatusBar
 
         var modeText = $"{{BOLD}} {editorState.Mode.ToString().ToUpper()} {{RESET}}";
         _buffer.Append($"{{{modeColor}}}{{BLACK}}{modeText}{{RESET}}");
+
         var positionText = $" {editorState.CursorLine + 1}:{editorState.CursorColumn + 1} ";
         _buffer.Append($"{{BG_WHITE}}{{BLACK}}{positionText}{{RESET}}");
 
@@ -79,24 +104,41 @@ public class StatusBar
 
         if (!document.IsUntitled)
         {
-            var fileEx = string.Empty;
-            if (showFileType) fileEx = document.FileExtensionReadable;
+            var fileEx = showFileType ? document.FileExtensionReadable : string.Empty;
 
-            var displayPath = document.FilePath!.Length > 50
-                ? "..." + document.FilePath[^47..]
-                : document.FilePath;
+            // file path truncation calculation
+            var usedSpace = CalculateDisplayLength(editorState.Mode.ToString().ToUpper()) +
+                            CalculateDisplayLength(positionText) +
+                            (document.IsDirty ? CalculateDisplayLength($" {modifiedIcon} MODIFIED  ") : 0) +
+                            CalculateDisplayLength($" {fileIcon} {fileEx} ");
+
+            var reservedForHelp = Math.Min(40, width / 2);
+            var maxPathLength = Math.Max(0, width - usedSpace - reservedForHelp);
+
+            var fullPath = document.FilePath ?? string.Empty;
+            string displayPath;
+
+            if (fullPath.Length > maxPathLength && maxPathLength >= 4)
+                displayPath = "..." + fullPath[^Math.Max(1, maxPathLength - 3)..];
+            else if (maxPathLength == 0)
+                displayPath = string.Empty;
+            else
+                displayPath = fullPath;
+
             _buffer.Append(
                 $"{{BG_DARKCYAN}}{{BOLD}}{{BLACK}} {fileIcon} {fileEx} {{RESET}}{{BG_DARKCYAN}}{{WHITE}}{displayPath}{{RESET}}");
         }
-
-        if (document.IsUntitled)
+        else
+        {
             _buffer.Append("{BG_DARKMAGENTA}{WHITE}  ( NEW FILE )  {RESET}");
+        }
 
         if (document.showDebugInfo)
             _buffer.Append($"{{BG_DARKBLUE}}{{WHITE}}{document.GetPerformanceInfo()}{{RESET}}");
 
         _buffer.AppendLine();
 
+        // Help row
         var helpText = editorState.Mode switch
         {
             EditorMode.Normal =>
@@ -105,20 +147,42 @@ public class StatusBar
             EditorMode.Visual => "HJKL:Select | [Y]ank Selection | D/X: Delete Selection | ESC:Normal",
             _ => "Unknown mode"
         };
-        var rec = $"{{RED}}{recorderIcon}{{BLACK}}[{lastInput}]";
-        var maxHelpLength = Console.WindowWidth - rec.Length;
 
-        if (helpText.Length > maxHelpLength)
+        var recText = $"{recorderIcon}[{lastInput}]";
+        var recDisplayLength = CalculateDisplayLength(recText);
+        var maxHelpLength = Math.Max(0, width - recDisplayLength);
+
+        if (helpText.Length > maxHelpLength && maxHelpLength >= 4)
             helpText = string.Concat(helpText.AsSpan(0, maxHelpLength - 3), "...");
 
-        // Build line
-        var helpLine = $"{{BG_WHITE}}{{BOLD}}{{BLACK}}{helpText}"; // this dosent show properly on some terminals
-        var spacesNeeded = Console.WindowWidth - helpText.Length - rec.Length;
-        helpLine += new string(' ', Math.Max(0, spacesNeeded));
-        helpLine +=
-            $"{{RESET}}{{BG_WHITE}}{{BLACK}}{{ITALIC}}{rec}{{RESET}}"; // this works but holy is this a mess of a string
-        _buffer.Append(helpLine);
+        var spacesNeeded = Math.Max(0, width - CalculateDisplayLength(helpText) - recDisplayLength);
+
+        _buffer.Append($"{{BG_WHITE}}{{BOLD}}{{BLACK}}{helpText}");
+        _buffer.Append(new string(' ', spacesNeeded));
+        _buffer.Append($"{{RESET}}{{BG_WHITE}}{{BLACK}}{{ITALIC}}{{RED}}{recorderIcon}{{BLACK}}[{lastInput}]{{RESET}}");
+
         return _buffer.ToString();
+    }
+
+    private static int CalculateDisplayLength(string text)
+    {
+        // count 2 for surrogate pairs (emojis)
+        var displayLength = 0;
+        for (var i = 0; i < text.Length; i++)
+        {
+            var c = text[i];
+            if (char.IsHighSurrogate(c) && i + 1 < text.Length && char.IsLowSurrogate(text[i + 1]))
+            {
+                displayLength += 2;
+                i++;
+            }
+            else
+            {
+                displayLength += 1;
+            }
+        }
+
+        return displayLength;
     }
 
     public static void setIcons()
@@ -126,13 +190,14 @@ public class StatusBar
         if (useNerdFonts)
         {
             fileIcon = fileTypeNF;
-            recorderIcon = "󰑋"; // idk what to put here
+            recorderIcon = "󰑋";
             modifiedIcon = "󰳼";
         }
         else
         {
             fileIcon = "📄";
             recorderIcon = "🔴";
+            modifiedIcon = "📝";
         }
     }
 }

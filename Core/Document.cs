@@ -16,6 +16,7 @@ public class Document : IDisposable
     private readonly ITextBuffer buffer; // If we implement more buffers use interface yadyada
     private string[]? cachedLines;
     private DateTime cacheTimestamp;
+    public bool cleanOnExit;
     private string? FileExtension;
     public string? FileExtensionReadable;
     private bool lineIndexValid;
@@ -23,15 +24,15 @@ public class Document : IDisposable
     public bool showDebugInfo = Config.Options is { EnableDebugMode: true };
 
     // Constructor
-    public Document(string? filePath = null)
+    public Document(string? filePath = null, bool shouldCleanOnExit = false)
     {
         FilePath = filePath;
         State = DocumentState.Clean;
         LastModified = DateTime.UtcNow;
         OriginalFileSize = 0;
         lineIndexValid = false;
+        cleanOnExit = shouldCleanOnExit;
         buffer = new GapBuffer();
-
         if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
         {
             OriginalFileSize = new FileInfo(filePath).Length;
@@ -195,6 +196,7 @@ public class Document : IDisposable
             FilePath = targetPath;
             SetState(DocumentState.Clean);
             LastModified = DateTime.UtcNow;
+            cleanOnExit = false;
         }
         catch
         {

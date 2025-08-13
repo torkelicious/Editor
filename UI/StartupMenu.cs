@@ -61,7 +61,7 @@ Copyright © {DateTime.Now.Year} {Author}
 
             return new EditorStartupResult
             {
-                Document = new Document(filePath),
+                Document = new Document(filePath, true),
                 ShouldStartEditor = true,
                 IsNewFile = true
             };
@@ -166,7 +166,7 @@ Copyright © {DateTime.Now.Year} {Author}
     {
         return new EditorStartupResult
         {
-            Document = new Document(), // Empty document
+            Document = new Document(null, true), // Empty document
             ShouldStartEditor = true,
             IsNewFile = true
         };
@@ -213,7 +213,7 @@ Copyright © {DateTime.Now.Year} {Author}
                     using var fileStream = File.Create(filePath);
                     return new EditorStartupResult
                     {
-                        Document = new Document(filePath),
+                        Document = new Document(filePath, true),
                         ShouldStartEditor = true,
                         IsNewFile = true
                     };
